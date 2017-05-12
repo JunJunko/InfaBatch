@@ -1,4 +1,5 @@
 package org;
+
 /*
  * Joiner.java Created on Nov 4, 2005.
  *
@@ -17,16 +18,11 @@ import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionPropsConstants;
 import com.informatica.powercenter.sdk.mapfwk.connection.SourceTargetType;
 import com.informatica.powercenter.sdk.mapfwk.core.DSQTransformation;
-import com.informatica.powercenter.sdk.mapfwk.core.Field;
-import com.informatica.powercenter.sdk.mapfwk.core.FieldKeyType;
-import com.informatica.powercenter.sdk.mapfwk.core.FieldType;
-import com.informatica.powercenter.sdk.mapfwk.core.IOutputField;
 import com.informatica.powercenter.sdk.mapfwk.core.InputSet;
 import com.informatica.powercenter.sdk.mapfwk.core.Mapping;
 import com.informatica.powercenter.sdk.mapfwk.core.MappingVariable;
 import com.informatica.powercenter.sdk.mapfwk.core.MappingVariableDataTypes;
 import com.informatica.powercenter.sdk.mapfwk.core.OutputSet;
-import com.informatica.powercenter.sdk.mapfwk.core.PortType;
 import com.informatica.powercenter.sdk.mapfwk.core.RowSet;
 import com.informatica.powercenter.sdk.mapfwk.core.Session;
 import com.informatica.powercenter.sdk.mapfwk.core.SessionPropsConstants;
@@ -36,7 +32,6 @@ import com.informatica.powercenter.sdk.mapfwk.core.TaskProperties;
 import com.informatica.powercenter.sdk.mapfwk.core.TransformField;
 import com.informatica.powercenter.sdk.mapfwk.core.TransformGroup;
 import com.informatica.powercenter.sdk.mapfwk.core.TransformHelper;
-import com.informatica.powercenter.sdk.mapfwk.core.TransformationDataTypes;
 import com.informatica.powercenter.sdk.mapfwk.core.TransformationProperties;
 import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContext;
@@ -46,7 +41,7 @@ import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationCon
  * 
  * 
  */
-public class ZipperTable extends Base implements Parameter {
+public class ZipperTable extends Base implements Parameter{
 	protected Target outputTarget;
 
 	protected Source ordersSource;
@@ -63,14 +58,13 @@ public class ZipperTable extends Base implements Parameter {
 	 */
 	protected void createSources() {
 		ordersSource = this.CreateZipper(
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H", TagFolder,
-				TagDBType);
+				"O_" + Platfrom + "_"
+						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H",
+				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
 		folder.addSource(ordersSource);
-		orderDetailsSource = this.CreateZipper(org.tools.GetProperties.getKeyValue("TableNm"), SourceFolder, DBType);
+		orderDetailsSource = this.CreateZipper(org.tools.GetProperties.getKeyValue("TableNm"),
+				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
-		
-		System.out.println(ordersSource);
-		System.out.println(orderDetailsSource);
 	}
 
 	/**
@@ -78,13 +72,12 @@ public class ZipperTable extends Base implements Parameter {
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H");
+				"O_" + Platfrom + "_"
+						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H");
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping(
-				"M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H", "mapping",
-				"");
+		mapping = new Mapping("M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H", "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -128,9 +121,9 @@ public class ZipperTable extends Base implements Parameter {
 		RowSet TagSort = helper.sorter(expRowSetMD5_T, new String[] { IDColunmNM }, new boolean[] { false },
 				"SRT_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
-		RowSet SouSort = helper
-				.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
-						"SRT_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") + "_H")
+		RowSet SouSort = helper.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
+				"SRT_" + "O_" + Platfrom + "_"
+						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H")
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -413,7 +406,8 @@ public class ZipperTable extends Base implements Parameter {
 		workflow = new Workflow("WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for joiner");
 		workflow.addSession(session);
-		workflow.assignIntegrationService(Integration, Domain);
+		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
+				org.tools.GetProperties.getKeyValue("Domain"));
 		folder.addWorkFlow(workflow);
 
 	}
@@ -424,11 +418,11 @@ public class ZipperTable extends Base implements Parameter {
 			if (args.length > 0) {
 				if (joinerTrans.validateRunMode(args[0])) {
 					ArrayList<String> a = GetTableList();
-					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for (int i = 0; i < a.size(); i++) {
-					org.tools.GetProperties.writeProperties("TableNm", args[1]);
-					joinerTrans.execute();
-					// }
+					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
+//					for (int i = 0; i < a.size(); i++) {
+						org.tools.GetProperties.writeProperties("TableNm", args[1]);
+						joinerTrans.execute();
+//					}
 				}
 			} else {
 				joinerTrans.printUsage();
@@ -465,7 +459,8 @@ public class ZipperTable extends Base implements Parameter {
 		// set the Source Qualifier properties
 
 		// set Source properties
-		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name", Owner);
+		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
+				org.tools.GetProperties.getKeyValue("Owner"));
 
 	}
 
@@ -505,19 +500,23 @@ public class ZipperTable extends Base implements Parameter {
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable("$DBConnection_TD_E");
-		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation(
-				"SQ_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") + "_H");
+		DSQTransformation Tdsq = (DSQTransformation) mapping
+				.getTransformation("SQ_" + "O_" + Platfrom + "_"
+						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H");
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		// Overriding target connection in Seesion level
 		ConnectionInfo newTgtCon = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 
-		ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
+//		ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
 
-		newTgtConprops.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
+		
 
 		TaskProperties SP = session.getProperties();
+		
+		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
+		SP.setProperty("Treat source rows as", "Data driven");
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
 		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
 		// ConnectionProperties newTgtConprops = newTgtCon.getConnProps();

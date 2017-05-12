@@ -11,8 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ConFileContent  {
-	
+public class ConFileContent {
 
 	public static String readToString(String fileName) {
 		String encoding = "GBK";
@@ -75,68 +74,16 @@ public class ConFileContent  {
 
 	public static String ReplaceColumnNm(String filename) {
 		StringBuffer Data = new StringBuffer();
-		org.tools.UpdateXml.updateAttributeValue(filename);
+		// org.tools.UpdateXml.updateAttributeValue(filename);
 		try {
 			FileInputStream in = new FileInputStream(filename);
 			InputStreamReader inReader = new InputStreamReader(in, "GBK");
 			BufferedReader bufReader = new BufferedReader(inReader);
 			String line = null;
-
-			String TagReg = ".*TARGETFIELD.*"; // ÅÐ¶Ï×Ö·û´®ÖÐÊÇ·ñº¬ÓÐTARGETFIELD
-			String Tagregex = ".* NAME=\".*?\".*?";
-
-			String ConReg = ".*CONNECTOR.*"; // ÅÐ¶Ï×Ö·û´®ÖÐÊÇ·ñº¬ÓÐCONNECTOR
-			String Conregex = "TOFIELD=\"(.*?)_out\"";
-			String TransType = ".*FROMINSTANCE=\"UPD_.*";
-
 			while ((line = bufReader.readLine()) != null) {
 
-				if (line.matches(TagReg) && line.matches(Tagregex)) {
+				Data.append(line + "\n");
 
-					Pattern pattern = Pattern.compile(" NAME=\"(.*?)\"");
-
-					Matcher m = pattern.matcher(line);
-
-					if (m.find()) {
-						String ReplaceStr = m.group(1).replace("_out", "");
-						// System.out.println(ReplaceStr);
-//						System.out.println(ReplaceStr);
-						if (org.tools.RePlaceOG.OG().contains(ReplaceStr.replace("_out", ""))) {
-
-							Data.append(line.replaceAll(" NAME=\".*?\"",
-									" NAME=\"" + ReplaceStr.replace("_out", "") + "_OG" + "\""));
-							Data.append("\n");
-						} else {
-//							 System.out.println(line);
-							Data.append(line.replaceAll(" NAME=\".*?_out\"",
-									" NAME=\"" + ReplaceStr.replace("_out", "") + "\""));
-							Data.append("\n");
-						}
-					}
-					
-				} else if (line.matches(ConReg) && line.matches(TransType)) {
-					Pattern pattern = Pattern.compile(Conregex);
-
-					Matcher m1 = pattern.matcher(line);
-					if (m1.find()) {
-						String ReplaceStr = m1.group(1);
-						if (org.tools.RePlaceOG.OG().contains(ReplaceStr)) {
-							Data.append(line.replaceAll(" TOFIELD=\".*?\"", " TOFIELD=\"" + ReplaceStr + "_OG" + "\""));
-							Data.append("\n");
-						} else {
-							Data.append(line.replaceAll("TOFIELD=\".*?_out\"", "TOFIELD=\"" + ReplaceStr + "\""));
-							Data.append("\n");
-						}
-					} else {
-						Data.append(line + "\n");
-					}
-					// System.out.println("µÚ" + i + "ÐÐ£º" +line);
-
-				}
-			
-				else {
-					Data.append(line + "\n");
-				}
 			}
 			bufReader.close();
 			inReader.close();
@@ -146,8 +93,6 @@ public class ConFileContent  {
 			System.out.println("¶ÁÈ¡" + filename + "³ö´í£¡");
 		}
 		return Data.toString()
-				.replace("<ATTRIBUTE NAME=\"Parameter Filename\" VALUE=\"\"/>",
-						"<ATTRIBUTE NAME=\"Parameter Filename\" VALUE=\"$PMRootDir/EDWParam/edw.param\"/>")
 				.replace(
 						"BUSINESSNAME=\"DW_ETL_DT\" DESCRIPTION=\"\" DATATYPE=\"timestamp\" KEYTYPE=\"NOT A KEY\" PRECISION=\"19\"",
 						"BUSINESSNAME=\"DW_ETL_DT\" DESCRIPTION=\"\" DATATYPE=\"date\" KEYTYPE=\"NOT A KEY\" PRECISION=\"10\"")
@@ -157,10 +102,7 @@ public class ConFileContent  {
 				.replace(
 						"BUSINESSNAME=\"DW_END_DT\" DESCRIPTION=\"\" DATATYPE=\"timestamp\" KEYTYPE=\"NOT A KEY\" PRECISION=\"19\"",
 						"BUSINESSNAME=\"DW_END_DT\" DESCRIPTION=\"\" DATATYPE=\"date\" KEYTYPE=\"NOT A KEY\" PRECISION=\"10\"")
-				// .replace("\"Update else Insert\" VALUE=\"NO", "\"Update else
-				// Insert\" VALUE=\"YES")
-				// .replace("\"Treat source rows as\" VALUE=\"Insert\"",
-				// "\"Treat source rows as\" VALUE=\"Data driven\"")
+				 .replace("\"Update else Insert\" VALUE=\"NO", "\"Update else Insert\" VALUE=\"YES")
 				.replace("NAME=\"Sorter Cache Size\" VALUE=\"8388608\"", "NAME=\"Sorter Cache Size\" VALUE=\"auto\"")
 				.replace("<POWERMART", "<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\"><POWERMART")
 		// .replace("Expression DMO Tx\" REUSABLE=\"NO\"", "Expression DMO Tx\"
@@ -177,8 +119,10 @@ public class ConFileContent  {
 		// VALUE=\"$PMRootDir/EDWParam/edw.param\"/>");
 		// System.out.println("<ATTRIBUTE NAME=\"Parameter Filename\"
 		// VALUE=\"$PMRootDir/EDWParam/edw.param\"/>");
-		 writeLog(ReplaceColumnNm("D:\\workspace\\Uoo-master\\xml\\M_TYJ_TLK_ONSITE_SERVICE_1_H.xml"), "upsert");
-//		ReplaceColumnNm("D:\\workspace\\Uoo-master\\xml\\M_TYJ_TLK_ONSITE_SERVICE_1_H.xml");
+		// writeLog(ReplaceColumnNm("D:\\workspace\\Uoo-master\\xml\\M_TYJ_TLK_ONSITE_SERVICE_1_H.xml"),
+		// "upsert");
+		// ReplaceColumnNm("D:\\workspace\\Uoo-master\\xml\\M_TYJ_TLK_ONSITE_SERVICE_1_H.xml");
+		org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", '1');
 	}
 
 }

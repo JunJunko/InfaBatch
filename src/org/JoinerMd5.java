@@ -49,14 +49,14 @@ public class JoinerMd5 extends Base implements Parameter{
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 
-	// protected String System = org.tools.GetProperties.getKeyValue("System");
+	// protected String System = Platfrom;
 
 	/**
 	 * Create sources
 	 */
 	protected void createSources() {
 		ordersSource = this.CreateCrm(
-				"O_" + org.tools.GetProperties.getKeyValue("System") + "_"
+				"O_" + Platfrom + "_"
 						+ org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
 		folder.addSource(ordersSource);
@@ -73,12 +73,12 @@ public class JoinerMd5 extends Base implements Parameter{
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + org.tools.GetProperties.getKeyValue("System") + "_"
+				"O_" + Platfrom + "_"
 						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping("M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
+		mapping = new Mapping("M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_U", "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -126,7 +126,7 @@ public class JoinerMd5 extends Base implements Parameter{
 				"SRT_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
 		RowSet SouSort = helper.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false }, "SRT_" + "O_"
-				+ org.tools.GetProperties.getKeyValue("System") + "_" + org.tools.GetProperties.getKeyValue("TableNm"))
+				+ Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"))
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -295,10 +295,10 @@ public class JoinerMd5 extends Base implements Parameter{
 				if (joinerTrans.validateRunMode(args[0])) {
 					ArrayList<String> a = GetTableList();
 //					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					for (int i = 0; i < a.size(); i++) {
-						org.tools.GetProperties.writeProperties("TableNm", a.get(i));
+//					for (int i = 0; i < a.size(); i++) {
+						org.tools.GetProperties.writeProperties("TableNm", args[1]);
 						joinerTrans.execute();
-					}
+//					}
 				}
 			} else {
 				joinerTrans.printUsage();
@@ -377,7 +377,7 @@ public class JoinerMd5 extends Base implements Parameter{
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable("$DBConnection_TD_E");
 		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation("SQ_" + "O_"
-				+ org.tools.GetProperties.getKeyValue("System") + "_" + org.tools.GetProperties.getKeyValue("TableNm"));
+				+ Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"));
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);
 		session.setTaskInstanceProperty("REUSABLE", "YES");

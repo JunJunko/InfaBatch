@@ -1257,12 +1257,12 @@ public abstract class Base {
 			}
 
 		}
-		if (DbType.equals("TD")) {
-			Field field = new Field("DW_START_DT", "DW_START_DT", "", NativeDataTypes.Teradata.DATE, "10", "0",
-					FieldKeyType.PRIMARY_KEY, FieldType.SOURCE, true);
-			fields.add(field);
-
-		}
+//		if (DbType.equals("TD")) {
+//			Field field = new Field("DW_START_DT", "DW_START_DT", "", NativeDataTypes.Teradata.DATE, "10", "0",
+//					FieldKeyType.PRIMARY_KEY, FieldType.SOURCE, true);
+//			fields.add(field);
+//
+//		}
 
 		ConnectionInfo info = null;
 		if (DbType.equals("Oracle")) {

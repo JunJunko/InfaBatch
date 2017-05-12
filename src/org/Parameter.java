@@ -10,7 +10,7 @@ public interface Parameter {
 	//目标文件夹
 	public String TagFolder = org.tools.GetProperties.getKeyValue("TDFolder");
 	//源数据库
-	public String DBType = "MSSQL";
+	public String DBType = "Oracle";
 	//目标数据库
 	public String TagDBType = "TD";
 	//系统名称

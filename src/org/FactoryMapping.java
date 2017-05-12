@@ -32,22 +32,25 @@ public class FactoryMapping {
 		ArrayList<String> AllKey = new ArrayList<String>();
 		AllKey.addAll(T.keySet());
 		System.out.println(T);
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\");
+//		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\");
 
 		for (int i = 0; i < T.size(); i++) {
 			// System.out.println(T.keySet());
 			String Type = T.get(AllKey.get(i));
 			switch (Type) {
+			
 //			case "全删全插":
 //				Expression.main(new String[]{"0", AllKey.get(i)}); break;
 //			
-//			case "upsert":
+			case "upsert":
 //				JoinerMd5.main(new String[]{"0", AllKey.get(i)}); 
-//				Expression.main(new String[]{"0", AllKey.get(i)}); break;
+//				Expression.main(new String[]{"0", AllKey.get(i)}); 
+				break;
 				
 			case "拉链表":
 				ZipperTable.main(new String[]{"0", AllKey.get(i)}); 
 //				ZipExpression.main(new String[]{"0", AllKey.get(i)});
+				org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", '1');
 				break;
 				
 
