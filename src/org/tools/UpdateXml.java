@@ -1,7 +1,9 @@
 package org.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -18,6 +20,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class UpdateXml {
@@ -34,6 +38,7 @@ public class UpdateXml {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
+			dBuilder.setEntityResolver(new MyEntityResolver());  
 			File xmlFile = new File(filePath);
 			doc = dBuilder.parse(xmlFile);
 			doc.getDocumentElement().normalize();
@@ -190,6 +195,13 @@ public class UpdateXml {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static class MyEntityResolver implements EntityResolver {
+	    @SuppressWarnings("deprecation")
+		public InputSource resolveEntity(String publicId, String systemId) {
+	       return new InputSource(new StringBufferInputStream(""));
+	   }
 	}
 
 	public static void main(String[] args) {

@@ -32,39 +32,44 @@ public class FactoryMapping implements Parameter{
 		ArrayList<String> AllKey = new ArrayList<String>();
 		AllKey.addAll(T.keySet());
 		System.out.println(T);
-//		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\");
+		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\generaXml\\");
+		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\CheckXml\\");
+		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\InsertXml\\");
+		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\UpsertXml\\");
+		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\ZipXml\\");
 		
 
 		for (int i = 0; i < T.size(); i++) {
 			// System.out.println(T.keySet());
 			String Type = T.get(AllKey.get(i));
 			String MappingNm = "M_"+Platfrom+"_"+AllKey.get(i);
+			String Refolder = "generaXml\\";
 			switch (Type) {
 			
 			case "全删全插":
 				Expression.main(new String[]{"0", AllKey.get(i)}); 
 			    Check.main(new String[]{"0", AllKey.get(i)});
-			    org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_I.xml", Type), Type);
+			    org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", Type), Type);
 			    Check.main(new String[]{"0", AllKey.get(i)}); 
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), "check");
 			    break;
 		
 			case "upsert":
 				JoinerMd5.main(new String[]{"0", AllKey.get(i)}); 
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_U.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_U.xml", Type), Type);
 				Expression.main(new String[]{"0", AllKey.get(i)}); 
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_I.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", "全删全插"), "全删全插");
 				Check.main(new String[]{"0", AllKey.get(i)}); 
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", "upsert"), "check");
 				break;
 				
 			case "拉链表":
 				ZipperTable.main(new String[]{"0", AllKey.get(i)}); 
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_H.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_H.xml", Type), Type);
 				ZipExpression.main(new String[]{"0", AllKey.get(i)});
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_I.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", "全删全插"), "全删全插");
 				Check.main(new String[]{"0", AllKey.get(i)}); 
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), Type);
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", "upsert"), "check");
 				break;
 				
 

@@ -42,17 +42,21 @@ public class ConFileContent {
 			String path = "";
 			switch (Type) {
 			case "全删全插":
-				path = "xml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_I"
+				path = "xml\\InsertXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_I"
 						+ ".xml";
 				break;
 
 			case "upsert":
-				path = "xml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_U"
+				path = "xml\\UpsertXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_U"
 						+ ".xml";
 				break;
 
 			case "拉链表":
-				path = "xml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H"
+				path = "xml\\ZipXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H"
+						+ ".xml";
+				break;
+			case "check":
+				path = "xml\\CheckXml\\M_CHECK_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK"
 						+ ".xml";
 				break;
 
@@ -86,6 +90,10 @@ public class ConFileContent {
 			break;
 
 		case "拉链表":
+			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			break;
+
+		case "check":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
 			break;
 

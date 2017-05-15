@@ -1025,7 +1025,7 @@ public abstract class Base {
 
 	protected void setMapFileName(Mapping mapping) {
 		StringBuffer buff = new StringBuffer();
-		buff.append(System.getProperty("user.dir"));
+		buff.append(System.getProperty("user.dir")+"\\generaXml");
 		buff.append(java.io.File.separatorChar);
 		buff.append(mapping.getName());
 		buff.append(".xml");
