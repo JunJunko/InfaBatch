@@ -1025,7 +1025,7 @@ public abstract class Base {
 
 	protected void setMapFileName(Mapping mapping) {
 		StringBuffer buff = new StringBuffer();
-		buff.append(System.getProperty("user.dir")+"\\xml");
+		buff.append(System.getProperty("user.dir"));
 		buff.append(java.io.File.separatorChar);
 		buff.append(mapping.getName());
 		buff.append(".xml");
@@ -1165,10 +1165,10 @@ public abstract class Base {
 					NullEable = false;
 				}
 				// NullEable = false;
-				System.out.println(a.get(1).toString() + "," + org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
-						+ len + "," + precision);
+//				System.out.println(a.get(1).toString() + "," + org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
+//						+ len + "," + precision);
 				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL"), len, precision, ColType, FieldType.SOURCE,
+						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
 						NullEable);
 
 				// Field OWNER=new

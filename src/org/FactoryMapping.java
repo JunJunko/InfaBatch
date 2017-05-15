@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import org.tools.ExcelUtil;
 
-public class FactoryMapping {
+public class FactoryMapping implements Parameter{
 
 	public static String profilepath = "CBI.properties";
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
@@ -26,31 +26,45 @@ public class FactoryMapping {
 		return TL;
 	}
 
-	// @SuppressWarnings("unchecked")
+
 	public static void GenMapping(HashMap<String, String> T) {
 
 		ArrayList<String> AllKey = new ArrayList<String>();
 		AllKey.addAll(T.keySet());
 		System.out.println(T);
 //		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\");
+		
 
 		for (int i = 0; i < T.size(); i++) {
 			// System.out.println(T.keySet());
 			String Type = T.get(AllKey.get(i));
+			String MappingNm = "M_"+Platfrom+"_"+AllKey.get(i);
 			switch (Type) {
 			
-//			case "全删全插":
-//				Expression.main(new String[]{"0", AllKey.get(i)}); break;
-//			
+			case "全删全插":
+				Expression.main(new String[]{"0", AllKey.get(i)}); 
+			    Check.main(new String[]{"0", AllKey.get(i)});
+			    org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_I.xml", Type), Type);
+			    Check.main(new String[]{"0", AllKey.get(i)}); 
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), Type);
+			    break;
+		
 			case "upsert":
-//				JoinerMd5.main(new String[]{"0", AllKey.get(i)}); 
-//				Expression.main(new String[]{"0", AllKey.get(i)}); 
+				JoinerMd5.main(new String[]{"0", AllKey.get(i)}); 
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_U.xml", Type), Type);
+				Expression.main(new String[]{"0", AllKey.get(i)}); 
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_I.xml", Type), Type);
+				Check.main(new String[]{"0", AllKey.get(i)}); 
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), Type);
 				break;
 				
 			case "拉链表":
 				ZipperTable.main(new String[]{"0", AllKey.get(i)}); 
-//				ZipExpression.main(new String[]{"0", AllKey.get(i)});
-				org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", '1');
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_H.xml", Type), Type);
+				ZipExpression.main(new String[]{"0", AllKey.get(i)});
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(MappingNm+"_I.xml", Type), Type);
+				Check.main(new String[]{"0", AllKey.get(i)}); 
+				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), Type);
 				break;
 				
 

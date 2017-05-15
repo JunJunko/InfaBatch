@@ -22,8 +22,9 @@ import org.xml.sax.SAXException;
 
 public class UpdateXml {
 	static List<String> Keyword = org.tools.RePlaceOG.OG();
+	static List<String> DT = org.tools.RePlaceOG.DT();
 
-	public static void updateAttributeValue(String filePath, char Type) {
+	public static void updateAttributeValue(String filePath, String Type) {
 
 		Element SOURCE = null;
 		Element SOURCEFIELD = null;
@@ -49,8 +50,8 @@ public class UpdateXml {
 		/*
 		 * 1、拉链表 2、upsert 3、全删全插
 		 */
-		case '1':
-		case '2':
+		case "拉链表":
+		case "upsert":
 			NodeList employees = doc.getElementsByTagName("SOURCE");
 
 			for (int i = 0; i < employees.getLength(); i++) {
@@ -95,7 +96,7 @@ public class UpdateXml {
 
 			// break;
 
-		case '3':
+		case "全删全插":
 
 			// 修改Tagert关键字加og
 			NodeList Tag = doc.getElementsByTagName("TARGET");
@@ -108,16 +109,26 @@ public class UpdateXml {
 				for (int j = 0; j < SourceLab.getLength(); j++) {
 					SOURCEFIELD = (Element) SourceLab.item(j);
 					switch (Type) {
-					case '1':
-						name = SOURCEFIELD.getAttribute("NAME").substring(0, SOURCEFIELD.getAttribute("NAME").length() - 1);
+					case "拉链表":
+						if (!DT.contains(SOURCEFIELD.getAttribute("NAME"))) {
+//							System.out.println(name);
+							name = SOURCEFIELD.getAttribute("NAME").substring(0,
+									SOURCEFIELD.getAttribute("NAME").length() - 1);
+						} else {
+							name = SOURCEFIELD.getAttribute("NAME");
+						}
 						break;
-					case '2':
+					case "upsert":
 						name = SOURCEFIELD.getAttribute("NAME").replace("_out", "");
 						break;
 					}
 					if (Keyword.contains(name)) {
 						// System.out.println(name);
 						SOURCEFIELD.setAttribute("NAME", name + "_OG");
+					} else if (DT.contains(name)) {
+
+						SOURCEFIELD.setAttribute("DATATYPE", "date");
+						SOURCEFIELD.setAttribute("PRECISION", "10");
 					} else {
 						SOURCEFIELD.setAttribute("NAME", name);
 					}
@@ -142,10 +153,11 @@ public class UpdateXml {
 				String TOFIELD = "";
 
 				switch (Type) {
-				case '1':
-					TOFIELD = ConnLab.getAttribute("TOFIELD").substring(0, ConnLab.getAttribute("TOFIELD").length()-1);
+				case "拉链表":
+					TOFIELD = ConnLab.getAttribute("TOFIELD").substring(0,
+							ConnLab.getAttribute("TOFIELD").length() - 1);
 					break;
-				case '2':
+				case "upsert":
 					TOFIELD = ConnLab.getAttribute("TOFIELD").replace("_out", "");
 					break;
 				}
@@ -182,8 +194,9 @@ public class UpdateXml {
 
 	public static void main(String[] args) {
 
-		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", '1');
-//		System.out.println("ITEM_APNTMNT_OPERATION_TIME22".substring(0, "ITEM_APNTMNT_OPERATION_TIME22".length()-1));
+		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", "拉链表");
+		// System.out.println("ITEM_APNTMNT_OPERATION_TIME22".substring(0,
+		// "ITEM_APNTMNT_OPERATION_TIME22".length()-1));
 
 	}
 

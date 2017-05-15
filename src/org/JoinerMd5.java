@@ -64,8 +64,8 @@ public class JoinerMd5 extends Base implements Parameter{
 				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
 		
-		System.out.println(ordersSource);
-		System.out.println(orderDetailsSource);
+//		System.out.println(ordersSource);
+//		System.out.println(orderDetailsSource);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class JoinerMd5 extends Base implements Parameter{
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping("M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_U", "mapping", "");
+		mapping = new Mapping("M_" + Platfrom + "_" +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_U", "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);

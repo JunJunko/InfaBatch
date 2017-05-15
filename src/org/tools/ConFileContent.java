@@ -72,9 +72,24 @@ public class ConFileContent {
 		return str;
 	}
 
-	public static String ReplaceColumnNm(String filename) {
+	public static String ReplaceColumnNm(String filename, String Type) {
 		StringBuffer Data = new StringBuffer();
-		// org.tools.UpdateXml.updateAttributeValue(filename);
+		org.tools.UpdateXml.updateAttributeValue(filename, Type);
+		String UpdateOption = "";
+		switch (Type) {
+		case "全删全插":
+			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			break;
+
+		case "upsert":
+			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			break;
+
+		case "拉链表":
+			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			break;
+
+		}
 		try {
 			FileInputStream in = new FileInputStream(filename);
 			InputStreamReader inReader = new InputStreamReader(in, "GBK");
@@ -93,16 +108,7 @@ public class ConFileContent {
 			System.out.println("读取" + filename + "出错！");
 		}
 		return Data.toString()
-				.replace(
-						"BUSINESSNAME=\"DW_ETL_DT\" DESCRIPTION=\"\" DATATYPE=\"timestamp\" KEYTYPE=\"NOT A KEY\" PRECISION=\"19\"",
-						"BUSINESSNAME=\"DW_ETL_DT\" DESCRIPTION=\"\" DATATYPE=\"date\" KEYTYPE=\"NOT A KEY\" PRECISION=\"10\"")
-				.replace(
-						"BUSINESSNAME=\"DW_START_DT\" DESCRIPTION=\"\" DATATYPE=\"timestamp\" KEYTYPE=\"NOT A KEY\" PRECISION=\"19\"",
-						"BUSINESSNAME=\"DW_START_DT\" DESCRIPTION=\"\" DATATYPE=\"date\" KEYTYPE=\"NOT A KEY\" PRECISION=\"10\"")
-				.replace(
-						"BUSINESSNAME=\"DW_END_DT\" DESCRIPTION=\"\" DATATYPE=\"timestamp\" KEYTYPE=\"NOT A KEY\" PRECISION=\"19\"",
-						"BUSINESSNAME=\"DW_END_DT\" DESCRIPTION=\"\" DATATYPE=\"date\" KEYTYPE=\"NOT A KEY\" PRECISION=\"10\"")
-				 .replace("\"Update else Insert\" VALUE=\"NO", "\"Update else Insert\" VALUE=\"YES")
+				.replace("\"Update else Insert\" VALUE=\"NO", UpdateOption)
 				.replace("NAME=\"Sorter Cache Size\" VALUE=\"8388608\"", "NAME=\"Sorter Cache Size\" VALUE=\"auto\"")
 				.replace("<POWERMART", "<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\"><POWERMART")
 		// .replace("Expression DMO Tx\" REUSABLE=\"NO\"", "Expression DMO Tx\"
@@ -112,17 +118,10 @@ public class ConFileContent {
 	}
 
 	public static void main(String args[]) {
-		// String XmlData =
-		// readToString("M_"+Platfrom+"_"+org.tools.GetProperties.getKeyValue("TableNm")+".xml").replace("<ATTRIBUTE
-		// NAME=\"Parameter Filename\" VALUE=\"\"/>", "<ATTRIBUTE
-		// NAME=\"Parameter Filename\"
-		// VALUE=\"$PMRootDir/EDWParam/edw.param\"/>");
-		// System.out.println("<ATTRIBUTE NAME=\"Parameter Filename\"
-		// VALUE=\"$PMRootDir/EDWParam/edw.param\"/>");
-		// writeLog(ReplaceColumnNm("D:\\workspace\\Uoo-master\\xml\\M_TYJ_TLK_ONSITE_SERVICE_1_H.xml"),
-		// "upsert");
-		// ReplaceColumnNm("D:\\workspace\\Uoo-master\\xml\\M_TYJ_TLK_ONSITE_SERVICE_1_H.xml");
-		org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", '1');
+		
+		writeLog(ReplaceColumnNm("D:\\workspace\\Uoo-master\\M_TLK_ONSITE_SERVICE_1_H.xml", "拉链表"), "拉链表");
+		// org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\M_TLK_ONSITE_SERVICE_1_H.xml",
+		// "拉链表");
 	}
 
 }

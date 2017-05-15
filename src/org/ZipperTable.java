@@ -77,7 +77,7 @@ public class ZipperTable extends Base implements Parameter{
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping("M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H", "mapping", "");
+		mapping = new Mapping("M_" +Platfrom+"_"+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H", "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
