@@ -42,7 +42,7 @@ public class Expression extends Base implements Parameter {
 	            Expression expressionTrans = new Expression();
 	            if (args.length > 0) {
 	                if (expressionTrans.validateRunMode( args[0] )) {
-	                	ArrayList<String> a = GetTableList();
+//	                	ArrayList<String> a = GetTableList();
 //	                	org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
 //	                	for(int i = 0; i < a.size(); i++){
 	                		
@@ -137,25 +137,20 @@ public class Expression extends Base implements Parameter {
 		}
 		RowSet dsqRS = (RowSet) outSet.getRowSets().get(0);
 
-		String expr = "date/time(10, 9) DW_START_DT = to_date('2999-12-31','YYYY-MM-DD')";
-		TransformField outField = new TransformField(expr);
-
-		String expr2 = "date/time(10, 0) DW_END_DT = to_date('2999-12-31','YYYY-MM-DD')";
-		TransformField outField2 = new TransformField(expr2);
-
-		String expr3 = "date/time(10, 0) DW_ETL_DT = to_date($$PRVS1D_CUR_DATE,'yyyymmdd')";
-		TransformField outField3 = new TransformField(expr3);
-		
-		String exp4 = "date/time(19, 0) DW_UPD_TM = SESSSTARTTIME";		
-		TransformField outField4 = new TransformField(exp4);
+      String expr = "integer(1,0) DW_OPER_FLAG = 1";
+      TransformField outField = new TransformField( expr );
+      
+      String expr2 = "date/time(10, 0) DW_ETL_DT= to_date($$PRVS1D_CUR_DATE, 'yyyymmdd')";
+      TransformField outField2 = new TransformField( expr2 );
+      
+      String expr3 = "date/time(19, 0) DW_UPD_TM= SESSSTARTTIME";
+      TransformField outField3 = new TransformField( expr3 );
 		
 		
 		List<TransformField> transFields = new ArrayList<TransformField>();
 		transFields.add(outField);
 		transFields.add(outField2);
 		transFields.add(outField3);
-		transFields.add(outField4);
-		// transFields.add( outField4 );
 		RowSet expRS = null;
 		try {
 			expRS = (RowSet) helper

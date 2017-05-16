@@ -113,6 +113,7 @@ public class UpdateXml {
 				// System.out.println(SourceLab);
 				for (int j = 0; j < SourceLab.getLength(); j++) {
 					SOURCEFIELD = (Element) SourceLab.item(j);
+					name = SOURCEFIELD.getAttribute("NAME");
 					switch (Type) {
 					case "拉链表":
 						if (!DT.contains(SOURCEFIELD.getAttribute("NAME"))) {
@@ -155,7 +156,7 @@ public class UpdateXml {
 			// for(int j = 0; j < TOINSTANCE.getLength(); j++){
 
 			if (TOINSTANCETYPE.equals("Target Definition")) {
-				String TOFIELD = "";
+				String TOFIELD = ConnLab.getAttribute("TOFIELD");
 
 				switch (Type) {
 				case "拉链表":
@@ -206,7 +207,7 @@ public class UpdateXml {
 
 	public static void main(String[] args) {
 
-		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\M_TLK_ONSITE_SERVICE_1_H.xml", "拉链表");
+		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\InsertXml\\M_CBI_TLK_ONSITE_SERVICE_1_I.xml", "全删全插");
 		// System.out.println("ITEM_APNTMNT_OPERATION_TIME22".substring(0,
 		// "ITEM_APNTMNT_OPERATION_TIME22".length()-1));
 
