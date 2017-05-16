@@ -119,6 +119,7 @@ public class ConFileContent {
 				.replace("\"Update else Insert\" VALUE=\"NO", UpdateOption)
 				.replace("NAME=\"Sorter Cache Size\" VALUE=\"8388608\"", "NAME=\"Sorter Cache Size\" VALUE=\"auto\"")
 				.replace("<POWERMART", "<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\"><POWERMART")
+				.replace("FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"NO\" FAIL_PARENT_IF_INSTANCE_FAILS=\"NO\"", "FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"YES\" FAIL_PARENT_IF_INSTANCE_FAILS=\"YES\"")
 		// .replace("Expression DMO Tx\" REUSABLE=\"NO\"", "Expression DMO Tx\"
 		// REUSABLE=\"YES\"")
 		;

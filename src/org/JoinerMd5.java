@@ -64,8 +64,6 @@ public class JoinerMd5 extends Base implements Parameter{
 				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
 		
-//		System.out.println(ordersSource);
-//		System.out.println(orderDetailsSource);
 	}
 
 	/**
@@ -86,6 +84,7 @@ public class JoinerMd5 extends Base implements Parameter{
 		// Pipeline - 1
 		// 导入目标的sourceQualifier
 		RowSet TagSQ = (RowSet) helper.sourceQualifier(orderDetailsSource).getRowSets().get(0);
+
 
 		// Pipeline - 2
 		// // 导入源的sourceQualifier
@@ -326,17 +325,12 @@ public class JoinerMd5 extends Base implements Parameter{
 
 	private void setSourceTargetProperties() {
 
-		// get the DSQ Transformation (if Source name is "JOBS", then
-		// corresponding SQ name is
-		// "SQ_JOBS")
-		// DSQTransformation dsq =
-		// (DSQTransformation)this.mapping.getTransformation("SQ_"+org.tools.GetProperties.getKeyValue("TableNm"));
-
-		// set the Source Qualifier properties
-
-		// set Source properties
+		
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
+		
+		this.ordersSource.setSessionTransformInstanceProperty("Source Filter",
+				"DW_OPER_FLAG=1");
 
 	}
 
@@ -386,10 +380,10 @@ public class JoinerMd5 extends Base implements Parameter{
 
 		ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
 
-		newTgtConprops.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 
 		TaskProperties SP = session.getProperties();
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
+		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
 		// ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
 		// newTgtConprops.setProperty( ConnectionPropsConstants.CONNECTIONNAME,

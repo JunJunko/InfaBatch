@@ -48,9 +48,9 @@ public class FactoryMapping implements Parameter{
 			
 			case "全删全插":
 				Expression.main(new String[]{"0", AllKey.get(i)}); 
-			    Check.main(new String[]{"0", AllKey.get(i)});
+			    Check.main(new String[]{"0", AllKey.get(i), Type});
 			    org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", Type), Type);
-			    Check.main(new String[]{"0", AllKey.get(i)}); 
+			    Check.main(new String[]{"0", AllKey.get(i), Type}); 
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), "check");
 			    break;
 		
@@ -59,7 +59,7 @@ public class FactoryMapping implements Parameter{
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_U.xml", Type), Type);
 				Expression.main(new String[]{"0", AllKey.get(i)}); 
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", "全删全插"), "全删全插");
-				Check.main(new String[]{"0", AllKey.get(i)}); 
+				Check.main(new String[]{"0", AllKey.get(i), Type}); 
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", "upsert"), "check");
 				break;
 				
@@ -68,7 +68,7 @@ public class FactoryMapping implements Parameter{
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_H.xml", Type), Type);
 				ZipExpression.main(new String[]{"0", AllKey.get(i)});
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", "全删全插"), "全删全插");
-				Check.main(new String[]{"0", AllKey.get(i)}); 
+				Check.main(new String[]{"0", AllKey.get(i), Type}); 
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", "upsert"), "check");
 				break;
 				

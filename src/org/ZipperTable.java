@@ -461,6 +461,9 @@ public class ZipperTable extends Base implements Parameter{
 		// set Source properties
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
+		
+		this.ordersSource.setSessionTransformInstanceProperty("Source Filter",
+				"DW_END_DT=to_date('2999-12-31','YYYY-MM-DD')");
 
 	}
 

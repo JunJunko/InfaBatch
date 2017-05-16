@@ -103,9 +103,10 @@ public class Expression extends Base implements Parameter {
 
 		TaskProperties SP = session.getProperties();
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
+		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "YES");
 
-		newTgtConprops.setProperty(SessionPropsConstants.PARAMETER_FILENAME, "$PMRootDir/EDWParam/edw.param");
+		
 
 		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
 
