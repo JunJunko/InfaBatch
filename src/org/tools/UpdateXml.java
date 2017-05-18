@@ -35,10 +35,11 @@ public class UpdateXml {
 		NodeList SourceLab = null;
 		DocumentBuilder dBuilder = null;
 		Document doc = null;
+		NodeList ComponAttr = null;
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
-			dBuilder.setEntityResolver(new MyEntityResolver());  
+			dBuilder.setEntityResolver(new MyEntityResolver());
 			File xmlFile = new File(filePath);
 			doc = dBuilder.parse(xmlFile);
 			doc.getDocumentElement().normalize();
@@ -57,6 +58,7 @@ public class UpdateXml {
 		 */
 		case "拉链表":
 		case "upsert":
+
 			NodeList employees = doc.getElementsByTagName("SOURCE");
 
 			for (int i = 0; i < employees.getLength(); i++) {
@@ -98,6 +100,36 @@ public class UpdateXml {
 				}
 
 			}
+			//TD的SQ增加Source Filter条件
+
+			NodeList Connect = doc.getElementsByTagName("TRANSFORMATION");
+			for (int i = 0; i < Connect.getLength(); i++) {
+
+				Element ConnLab = (Element) Connect.item(i);
+				String compon = ConnLab.getAttribute("NAME");
+				// System.out.println(ConnLab.getAttribute("NAME"));
+				if (compon.substring(0, 5).equals("SQ_O_")) {
+					// System.out.println(compon);
+					ComponAttr = ConnLab.getElementsByTagName("TABLEATTRIBUTE");
+					for (int j = 0; j < ComponAttr.getLength(); j++) {
+						Element Attr = (Element) ComponAttr.item(j);
+						// System.out.println(Attr.getAttribute("NAME"));
+						if (Attr.getAttribute("NAME").equals("Source Filter"))
+							// if(compon.substring(compon.length()-2,
+							// compon.length()).equals("_H")){
+							if (Type.equals("拉链表")) {
+
+							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("ZipSourceFilter"));
+
+							} else {
+							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("UpsertSourceFilter"));
+							}
+						// System.out.println(Attr.getAttribute("NAME")+"
+						// "+Attr.getAttribute("VALUE"));
+					}
+
+				}
+			}
 
 			// break;
 
@@ -117,7 +149,7 @@ public class UpdateXml {
 					switch (Type) {
 					case "拉链表":
 						if (!DT.contains(SOURCEFIELD.getAttribute("NAME"))) {
-//							System.out.println(name);
+							// System.out.println(name);
 							name = SOURCEFIELD.getAttribute("NAME").substring(0,
 									SOURCEFIELD.getAttribute("NAME").length() - 1);
 						} else {
@@ -197,12 +229,12 @@ public class UpdateXml {
 		}
 
 	}
-	
+
 	public static class MyEntityResolver implements EntityResolver {
-	    @SuppressWarnings("deprecation")
+		@SuppressWarnings("deprecation")
 		public InputSource resolveEntity(String publicId, String systemId) {
-	       return new InputSource(new StringBufferInputStream(""));
-	   }
+			return new InputSource(new StringBufferInputStream(""));
+		}
 	}
 
 	public static void main(String[] args) {

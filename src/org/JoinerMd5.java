@@ -369,7 +369,7 @@ public class JoinerMd5 extends Base implements Parameter{
 		session.addConnectionInfoObject(dsq, SrcConOra);
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
-		SrcConTD.setConnectionVariable("$DBConnection_TD_E");
+		SrcConTD.setConnectionVariable(TDConnExport);
 		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation("SQ_" + "O_"
 				+ Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"));
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
@@ -384,7 +384,7 @@ public class JoinerMd5 extends Base implements Parameter{
 		TaskProperties SP = session.getProperties();
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
-		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
+		newTgtCon.setConnectionVariable(TDConnUpdate);
 		// ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
 		// newTgtConprops.setProperty( ConnectionPropsConstants.CONNECTIONNAME,
 		// "$DBConnection_TD");

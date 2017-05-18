@@ -108,7 +108,7 @@ public class Expression extends Base implements Parameter {
 
 		
 
-		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
+		newTgtCon.setConnectionVariable(TDConnUpdate);
 
 		try {
 			session.addConnectionInfoObject(TdTarget, newTgtCon);

@@ -32,6 +32,27 @@ public class GetProperties /*extends FactoryMapping*/{
         return props.getProperty(key);   
     }
     
+    
+    static String Pubprofilepath="Pub.properties"; 
+    private static Properties Pubprops = new Properties();   
+    static {   
+        try {   
+        	Pubprops.load(new FileInputStream(Pubprofilepath));   
+        } catch (FileNotFoundException e) {   
+            e.printStackTrace();   
+            System.exit(-1);   
+        } catch (IOException e) {          
+            System.exit(-1);   
+        }   
+    }   
+    
+    public static String getPubKeyValue(String key) {   
+        return Pubprops.getProperty(key);   
+    }
+    
+  
+    
+    
     public static void writeProperties(String keyname,String keyvalue) {          
         try {   
             // 调用 Hashtable 的方法 put，使用 getProperty 方法提供并行性。   

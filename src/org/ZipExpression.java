@@ -106,7 +106,7 @@ public class ZipExpression extends Base implements Parameter {
 
 		
 
-		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
+		newTgtCon.setConnectionVariable(TDConnUpdate);
 
 		try {
 			session.addConnectionInfoObject(TdTarget, newTgtCon);
@@ -137,7 +137,7 @@ public class ZipExpression extends Base implements Parameter {
 		}
 		RowSet dsqRS = (RowSet) outSet.getRowSets().get(0);
 
-		String expr = "date/time(10, 9) DW_START_DT = to_date('2999-12-31','YYYY-MM-DD')";
+		String expr = "date/time(10, 0) DW_START_DT = to_date('2999-12-31','YYYY-MM-DD')";
 		TransformField outField = new TransformField(expr);
 
 		String expr2 = "date/time(10, 0) DW_END_DT = to_date('2999-12-31','YYYY-MM-DD')";

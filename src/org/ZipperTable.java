@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.tools.ExcelUtil;
-
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionPropsConstants;
@@ -85,13 +84,13 @@ public class ZipperTable extends Base implements Parameter{
 		// Pipeline - 1
 		// 导入目标的sourceQualifier
 		RowSet TagSQ = (RowSet) helper.sourceQualifier(orderDetailsSource).getRowSets().get(0);
+		
 
 		// Pipeline - 2
 		// // 导入源的sourceQualifier
 
 		RowSet SouSQ = (RowSet) helper.sourceQualifier(ordersSource).getRowSets().get(0);
 		//
-
 		// 增加MD5
 		ArrayList<String> AllPort = new ArrayList<String>();
 
@@ -317,7 +316,7 @@ public class ZipperTable extends Base implements Parameter{
 		// 为Insert的Express增加DW字段
 
 		List<TransformField> Exp = new ArrayList<TransformField>();
-		String exp1 = "date/time(10, 9) DW_START_DT = SYSDATE";
+		String exp1 = "date/time(10, 0) DW_START_DT = SYSDATE";
 		String exp2 = "date/time(10, 0) DW_END_DT = to_date('2999-12-31','YYYY-MM-DD')";
 		String exp3 = "date/time(10, 0) DW_ETL_DT = to_date($$PRVS1D_CUR_DATE,'yyyymmdd')";
 		String exp4 = "date/time(19, 0) DW_UPD_TM = SESSSTARTTIME";
@@ -355,16 +354,6 @@ public class ZipperTable extends Base implements Parameter{
 				.expression(expData_Ups, Exp2, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "_Ups2")
 				.getRowSets().get(0);
 
-		// String[] PortNm = { "DW_START_DT_out2" };
-		// PortPropagationContext IgnorPort =
-		// PortPropagationContextFactory.getContextForExcludeColsFromAll(PortNm);
-		// TransformField FieldR = null;
-		// InputSet Inp_Data = new InputSet(Data_Inserts, IgnorPort);
-		//
-		// RowSet Data_Inserts_R = (RowSet) helper
-		// .expression(Inp_Data, FieldR, "EXP_" +
-		// org.tools.GetProperties.getKeyValue("TableNm") + "_Inserts_R")
-		// .getRowSets().get(0);
 
 		List<InputSet> UninputSets = new ArrayList<InputSet>();
 		UninputSets.add(new InputSet(expData_Ins_Dw));
@@ -378,11 +367,6 @@ public class ZipperTable extends Base implements Parameter{
 				.sorter(UnionSet, "falg", false, "SOR_" + org.tools.GetProperties.getKeyValue("TableNm") + "_2")
 				.getRowSets().get(0);
 
-		// String[] IgnorFlag = {"flag"};
-		// PortPropagationContext PropagationFlag =
-		// PortPropagationContextFactory.getContextForExcludeColsFromAll(IgnorFlag);
-
-		InputSet InpSetUpd = new InputSet(joinRowSet);
 
 		RowSet filterRS = (RowSet) helper.updateStrategy(SortFlag, "iif(falg=0,DD_INSERT,DD_UPDATE)",
 				"UPD_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
@@ -450,15 +434,7 @@ public class ZipperTable extends Base implements Parameter{
 
 	private void setSourceTargetProperties() {
 
-		// get the DSQ Transformation (if Source name is "JOBS", then
-		// corresponding SQ name is
-		// "SQ_JOBS")
-		// DSQTransformation dsq =
-		// (DSQTransformation)this.mapping.getTransformation("SQ_"+org.tools.GetProperties.getKeyValue("TableNm"));
 
-		// set the Source Qualifier properties
-
-		// set Source properties
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
 		
@@ -502,7 +478,7 @@ public class ZipperTable extends Base implements Parameter{
 		session.addConnectionInfoObject(dsq, SrcConOra);
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
-		SrcConTD.setConnectionVariable("$DBConnection_TD_E");
+		SrcConTD.setConnectionVariable(TDConnExport);
 		DSQTransformation Tdsq = (DSQTransformation) mapping
 				.getTransformation("SQ_" + "O_" + Platfrom + "_"
 						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H");
@@ -517,11 +493,11 @@ public class ZipperTable extends Base implements Parameter{
 		
 
 		TaskProperties SP = session.getProperties();
-		
+
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		SP.setProperty("Treat source rows as", "Data driven");
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
-		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
+		newTgtCon.setConnectionVariable(TDConnUpdate);
 		// ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
 		// newTgtConprops.setProperty( ConnectionPropsConstants.CONNECTIONNAME,
 		// "$DBConnection_TD");

@@ -50,7 +50,7 @@ public class FactoryMapping implements Parameter{
 				Expression.main(new String[]{"0", AllKey.get(i)}); 
 			    Check.main(new String[]{"0", AllKey.get(i), Type});
 			    org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+MappingNm+"_I.xml", Type), Type);
-			    Check.main(new String[]{"0", AllKey.get(i), Type}); 
+//			    Check.main(new String[]{"0", AllKey.get(i), Type}); 
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(Refolder+"M_CHECK_"+Platfrom+"_"+AllKey.get(i)+"_CK.xml", Type), "check");
 			    break;
 		
