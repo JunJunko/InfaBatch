@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+ <classpath>
+ 	<classpathentry kind="src" path="src"/>
+ 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="/idp_prj_win/lib/jlmapi.jar"/>
+	<classpathentry kind="lib" path="/idp_prj_win/lib/jmf-jaxb.jar"/>
+	<classpathentry kind="lib" path="/idp_prj_win/lib/jmf.jar" sourcepath="D:/workspace/Uoo"/>
+	<classpathentry kind="lib" path="/idp_prj_win/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="/idp_prj_win/lib/pmserversdk.jar"/>
+ 	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
+ 	<classpathentry kind="lib" path="libs/poi-3.10-FINAL-20140208.jar"/>
+ 	<classpathentry kind="lib" path="libs/poi-examples-3.10-FINAL-20140208.jar"/>
+ 	<classpathentry kind="lib" path="libs/poi-excelant-3.10-FINAL-20140208.jar"/>
+ 	<classpathentry kind="lib" path="libs/poi-ooxml-3.10-FINAL-20140208.jar"/>
+ 	<classpathentry kind="lib" path="libs/poi-ooxml-schemas-3.10-FINAL-20140208.jar"/>
+ 	<classpathentry kind="lib" path="libs/poi-scratchpad-3.10-FINAL-20140208.jar"/>
 	<classpathentry kind="lib" path="libs/xmlbeans-2.3.0.jar"/>
-	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="libs/jlmapi.jar"/>
-	<classpathentry kind="lib" path="libs/jmf-jaxb.jar"/>
-	<classpathentry kind="lib" path="libs/jmf.jar"/>
-	<classpathentry kind="lib" path="libs/log4j-1.2.8.jar"/>
-	<classpathentry kind="lib" path="libs/pmserversdk.jar"/>
-	<classpathentry kind="lib" path="libs/poi-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="libs/poi-examples-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="libs/poi-excelant-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="libs/poi-ooxml-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="libs/poi-ooxml-schemas-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="libs/poi-scratchpad-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
+ 	<classpathentry kind="output" path="bin"/>
+ </classpath>
