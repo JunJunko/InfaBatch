@@ -26,7 +26,7 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
-public class Expression extends Base implements Parameter {
+public class Expression extends Base /*implements Parameter*/ {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
@@ -34,6 +34,7 @@ public class Expression extends Base implements Parameter {
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
+
 	
 
 	public static void main(String[] args) {
@@ -108,7 +109,7 @@ public class Expression extends Base implements Parameter {
 
 		
 
-		newTgtCon.setConnectionVariable(TDConnUpdate);
+		newTgtCon.setConnectionVariable("$DBConnection_TD_U");
 
 		try {
 			session.addConnectionInfoObject(TdTarget, newTgtCon);
@@ -124,7 +125,7 @@ public class Expression extends Base implements Parameter {
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-		mapping = new Mapping("M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_I",
+		mapping = new Mapping("M_" + "a" + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_I",
 				"mapping", "");
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -175,7 +176,7 @@ public class Expression extends Base implements Parameter {
 		// TODO Auto-generated method stub
 
 		// set Source properties
-		this.employeeSrc.setSessionTransformInstanceProperty("Owner Name", Owner);
+		this.employeeSrc.setSessionTransformInstanceProperty("Owner Name", org.tools.GetProperties.getKeyValue("Owner"));
 
 	}
 
@@ -183,14 +184,16 @@ public class Expression extends Base implements Parameter {
 	protected void createSources() {
 		// TODO Auto-generated method stub
 		String TableNm = new String(org.tools.GetProperties.getKeyValue("TableNm"));
-		employeeSrc = this.CreateCrm(TableNm, SourceFolder, DBType);
+		String DBType = org.tools.GetProperties.getKeyValue("DBType");
+		employeeSrc = this.CreateCrm(TableNm, SourceFolder, "Oracle");
 		folder.addSource(employeeSrc);
+		System.out.println(employeeSrc);
 	}
 
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_I");
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + org.tools.GetProperties.getKeyValue("System") + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_I");
 	}
 
 	@Override
@@ -199,7 +202,7 @@ public class Expression extends Base implements Parameter {
 		workflow = new Workflow("WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for expression");
 		workflow.addSession(session);
-		workflow.assignIntegrationService(Integration, Domain);
+		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"), org.tools.GetProperties.getKeyValue("Domain"));
 		folder.addWorkFlow(workflow);
 	}
 
