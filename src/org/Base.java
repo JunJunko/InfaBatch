@@ -1131,10 +1131,10 @@ public abstract class Base {
 					.replace("_CK", ""))) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
-				// 创建 Pattern 对象
+				// 鍒涘缓 Pattern 瀵硅薄
 				Pattern r = Pattern.compile(pattern);
 
-				// 现在创建 matcher 对象
+				// 鐜板湪鍒涘缓 matcher 瀵硅薄
 				Matcher m = r.matcher(a.get(2).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
@@ -1211,10 +1211,10 @@ public abstract class Base {
 					.replace("_H", ""))) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
-				// 创建 Pattern 对象
+				// 鍒涘缓 Pattern 瀵硅薄
 				Pattern r = Pattern.compile(pattern);
 
-				// 现在创建 matcher 对象
+				// 鐜板湪鍒涘缓 matcher 瀵硅薄
 				Matcher m = r.matcher(a.get(2).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
