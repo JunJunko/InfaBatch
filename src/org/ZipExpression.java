@@ -65,8 +65,8 @@ public class ZipExpression extends Base implements Parameter {
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
-		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H",
+				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H",
 				"This is session for Expression DMO Tx");
 		session.setMapping(this.mapping);
 

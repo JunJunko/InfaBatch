@@ -1,4 +1,4 @@
-package org;
+
 /*
  * Base.java Created on Nov 4, 2005.
  *
@@ -54,10 +54,9 @@ public abstract class Base {
 	protected String mapFileName;
 	protected Mapping mapping;
 	protected int runMode = 0;
-	public static String profilepath = "QQSURVEY.properties";
 	protected static List<List<String>> TableList = null;
 	protected ArrayList<ArrayList<String>> TableConf = ExcelUtil
-			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
+			.readXml(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	// protected String TableNm =
 	// org.tools.GetProperties.getKeyValue("TableNm");
 
@@ -1011,21 +1010,13 @@ public abstract class Base {
 		// VALUE=\"$PMRootDir/EDWParam/edw.param\"/>");
 		// System.out.println("<ATTRIBUTE NAME=\"Parameter Filename\"
 		// VALUE=\"$PMRootDir/EDWParam/edw.param\"/>");
-
-		// org.tools.ConFileContent.writeLog(org.tools.ConFileContent
-		// .ReplaceColumnNm("M_CHECK_"+org.tools.GetProperties.getKeyValue("System")+"_"+
-		// org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() +
-		// "_CK.xml"));
-		// }
-
-//		org.tools.ConFileContent
-//				.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_" + org.tools.GetProperties.getKeyValue("System")
-//						+ "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + ".xml"));
+		org.tools.ConFileContent.writeLog(org.tools.ConFileContent
+				.ReplaceColumnNm("M_CHECK_"+org.tools.GetProperties.getKeyValue("System")+"_"+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK.xml"));
 	}
 
 	protected void setMapFileName(Mapping mapping) {
 		StringBuffer buff = new StringBuffer();
-		buff.append(System.getProperty("user.dir")+"\\generaXml");
+		buff.append(System.getProperty("user.dir"));
 		buff.append(java.io.File.separatorChar);
 		buff.append(mapping.getName());
 		buff.append(".xml");
@@ -1113,80 +1104,6 @@ public abstract class Base {
 					"pcconfig.properties file not found.Add Directory containing pcconfig.properties to ClassPath");
 		}
 	}
-	
-	protected Source CheckSouce(String TableNm, String dbName, String DbType) {
-		List<Field> fields = new ArrayList<Field>();
-
-		String len = null;
-		String precision = null;
-		Source tabSource = null;
-		List<String> a = null;
-		String TableName = null;
-		for (int i = 0; i < TableConf.size(); i++) {
-			a = (List) TableConf.get(i);
-			// TableList.add(a);
-			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_CK", ""))) {
-				// TableList.add(a);
-				String pattern = ".*?\\((.*?)\\).*?";
-				// 鍒涘缓 Pattern 瀵硅薄
-				Pattern r = Pattern.compile(pattern);
-
-				// 鐜板湪鍒涘缓 matcher 瀵硅薄
-				Matcher m = r.matcher(a.get(2).toString());
-				if (m.find()) {
-					String[] sourceStrArray = m.group(1).toString().split(",");
-					// System.out.print(sourceStrArray.length);
-					if (org.tools.DataTypeTrans.Trans(a.get(2), DbType) == "timestamp") {
-						len = "26";
-						precision = "6";
-					} else if (sourceStrArray.length == 2) {
-						len = sourceStrArray[0];
-						precision = sourceStrArray[1];
-					} else {
-						len = sourceStrArray[0];
-						precision = "0";
-					}
-				}
-				// System.out.println(a.get(2).toString().substring(0,
-				// a.get(2).toString().indexOf("(")));
-
-				// System.out.println(a.get(0).toString());
-				// System.out.println(a.get(3).toString().trim().equals("PI")+
-				// a.get(3).toString().trim());
-				
-				// NullEable = false;
-//				System.out.println(a.get(1).toString() + "," + org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
-//						+ len + "," + precision);
-				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, FieldKeyType.NOT_A_KEY, FieldType.SOURCE,
-						false);
-
-				// Field OWNER=new
-				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
-
-				fields.add(field);
-				TableName = TableNm;
-			}
-		}
-
-		ConnectionInfo info = null;
-		if (DbType.equals("Oracle")) {
-			info = getRelationalConnInfo(SourceTargetType.Oracle, dbName);
-
-		} else if (DbType.equals("TD")) {
-			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
-		} else if(DbType.equals("MSSQL")){
-			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
-		}
-		 else if(DbType.equals("Mysql")){
-				info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
-			}
-		tabSource = new Source(TableName, TableName, "table", TableName, info);
-		// System.out.println(a.get(0).toString());
-		tabSource.setFields(fields);
-		return tabSource;
-	}
 
 	protected Source CreateCrm(String TableNm, String dbName, String DbType) {
 		List<Field> fields = new ArrayList<Field>();
@@ -1201,22 +1118,21 @@ public abstract class Base {
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List) TableConf.get(i);
 			// TableList.add(a);
-			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_CK", ""))) {
+			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "").replace("_CK", ""))) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
-				// 鍒涘缓 Pattern 瀵硅薄
+				// 创建 Pattern 对象
 				Pattern r = Pattern.compile(pattern);
 
-				// 鐜板湪鍒涘缓 matcher 瀵硅薄
+				// 现在创建 matcher 对象
 				Matcher m = r.matcher(a.get(2).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
-					// System.out.print(sourceStrArray.length);
+//					System.out.print(sourceStrArray.length);
 					if (org.tools.DataTypeTrans.Trans(a.get(2), DbType) == "timestamp") {
 						len = "26";
 						precision = "6";
-					} else if (sourceStrArray.length == 2) {
+					}else if (sourceStrArray.length == 2) {
 						len = sourceStrArray[0];
 						precision = sourceStrArray[1];
 					} else {
@@ -1238,11 +1154,11 @@ public abstract class Base {
 					ColType = FieldKeyType.NOT_A_KEY;
 					NullEable = false;
 				}
-				// NullEable = false;
-//				System.out.println(a.get(1).toString() + "," + org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
-//						+ len + "," + precision);
+//				NullEable = false;
+				 System.out.println(a.get(1).toString()+","+org.tools.DataTypeTrans.Trans(a.get(2),
+						 "MSSQL")+""+len+","+ precision);
 				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
+						org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL"), len, precision, ColType, FieldType.SOURCE,
 						NullEable);
 
 				// Field OWNER=new
@@ -1257,20 +1173,17 @@ public abstract class Base {
 		if (DbType.equals("Oracle")) {
 			info = getRelationalConnInfo(SourceTargetType.Oracle, dbName);
 
-		} else if (DbType.equals("TD")) {
+		} else if (DbType == "TD") {
 			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
-		} else if(DbType.equals("MSSQL")){
+		}else{
 			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
 		}
-		 else if(DbType.equals("Mysql")){
-				info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
-			}
 		tabSource = new Source(TableName, TableName, "table", TableName, info);
 		// System.out.println(a.get(0).toString());
 		tabSource.setFields(fields);
 		return tabSource;
 	}
-
+	
 	protected Source CreateZipper(String TableNm, String dbName, String DbType) {
 		List<Field> fields = new ArrayList<Field>();
 
@@ -1284,22 +1197,21 @@ public abstract class Base {
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List<String>) TableConf.get(i);
 			// TableList.add(a);
-			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_H", ""))) {
+			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "").replace("_H", ""))) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
-				// 鍒涘缓 Pattern 瀵硅薄
+				// 创建 Pattern 对象
 				Pattern r = Pattern.compile(pattern);
 
-				// 鐜板湪鍒涘缓 matcher 瀵硅薄
+				// 现在创建 matcher 对象
 				Matcher m = r.matcher(a.get(2).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
-					// System.out.print(sourceStrArray.length);
+//					System.out.print(sourceStrArray.length);
 					if (org.tools.DataTypeTrans.Trans(a.get(2), DbType) == "timestamp") {
 						len = "26";
 						precision = "6";
-					} else if (sourceStrArray.length == 2) {
+					}else if (sourceStrArray.length == 2) {
 						len = sourceStrArray[0];
 						precision = sourceStrArray[1];
 					} else {
@@ -1313,17 +1225,20 @@ public abstract class Base {
 				// System.out.println(a.get(0).toString());
 				// System.out.println(a.get(3).toString().trim().equals("PI")+
 				// a.get(3).toString().trim());
-				if (a.get(3).toString().trim().equals("PI") || a.get(1).toString().trim().equals("ID")) {
+				if (a.get(3).toString().trim().equals("PI")
+						|| a.get(1).toString().trim().equals("ID")) {
 					ColType = FieldKeyType.PRIMARY_KEY;
 					NullEable = true;
 				} else {
 					ColType = FieldKeyType.NOT_A_KEY;
 					NullEable = false;
 				}
-				
+				 System.out.println(a.get(1).toString()+","+org.tools.DataTypeTrans.Trans(a.get(2),
+						 "Oracle")+""+len+","+ precision);
 				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
+						org.tools.DataTypeTrans.Trans(a.get(2), "Mysql"), len, precision, ColType, FieldType.SOURCE,
 						NullEable);
+				
 
 				// Field OWNER=new
 				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
@@ -1332,13 +1247,15 @@ public abstract class Base {
 				TableName = TableNm;
 				// System.out.println(DbType);
 			}
-
+			
+			
 		}
-		if (DbType.equals("TD")) {
-			Field field = new Field("DW_START_DT", "DW_START_DT", "", NativeDataTypes.Teradata.DATE, "10", "0",
-					FieldKeyType.PRIMARY_KEY, FieldType.SOURCE, true);
+		if (DbType.equals("TD")){
+			Field field = new Field("DW_START_DT", "DW_START_DT", "",
+					NativeDataTypes.Teradata.DATE, "10", "0", FieldKeyType.PRIMARY_KEY, FieldType.SOURCE,
+					true);
 			fields.add(field);
-
+			
 		}
 
 		ConnectionInfo info = null;
@@ -1347,12 +1264,11 @@ public abstract class Base {
 
 		} else if (DbType.equals("TD")) {
 			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
-		} else if(DbType.equals("MSSQL")){
+		}else if (DbType.equals("MSSQL")) {
 			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
+		}else{
+			info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
 		}
-		 else if(DbType.equals("Mysql")){
-				info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
-			}
 		tabSource = new Source(TableName, TableName, "table", TableName, info);
 		// System.out.println(a.get(0).toString());
 		tabSource.setFields(fields);

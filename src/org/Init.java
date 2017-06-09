@@ -26,7 +26,7 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
-public class Expression extends Base implements Parameter {
+public class Init extends Base implements Parameter {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
@@ -39,7 +39,7 @@ public class Expression extends Base implements Parameter {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		 try {
-	            Expression expressionTrans = new Expression();
+	            Init expressionTrans = new Init();
 	            if (args.length > 0) {
 	                if (expressionTrans.validateRunMode( args[0] )) {
 //	                	ArrayList<String> a = GetTableList();
@@ -67,8 +67,8 @@ public class Expression extends Base implements Parameter {
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
-		session = new Session("I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"");
 		session.setMapping(this.mapping);
 
@@ -124,7 +124,7 @@ public class Expression extends Base implements Parameter {
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-		mapping = new Mapping("I_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+		mapping = new Mapping("M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"mapping", "");
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -196,8 +196,8 @@ public class Expression extends Base implements Parameter {
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
-		workflow = new Workflow("I_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"I_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
+		workflow = new Workflow("WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for expression");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(Integration, Domain);
 		folder.addWorkFlow(workflow);

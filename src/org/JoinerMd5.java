@@ -76,7 +76,7 @@ public class JoinerMd5 extends Base implements Parameter{
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping("M_" + Platfrom + "_" +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_U", "mapping", "");
+		mapping = new Mapping("U_M_"  +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -278,8 +278,8 @@ public class JoinerMd5 extends Base implements Parameter{
 	 */
 	protected void createWorkflow() throws Exception {
 
-		workflow = new Workflow("WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for joiner");
+		workflow = new Workflow("U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for joiner");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
 				org.tools.GetProperties.getKeyValue("Domain"));
@@ -341,9 +341,9 @@ public class JoinerMd5 extends Base implements Parameter{
 	 */
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
-		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"This is session for Expression DMO Tx");
+		session = new Session("U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_U",
+				"");
 		session.setMapping(this.mapping);
 
 		// Adding Connection Objects for substitution mask option

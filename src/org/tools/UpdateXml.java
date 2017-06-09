@@ -58,6 +58,7 @@ public class UpdateXml {
 		 */
 		case "拉链表":
 		case "upsert":
+		case "check":
 
 			NodeList employees = doc.getElementsByTagName("SOURCE");
 
@@ -72,7 +73,7 @@ public class UpdateXml {
 						SOURCEFIELD = (Element) SourceLab.item(j);
 						name = SOURCEFIELD.getAttribute("NAME");
 						if (Keyword.contains(name)) {
-							// System.out.println(name);
+							System.out.println(name);
 							SOURCEFIELD.setAttribute("NAME", name + "_OG");
 
 						}
@@ -100,7 +101,7 @@ public class UpdateXml {
 				}
 
 			}
-			//TD的SQ增加Source Filter条件
+			// TD的SQ增加Source Filter条件
 
 			NodeList Connect = doc.getElementsByTagName("TRANSFORMATION");
 			for (int i = 0; i < Connect.getLength(); i++) {
@@ -134,6 +135,8 @@ public class UpdateXml {
 			// break;
 
 		case "全删全插":
+		case "append":
+		case "init":
 
 			// 修改Tagert关键字加og
 			NodeList Tag = doc.getElementsByTagName("TARGET");
@@ -148,17 +151,23 @@ public class UpdateXml {
 					name = SOURCEFIELD.getAttribute("NAME");
 					switch (Type) {
 					case "拉链表":
-						if (!DT.contains(SOURCEFIELD.getAttribute("NAME"))) {
-							// System.out.println(name);
-							name = SOURCEFIELD.getAttribute("NAME").substring(0,
-									SOURCEFIELD.getAttribute("NAME").length() - 1);
-						} else {
+						String a = SOURCEFIELD.getAttribute("NAME")+"seize_a_seat";
+
+							if (!DT.contains(a)
+									&& !a.substring(0, 3).equals("DW_")) {
+
+								// System.out.println(name);
+								name = SOURCEFIELD.getAttribute("NAME").substring(0,
+										SOURCEFIELD.getAttribute("NAME").length() - 1);
+							}
+						 else {
 							name = SOURCEFIELD.getAttribute("NAME");
 						}
 						break;
 					case "upsert":
 						name = SOURCEFIELD.getAttribute("NAME").replace("_out", "");
 						break;
+						
 					}
 					if (Keyword.contains(name)) {
 						// System.out.println(name);
@@ -192,8 +201,13 @@ public class UpdateXml {
 
 				switch (Type) {
 				case "拉链表":
-					TOFIELD = ConnLab.getAttribute("TOFIELD").substring(0,
-							ConnLab.getAttribute("TOFIELD").length() - 1);
+					// System.out.println(ConnLab.getAttribute("TOFIELD").length());
+					if (ConnLab.getAttribute("TOFIELD").length() > 2) {
+						if (!ConnLab.getAttribute("TOFIELD").substring(0, 3).equals("DW_"))
+
+							TOFIELD = ConnLab.getAttribute("TOFIELD").substring(0,
+									ConnLab.getAttribute("TOFIELD").length() - 1);
+					}
 					break;
 				case "upsert":
 					TOFIELD = ConnLab.getAttribute("TOFIELD").replace("_out", "");
@@ -239,7 +253,7 @@ public class UpdateXml {
 
 	public static void main(String[] args) {
 
-		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\InsertXml\\M_CBI_TLK_ONSITE_SERVICE_1_I.xml", "全删全插");
+		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\CheckXml\\M_CHECK_ELN_SURVEY_ITEM_BACK_CK.xml", "check");
 		// System.out.println("ITEM_APNTMNT_OPERATION_TIME22".substring(0,
 		// "ITEM_APNTMNT_OPERATION_TIME22".length()-1));
 

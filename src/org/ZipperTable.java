@@ -76,7 +76,7 @@ public class ZipperTable extends Base implements Parameter{
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping("M_" +Platfrom+"_"+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H", "mapping", "");
+		mapping = new Mapping("H_M_"  +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -373,6 +373,7 @@ public class ZipperTable extends Base implements Parameter{
 
 		// write to target
 		mapping.writeTarget(new InputSet(filterRS, exclOrderID2), outputTarget);
+		
 		// 增加参数
 		MappingVariable mappingVar = new MappingVariable(MappingVariableDataTypes.STRING, "0",
 				"mapping variable example", true, "$$PRVS1D_CUR_DATE", "20", "0", true);
@@ -387,8 +388,8 @@ public class ZipperTable extends Base implements Parameter{
 	 */
 	protected void createWorkflow() throws Exception {
 
-		workflow = new Workflow("WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for joiner");
+		workflow = new Workflow("H_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"H_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
 				org.tools.GetProperties.getKeyValue("Domain"));
@@ -450,9 +451,9 @@ public class ZipperTable extends Base implements Parameter{
 	 */
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
-		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"This is session for Expression DMO Tx");
+		session = new Session("H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H",
+				"");
 		session.setMapping(this.mapping);
 
 		// Adding Connection Objects for substitution mask option

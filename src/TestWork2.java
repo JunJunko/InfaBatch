@@ -83,8 +83,33 @@ public class TestWork2 extends Base{
 	}
 	@Override
 	protected void createWorkflow() throws Exception {
+		List<Folder> folders = rep.getFolders(new INameFilter() {
+            public boolean accept(String name) {
+            	return name.equals("Junko_test");
+            }
+        });
+		int folderSize = folders.size();
 		// TODO Auto-generated method stub
+		 for(int i=0 ; i < folderSize; i++){
+	        	List<Workflow> listOfWorkFlows = ((Folder)folders.get(i)).fetchWorkflowsFromRepository(); //get the list of workflows
+	        	int listSize = listOfWorkFlows.size();
+				System.out.println(" ***** List of workflows ******");
+	        	for(int j=0; j < listSize; j++){
+	        		System.out.println((listOfWorkFlows.get(j)).getName());
+	        		
+	        	}
+	        }
 		
 	}
+	
+    public static void main(String[] args) {
+        try {
+        	TestWork2 repo = new TestWork2();
+            repo.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println( "Exception is: " + e.getMessage() );
+        }
+    }
 
 }

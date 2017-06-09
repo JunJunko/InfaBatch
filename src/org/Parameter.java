@@ -8,7 +8,7 @@ public interface Parameter {
 	// 目标文件夹
 	public String TagFolder = org.tools.GetProperties.getKeyValue("TDFolder");
 	// 源数据库
-	public String DBType = "Oracle"/*org.tools.GetProperties.getKeyValue("DBType")*/;
+	public String DBType = "Mysql"/*org.tools.GetProperties.getKeyValue("DBType")*/;
 	// 目标数据库
 	public String TagDBType = "TD"/*org.tools.GetProperties.getPubKeyValue("TagDBType")*/;
 	// 系统名称

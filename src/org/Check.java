@@ -55,11 +55,11 @@ public class Check extends Base implements Parameter {
 	 * Create sources
 	 */
 	protected void createSources() {
-		ordersSource = this.CreateCrm("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"),
+		ordersSource = this.CheckSouce("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
 		folder.addSource(ordersSource);
 
-		orderDetailsSource = this.CreateCrm(org.tools.GetProperties.getKeyValue("TableNm"),
+		orderDetailsSource = this.CheckSouce(org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
 		// System.out.println(orderDetailsSource);

@@ -26,7 +26,7 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
-public class Expression extends Base implements Parameter {
+public class Append extends Base implements Parameter {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
@@ -34,41 +34,39 @@ public class Expression extends Base implements Parameter {
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
-	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		 try {
-	            Expression expressionTrans = new Expression();
-	            if (args.length > 0) {
-	                if (expressionTrans.validateRunMode( args[0] )) {
-//	                	ArrayList<String> a = GetTableList();
-//	                	org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-//	                	for(int i = 0; i < a.size(); i++){
-	                		
-	                		org.tools.GetProperties.writeProperties("TableNm", args[1]);
-//	                		System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
-	                        expressionTrans.execute();
-//	                	}
-	                }
-	            } else {
-	                expressionTrans.printUsage();
-	            }
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.err.println( "Exception is: " + e.getMessage() );
-	        }
-	    	
-	    	System.out.println(GetTableList());
-	    
+		try {
+			Append expressionTrans = new Append();
+			if (args.length > 0) {
+				if (expressionTrans.validateRunMode(args[0])) {
+					// ArrayList<String> a = GetTableList();
+					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
+					// for(int i = 0; i < a.size(); i++){
+
+					org.tools.GetProperties.writeProperties("TableNm", args[1]);
+					// System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
+					expressionTrans.execute();
+					// }
+				}
+			} else {
+				expressionTrans.printUsage();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Exception is: " + e.getMessage());
+		}
+
+		System.out.println(GetTableList());
 
 	}
 
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
-		session = new Session("I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+		session = new Session("A_"+"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"A_"+"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"");
 		session.setMapping(this.mapping);
 
@@ -76,16 +74,16 @@ public class Expression extends Base implements Parameter {
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		ConnectionInfo info = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops = info.getConnProps();
-//		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
-//		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "1");
-//
-//		ConnectionInfo info2 = new ConnectionInfo(SourceTargetType.Oracle);
-//		ConnectionProperties cprops2 = info2.getConnProps();
-//		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
-//		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "2");
+		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
+		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "1");
+
+		ConnectionInfo info2 = new ConnectionInfo(SourceTargetType.Oracle);
+		ConnectionProperties cprops2 = info2.getConnProps();
+		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
+		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "2");
 		List<ConnectionInfo> cons = new ArrayList<ConnectionInfo>();
-//		cons.add(info);
-//		cons.add(info2);
+		cons.add(info);
+		cons.add(info2);
 
 		ConnectionInfo newSrcCon = new ConnectionInfo(SourceTargetType.Oracle);
 		newSrcCon.setConnectionVariable(org.tools.GetProperties.getKeyValue("Connection"));
@@ -106,8 +104,6 @@ public class Expression extends Base implements Parameter {
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "YES");
 
-		
-
 		newTgtCon.setConnectionVariable(TDConnUpdate);
 
 		try {
@@ -124,8 +120,9 @@ public class Expression extends Base implements Parameter {
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-		mapping = new Mapping("I_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"mapping", "");
+		mapping = new Mapping(
+				"A_M_"  + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() , "mapping",
+				"");
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
 		// creating DSQ Transformation
@@ -138,16 +135,15 @@ public class Expression extends Base implements Parameter {
 		}
 		RowSet dsqRS = (RowSet) outSet.getRowSets().get(0);
 
-      String expr = "integer(1,0) DW_OPER_FLAG = 1";
-      TransformField outField = new TransformField( expr );
-      
-      String expr2 = "date/time(10, 0) DW_ETL_DT= to_date($$PRVS1D_CUR_DATE, 'yyyymmdd')";
-      TransformField outField2 = new TransformField( expr2 );
-      
-      String expr3 = "date/time(19, 0) DW_UPD_TM= SESSSTARTTIME";
-      TransformField outField3 = new TransformField( expr3 );
-		
-		
+		String expr = "integer(1,0) DW_OPER_FLAG = 1";
+		TransformField outField = new TransformField(expr);
+
+		String expr2 = "date/time(10, 0) DW_ETL_DT= to_date($$PRVS1D_CUR_DATE, 'yyyymmdd')";
+		TransformField outField2 = new TransformField(expr2);
+
+		String expr3 = "date/time(19, 0) DW_UPD_TM= SESSSTARTTIME";
+		TransformField outField3 = new TransformField(expr3);
+
 		List<TransformField> transFields = new ArrayList<TransformField>();
 		transFields.add(outField);
 		transFields.add(outField2);
@@ -162,8 +158,14 @@ public class Expression extends Base implements Parameter {
 			e.printStackTrace();
 		}
 
+		RowSet UpdRS = null;
+
+		UpdRS = (RowSet) helper
+				.updateStrategy(expRS, "DD_UPDATE", "UPD_" + org.tools.GetProperties.getKeyValue("TableNm"))
+				.getRowSets().get(0);
+
 		// write to target
-		mapping.writeTarget(expRS, TdTarget);
+		mapping.writeTarget(UpdRS, TdTarget);
 		MappingVariable mappingVar = new MappingVariable(MappingVariableDataTypes.STRING, "0",
 				"mapping variable example", true, "$$PRVS1D_CUR_DATE", "20", "0", true);
 		mapping.addMappingVariable(mappingVar);
@@ -190,14 +192,16 @@ public class Expression extends Base implements Parameter {
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata,
+				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() );
+		
 	}
 
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
-		workflow = new Workflow("I_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"I_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
+		workflow = new Workflow("A_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"A_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(Integration, Domain);
 		folder.addWorkFlow(workflow);
@@ -205,18 +209,17 @@ public class Expression extends Base implements Parameter {
 
 	public static ArrayList<String> GetTableList() {
 		// TODO Auto-generated method stub
-		ArrayList<String> TL = new ArrayList<String> ();
-	      
-        for (int i = 0; i < TableConf.size(); i++){
-        	ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
-        	if(!TL.contains(a.get(0))){
-        		TL.add(a.get(0));
-        		
-        	}
-        }  
-        
-        return TL;
-    }
-	
+		ArrayList<String> TL = new ArrayList<String>();
+
+		for (int i = 0; i < TableConf.size(); i++) {
+			ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
+			if (!TL.contains(a.get(0))) {
+				TL.add(a.get(0));
+
+			}
+		}
+
+		return TL;
+	}
 
 }

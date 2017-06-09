@@ -46,6 +46,7 @@ public class DataTypeTrans {
 	        case "DOUBLE": sb = NativeDataTypes.Teradata.DECIMAL; break;
 	        case "FLOAT": sb = NativeDataTypes.Teradata.DECIMAL; break;
 	        case "TEXT": sb = NativeDataTypes.Teradata.VARCHAR; break;
+	        case "SMALLINT": sb = NativeDataTypes.Teradata.SMALLINT; break;
 	        default: sb = NativeDataTypes.Teradata.VARCHAR; break; 
 	        };
 		}else if(DbType == "Mysql"){
@@ -62,6 +63,7 @@ public class DataTypeTrans {
 	        case "DOUBLE": sb = NativeDataTypes.ODBC.DOUBLE; break;
 	        case "FLOAT": sb = NativeDataTypes.ODBC.FLOAT; break;
 	        case "VARCHAR": sb = NativeDataTypes.ODBC.VARCHAR; break;
+	        case "TINYINT": sb = NativeDataTypes.ODBC.INTEGER; break;
 	        case "TEXT": sb = NativeDataTypes.ODBC.LONG_VARBINARY; break;
 	        default: sb = NativeDataTypes.Teradata.VARCHAR; break; 
 	        };

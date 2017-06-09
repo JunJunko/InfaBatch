@@ -45,11 +45,22 @@ public class ConFileContent {
 				path = "xml\\InsertXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_I"
 						+ ".xml";
 				break;
+				
+			case "init":
+				path = "xml\\InitXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()
+						+ ".xml";
+				break;
 
 			case "upsert":
 				path = "xml\\UpsertXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_U"
 						+ ".xml";
 				break;
+				
+			case "append":
+				path = "xml\\Append\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_A"
+						+ ".xml";
+				break;
+
 
 			case "拉链表":
 				path = "xml\\ZipXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H"
@@ -83,6 +94,10 @@ public class ConFileContent {
 		switch (Type) {
 		case "全删全插":
 			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			break;
+			
+		case "append":
+			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
 			break;
 
 		case "upsert":
