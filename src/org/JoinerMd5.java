@@ -45,6 +45,7 @@ public class JoinerMd5 extends Base implements Parameter{
 	protected Source ordersSource;
 
 	protected Source orderDetailsSource;
+	protected String Large = "";
 
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
