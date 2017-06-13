@@ -15,7 +15,7 @@ import org.FactoryMapping;;
 
 public class GetProperties /*extends FactoryMapping*/{
 	
-	static String profilepath="ELN.properties"; 
+	static String profilepath="properties\\KMS.properties"; 
     private static Properties props = new Properties();   
     static {   
         try {   
@@ -33,7 +33,7 @@ public class GetProperties /*extends FactoryMapping*/{
     }
     
     
-    static String Pubprofilepath="Pub.properties"; 
+    static String Pubprofilepath="properties\\Pub.properties"; 
     private static Properties Pubprops = new Properties();   
     static {   
         try {   

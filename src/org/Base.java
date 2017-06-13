@@ -52,9 +52,11 @@ public abstract class Base {
 	protected Session session;
 	protected Workflow workflow;
 	protected String mapFileName;
+	protected String TableNme;
 	protected Mapping mapping;
 	protected int runMode = 0;
-	public static String profilepath = "QQSURVEY.properties";
+	// public static String profilepath = "QQSURVEY.properties";
+	protected ArrayList<String> BigCloumn = null;
 	protected static List<List<String>> TableList = null;
 	protected ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
@@ -1018,14 +1020,16 @@ public abstract class Base {
 		// "_CK.xml"));
 		// }
 
-//		org.tools.ConFileContent
-//				.writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_" + org.tools.GetProperties.getKeyValue("System")
-//						+ "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + ".xml"));
+		// org.tools.ConFileContent
+		// .writeLog(org.tools.ConFileContent.ReplaceColumnNm("M_" +
+		// org.tools.GetProperties.getKeyValue("System")
+		// + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()
+		// + ".xml"));
 	}
 
 	protected void setMapFileName(Mapping mapping) {
 		StringBuffer buff = new StringBuffer();
-		buff.append(System.getProperty("user.dir")+"\\generaXml");
+		buff.append(System.getProperty("user.dir") + "\\generaXml");
 		buff.append(java.io.File.separatorChar);
 		buff.append(mapping.getName());
 		buff.append(".xml");
@@ -1113,7 +1117,7 @@ public abstract class Base {
 					"pcconfig.properties file not found.Add Directory containing pcconfig.properties to ClassPath");
 		}
 	}
-	
+
 	protected Source CheckSouce(String TableNm, String dbName, String DbType) {
 		List<Field> fields = new ArrayList<Field>();
 
@@ -1154,13 +1158,14 @@ public abstract class Base {
 				// System.out.println(a.get(0).toString());
 				// System.out.println(a.get(3).toString().trim().equals("PI")+
 				// a.get(3).toString().trim());
-				
+
 				// NullEable = false;
-//				System.out.println(a.get(1).toString() + "," + org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
-//						+ len + "," + precision);
+				// System.out.println(a.get(1).toString() + "," +
+				// org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
+				// + len + "," + precision);
 				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, FieldKeyType.NOT_A_KEY, FieldType.SOURCE,
-						false);
+						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, FieldKeyType.NOT_A_KEY,
+						FieldType.SOURCE, false);
 
 				// Field OWNER=new
 				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
@@ -1176,12 +1181,11 @@ public abstract class Base {
 
 		} else if (DbType.equals("TD")) {
 			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
-		} else if(DbType.equals("MSSQL")){
+		} else if (DbType.equals("MSSQL")) {
 			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
+		} else if (DbType.equals("Mysql")) {
+			info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
 		}
-		 else if(DbType.equals("Mysql")){
-				info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
-			}
 		tabSource = new Source(TableName, TableName, "table", TableName, info);
 		// System.out.println(a.get(0).toString());
 		tabSource.setFields(fields);
@@ -1190,7 +1194,7 @@ public abstract class Base {
 
 	protected Source CreateCrm(String TableNm, String dbName, String DbType) {
 		List<Field> fields = new ArrayList<Field>();
-
+		org.tools.GetProperties.writeProperties("ISBigCloumn", "");
 		String len = null;
 		String precision = null;
 		Source tabSource = null;
@@ -1198,6 +1202,8 @@ public abstract class Base {
 		String TableName = null;
 		FieldKeyType ColType = null;
 		Boolean NullEable = null;
+		Field field = null;
+		
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List) TableConf.get(i);
 			// TableList.add(a);
@@ -1239,12 +1245,21 @@ public abstract class Base {
 					NullEable = false;
 				}
 				// NullEable = false;
-//				System.out.println(a.get(1).toString() + "," + org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
-//						+ len + "," + precision);
-				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
-						NullEable);
-
+				// System.out.println(a.get(1).toString() + "," +
+				// org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
+				// + len + "," + precision);
+				ArrayList<String> BCloum = new ArrayList<String>(org.tools.RePlaceBigCloumn.BigCloumn());
+				if (!BCloum.contains(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")))) {
+                    
+					 field = new Field(a.get(1).toString(), a.get(1).toString(), "",
+							org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
+							NullEable);
+					
+				} else {
+					org.tools.GetProperties.writeProperties("ISBigCloumn", "_LARGE");
+					TableNme = "_LARGE";
+					System.out.println(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")));
+				}
 				// Field OWNER=new
 				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
 
@@ -1259,12 +1274,11 @@ public abstract class Base {
 
 		} else if (DbType.equals("TD")) {
 			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
-		} else if(DbType.equals("MSSQL")){
+		} else if (DbType.equals("MSSQL")) {
 			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
+		} else if (DbType.equals("Mysql")) {
+			info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
 		}
-		 else if(DbType.equals("Mysql")){
-				info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
-			}
 		tabSource = new Source(TableName, TableName, "table", TableName, info);
 		// System.out.println(a.get(0).toString());
 		tabSource.setFields(fields);
@@ -1320,7 +1334,7 @@ public abstract class Base {
 					ColType = FieldKeyType.NOT_A_KEY;
 					NullEable = false;
 				}
-				
+
 				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
 						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
 						NullEable);
@@ -1347,12 +1361,11 @@ public abstract class Base {
 
 		} else if (DbType.equals("TD")) {
 			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
-		} else if(DbType.equals("MSSQL")){
+		} else if (DbType.equals("MSSQL")) {
 			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
+		} else if (DbType.equals("Mysql")) {
+			info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
 		}
-		 else if(DbType.equals("Mysql")){
-				info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
-			}
 		tabSource = new Source(TableName, TableName, "table", TableName, info);
 		// System.out.println(a.get(0).toString());
 		tabSource.setFields(fields);

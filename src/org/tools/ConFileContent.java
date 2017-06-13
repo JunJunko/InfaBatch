@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 public class ConFileContent {
 
+
 	public static String readToString(String fileName) {
 		String encoding = "GBK";
 		File file = new File(fileName);

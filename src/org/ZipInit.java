@@ -195,7 +195,7 @@ public class ZipInit extends Base implements Parameter {
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H");
 	}
 
 	@Override

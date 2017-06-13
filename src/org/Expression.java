@@ -30,7 +30,7 @@ public class Expression extends Base implements Parameter {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
-
+//	protected String TableNmE = org.tools.GetProperties.getKeyValue("ISBigCloumn");
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
@@ -66,6 +66,7 @@ public class Expression extends Base implements Parameter {
 
 	@Override
 	public void createSession() {
+	
 		// TODO Auto-generated method stub
 		session = new Session("I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),

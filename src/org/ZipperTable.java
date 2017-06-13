@@ -49,7 +49,7 @@ public class ZipperTable extends Base implements Parameter{
 
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
-
+	
 	// protected String System = Platfrom;
 
 	/**
@@ -76,6 +76,8 @@ public class ZipperTable extends Base implements Parameter{
 	}
 
 	protected void createMappings() throws Exception {
+		
+
 		mapping = new Mapping("H_M_"  +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
 
 		setMapFileName(mapping);
@@ -452,7 +454,7 @@ public class ZipperTable extends Base implements Parameter{
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
 		session = new Session("H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H",
+				"H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"");
 		session.setMapping(this.mapping);
 

@@ -34,7 +34,6 @@ public class Append extends Base implements Parameter {
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {

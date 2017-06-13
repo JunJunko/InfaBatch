@@ -30,7 +30,6 @@ public class Init extends Base implements Parameter {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
-
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
@@ -190,6 +189,7 @@ public class Init extends Base implements Parameter {
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
+
 		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
@@ -197,7 +197,7 @@ public class Init extends Base implements Parameter {
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
 		workflow = new Workflow("WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for expression");
+				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(Integration, Domain);
 		folder.addWorkFlow(workflow);

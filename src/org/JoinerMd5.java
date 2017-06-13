@@ -49,7 +49,6 @@ public class JoinerMd5 extends Base implements Parameter{
 
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
-
 	// protected String System = Platfrom;
 
 	/**
@@ -280,7 +279,7 @@ public class JoinerMd5 extends Base implements Parameter{
 	protected void createWorkflow() throws Exception {
 
 		workflow = new Workflow("U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "This workflow for joiner");
+				"U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
 				org.tools.GetProperties.getKeyValue("Domain"));
@@ -343,7 +342,7 @@ public class JoinerMd5 extends Base implements Parameter{
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
 		session = new Session("U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_U",
+				"U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"");
 		session.setMapping(this.mapping);
 
