@@ -253,7 +253,7 @@ public class UpdateXml {
 
 	public static void main(String[] args) {
 
-		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\CheckXml\\M_CHECK_ELN_SURVEY_ITEM_BACK_CK.xml", "check");
+//		updateAttributeValue("xml\\CheckXml\\M_CHECK_ELN_SURVEY_ITEM_BACK_CK.xml", "check");
 		// System.out.println("ITEM_APNTMNT_OPERATION_TIME22".substring(0,
 		// "ITEM_APNTMNT_OPERATION_TIME22".length()-1));
 

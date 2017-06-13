@@ -1248,18 +1248,18 @@ public abstract class Base {
 				// System.out.println(a.get(1).toString() + "," +
 				// org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
 				// + len + "," + precision);
-				ArrayList<String> BCloum = new ArrayList<String>(org.tools.RePlaceBigCloumn.BigCloumn());
-				if (!BCloum.contains(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")))) {
+				//ArrayList<String> BCloum = new ArrayList<String>(org.tools.RePlaceBigCloumn.BigCloumn());
+//				if (!BCloum.contains(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")))) {
                     
-					 field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-							org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
-							NullEable);
+				field = new Field(a.get(1).toString(), a.get(1).toString(), "",
+						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
+						NullEable);
 					
-				} else {
-					org.tools.GetProperties.writeProperties("ISBigCloumn", "_LARGE");
-					TableNme = "_LARGE";
-					System.out.println(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")));
-				}
+//				} else {
+//					org.tools.GetProperties.writeProperties("ISBigCloumn", "_LARGE");
+//					TableNme = "_LARGE";
+//					System.out.println(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")));
+//				}
 				// Field OWNER=new
 				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
 

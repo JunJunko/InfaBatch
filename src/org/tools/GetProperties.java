@@ -15,7 +15,7 @@ import org.FactoryMapping;;
 
 public class GetProperties /*extends FactoryMapping*/{
 	
-	static String profilepath="properties\\KMS.properties"; 
+	static String profilepath="properties\\ELN.properties"; 
     private static Properties props = new Properties();   
     static {   
         try {   

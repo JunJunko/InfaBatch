@@ -31,13 +31,13 @@ public class FactoryMapping implements Parameter {
 
 		ArrayList<String> AllKey = new ArrayList<String>();
 		AllKey.addAll(T.keySet());
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\generaXml\\");
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\CheckXml\\");
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\InsertXml\\");
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\UpsertXml\\");
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\ZipXml\\");
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\Append\\");
-		org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo-master\\xml\\InitXml\\");
+		org.tools.DelXmlFolder.delAllFile("generaXml\\");
+		org.tools.DelXmlFolder.delAllFile("xml\\CheckXml\\");
+		org.tools.DelXmlFolder.delAllFile("xml\\InsertXml\\");
+		org.tools.DelXmlFolder.delAllFile("xml\\UpsertXml\\");
+		org.tools.DelXmlFolder.delAllFile("xml\\ZipXml\\");
+		org.tools.DelXmlFolder.delAllFile("xml\\Append\\");
+		org.tools.DelXmlFolder.delAllFile("xml\\InitXml\\");
 
 		for (int i = 0; i < T.size(); i++) {
 			// System.out.println(T.keySet());
@@ -48,11 +48,11 @@ public class FactoryMapping implements Parameter {
 			switch (Type) {
 
 			case "全删全插":
-//				Expression.main(new String[] { "0", AllKey.get(i) });
+				Expression.main(new String[] { "0", AllKey.get(i) });
 
 				Check.main(new String[] { "0", AllKey.get(i), "check" });
-//				org.tools.ConFileContent.writeLog(
-//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "I_" + MappingNm + ".xml", Type), Type);
+				org.tools.ConFileContent.writeLog(
+						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "I_" + MappingNm + ".xml", Type), Type);
 				Init.main(new String[] { "0", AllKey.get(i) });
 				org.tools.ConFileContent.writeLog(
 						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", Type), "init");
@@ -61,11 +61,11 @@ public class FactoryMapping implements Parameter {
 				break;
 
 			case "append":
-//				Append.main(new String[] { "0", AllKey.get(i) });
+				Append.main(new String[] { "0", AllKey.get(i) });
 
 				Check.main(new String[] { "0", AllKey.get(i), "check" });
-//				org.tools.ConFileContent.writeLog(
-//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "A_" + MappingNm + ".xml", Type), Type);
+				org.tools.ConFileContent.writeLog(
+						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "A_" + MappingNm + ".xml", Type), Type);
 				Init.main(new String[] { "0", AllKey.get(i) });
 				org.tools.ConFileContent.writeLog(
 						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", Type), "init");
@@ -74,10 +74,10 @@ public class FactoryMapping implements Parameter {
 				break;
 
 			case "upsert":
-//				JoinerMd5.main(new String[] { "0", AllKey.get(i) });
+				JoinerMd5.main(new String[] { "0", AllKey.get(i) });
 
-//				org.tools.ConFileContent.writeLog(
-//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "U_" + MappingNm + ".xml", Type), Type);
+				org.tools.ConFileContent.writeLog(
+						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "U_" + MappingNm + ".xml", Type), Type);
 				Init.main(new String[] { "0", AllKey.get(i) });
 				org.tools.ConFileContent.writeLog(
 						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "全删全插"), "init");
@@ -87,10 +87,10 @@ public class FactoryMapping implements Parameter {
 				break;
 
 			case "拉链表":
-				// ZipperTable.main(new String[]{"0", AllKey.get(i)});
+				 ZipperTable.main(new String[]{"0", AllKey.get(i)});
 
-//				org.tools.ConFileContent.writeLog(
-//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "H_" + MappingNm + ".xml", Type), Type);
+				org.tools.ConFileContent.writeLog(
+						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "H_" + MappingNm + ".xml", Type), Type);
 				ZipInit.main(new String[] { "0", AllKey.get(i) });
 				
 				org.tools.ConFileContent.writeLog(
