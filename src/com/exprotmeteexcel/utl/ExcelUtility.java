@@ -1,13 +1,20 @@
 package com.exprotmeteexcel.utl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +29,11 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +55,9 @@ import org.slf4j.LoggerFactory;
  *            byte[]表jpg格式的图片数据
  */
 
-public class ExportExcel<T> {
+public class ExcelUtility<T> {
 
-	private static final Logger log = LoggerFactory.getLogger(ExportExcel.class);
+	private static final Logger log = LoggerFactory.getLogger(ExcelUtility.class);
 
 	public void exportExcel(Collection<T> dataset, OutputStream out) {
 		exportExcel("Sheet1", null, dataset, out, "yyyy-MM-dd");
@@ -227,5 +239,142 @@ public class ExportExcel<T> {
 		} catch (IOException e) {
 			log.error("错误信息", e);
 		}
+	}
+	/**
+	 * 解析excel
+	 * 
+	 * @param is
+	 *            输入流
+	 * @param row_start
+	 *            起始行
+	 * @return 对象数组类型的集合
+	 */
+	public static List<Object[]> readExcelContent(InputStream is,
+			Integer row_start) {
+		POIFSFileSystem fs = null;
+		HSSFWorkbook wb = null;
+		HSSFSheet sheet = null;
+		HSSFRow row = null;
+		
+		List<Object[]> data = new ArrayList<Object[]>();
+		try {
+			fs = new POIFSFileSystem(is);
+			wb = new HSSFWorkbook(fs);
+
+			sheet = wb.getSheetAt(0);
+			// 总行数
+			int rowNum = sheet.getLastRowNum();
+			row = sheet.getRow(0);
+			// 总列数
+			int colNum = row.getPhysicalNumberOfCells();
+			int row_start_init = 0;
+			/*
+			 * 指定解析开始行、结束行、开始列、结束列
+			 */
+			if (row_start != null) {
+				row_start_init = row_start;
+			}
+			Object[] objs;
+			if (rowNum > 0) {
+				for (int i = row_start_init; i <= rowNum; i++) {
+					row = sheet.getRow(i);
+					objs = new Object[colNum];
+					for (int j = 0; j < colNum; j++) {
+						Cell cell = row.getCell(j);
+						if (cell != null) {
+							if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+								objs[j] = cell.getStringCellValue() == null ? ""
+										: cell.getStringCellValue();
+							} else {
+								DecimalFormat df = new DecimalFormat("#");
+								int value = (int) cell.getNumericCellValue();
+								objs[j] = value == 0 ? "" : df.format(cell
+										.getNumericCellValue());
+							}
+						}
+					}
+					data.add(objs);
+				}
+			}
+		} catch (IOException e) {
+			log.error("错误信息", e);
+		}
+		return data;
+	}
+	
+	public static List<Object[]> readExcelContentByXlsx(InputStream is,
+			Integer row_start) {
+		POIFSFileSystem fs = null;
+		XSSFWorkbook wb = null;
+		XSSFSheet sheet = null;
+		XSSFRow row = null;
+		
+		List<Object[]> data = new ArrayList<Object[]>();
+		try {
+		
+			wb = new XSSFWorkbook(is);
+
+			sheet = wb.getSheetAt(0);
+			// 总行数
+			int rowNum = sheet.getLastRowNum();
+			row = sheet.getRow(0);
+			// 总列数
+			int colNum = row.getPhysicalNumberOfCells();
+			int row_start_init = 0;
+			/*
+			 * 指定解析开始行、结束行、开始列、结束列
+			 */
+			if (row_start != null) {
+				row_start_init = row_start;
+			}
+			Object[] objs;
+			if (rowNum > 0) {
+				for (int i = row_start_init; i <= rowNum; i++) {
+					row = sheet.getRow(i);
+					objs = new Object[colNum];
+					for (int j = 0; j < colNum; j++) {
+						Cell cell = row.getCell(j);
+						if (cell != null) {
+							if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+								objs[j] = cell.getStringCellValue() == null ? ""
+										: cell.getStringCellValue();
+							} else {
+								DecimalFormat df = new DecimalFormat("#");
+								int value = (int) cell.getNumericCellValue();
+								objs[j] = value == 0 ? "" : df.format(cell
+										.getNumericCellValue());
+							}
+						}
+					}
+					data.add(objs);
+				}
+			}
+		} catch (IOException e) {
+			log.error("错误信息", e);
+		}
+		return data;
+	}
+
+	public static List<Object[]> getReadExcelContent(String path,
+			Integer row_start) {
+		InputStream is = null;
+		File fl=new File(path);
+		String fileName=fl.getName();
+		try {
+			is = new FileInputStream(path);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		if(fileName.endsWith("xls")){
+			return readExcelContent(is,row_start);
+		}else if(fileName.endsWith("xlsx")){
+			return readExcelContentByXlsx(is,row_start);
+		}else{
+			return null;
+		}
+
+		
+	
+	
 	}
 }

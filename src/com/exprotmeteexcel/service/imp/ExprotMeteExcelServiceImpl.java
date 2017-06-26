@@ -19,7 +19,7 @@ import com.exprotmeteexcel.bean.MateColumnsBean;
 import com.exprotmeteexcel.dao.impl.BaseDbDaoI;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
 import com.exprotmeteexcel.utl.DateTran.DataTypeTrans;
-import com.exprotmeteexcel.utl.ExportExcel;
+import com.exprotmeteexcel.utl.ExcelUtility;
 import com.exprotmeteexcel.utl.Getjdbcconfig;
 import com.exprotmeteexcel.utl.Utl;
 import com.exprotmeteexcel.utl.global.BiaotiBean;
@@ -39,10 +39,12 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 	public List<MateColumnsBean> getTableColumn(String path, MateBean mb) {
 		// TODO Auto-generated method stub
 		Getjdbcconfig dbcof = new Getjdbcconfig(path);
+		Properties yp = Utl.getProperties(path);
 		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
 		List<MateColumnsBean> listmc = new ArrayList<MateColumnsBean>();
 		List<Map<String, Object>> su = new ArrayList<Map<String, Object>>();
 		su = db.getTableColumnByMeta(mb);
+		List<Object[]> lt = ExcelUtility.getReadExcelContent("xls\\config\\config.xlsx", 1);
 		/*
 		 * String dbinfo; String owner; String tableName; String tranTableName;
 		 * String tableRemark; String columnsName; String tranColumnName; String
@@ -59,14 +61,30 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		if (su != null) {
 			for (int i = 0; i < su.size(); i++) {
 				MateColumnsBean col = new MateColumnsBean();
+				//原库配置信息
 				col.setDbinfo(dbcof.getDbtype() + ":(" + dbcof.getIp() + ":" + dbcof.getPort() + ";sid:"
 						+ dbcof.getDatabasename() + ")");
+				//表的所属者
 				col.setOwner(su.get(i).get("OWNER").toString());
+				//表名
 				col.setTableName(su.get(i).get("TABLE_NAME").toString());
-				col.setTranTableName("O_" + su.get(i).get("TABLE_NAME").toString());
-				col.setTableRemark("");
+				
+				//字段名称
 				col.setColumnsName(su.get(i).get("COLUMN_NAME").toString());
-				col.setTranColumnName(su.get(i).get("COLUMN_NAME").toString());
+				//转换表名
+				//表名加前缀O_XXX（参数化平台简称）、如果拉链表逻辑表后缀加_H存入“转换表名”列
+				col.setTranTableName("O_"+yp.getProperty("SourceFolder") +"_"+ su.get(i).get("TABLE_NAME").toString().toUpperCase());
+				col.setTableRemark("");
+		
+				
+			    //转换字段
+				//字段名包含关键字的加_OG存入“转换字段名”列	
+				
+				List<String> trnsCloumn = new ArrayList<String>();
+				Collections.addAll(trnsCloumn, yp.get("OGCloumn").toString().toUpperCase().split(","));
+				String trnsCloumnName=trnsCloumn.contains(su.get(i).get("COLUMN_NAME").toString().toUpperCase()) ? su.get(i).get("COLUMN_NAME").toString()+"_OG" : su.get(i).get("COLUMN_NAME").toString();		
+				col.setTranColumnName(trnsCloumnName.toUpperCase());
+				
 				col.setColumnRemark("");
 				//是否大字段
 				Properties p = Utl.getProperties("properties/Pub.properties");
@@ -75,13 +93,20 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				String typename = su.get(i).get("TYPE_NAME") == null || "".equals(su.get(i).get("TYPE_NAME").toString())
 						? "" : su.get(i).get("TYPE_NAME").toString();
 				String isBigCol=BigCloumn.contains(typename.toUpperCase()) ? "是" : "否";				
+				//字段长度
+				
 				String datasize="(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
 				String transdatasize ="是".equals(isBigCol)?"(1234)":"(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
-				String datatype = su.get(i).get("TYPE_NAME").toString();
-				String trandatatype = DataTypeTrans.Trans(su.get(i).get("TYPE_NAME").toString(), "teradata");
+				
+				//字段类型转换
+				String datatype = su.get(i).get("TYPE_NAME").toString();				
+				String trandatatype = DataTypeTrans.TransByTd(datatype.toUpperCase(), "teradata",lt);
 				col.setColumnDataType(datatype + datasize);
 				col.setTranColumnDataType(trandatatype + transdatasize);
-				col.setIsNull(su.get(i).get("ISNULL").toString());
+				
+				//字段能否为空: NOT NULL:不为空 ; NULL:可为null
+				col.setIsNull("NO".equals(su.get(i).get("ISNULL").toString())?"NOT NULL":"NULL");
+				
 				col.setDefaultValue(
 						su.get(i).get("COLUMN_DEF") == null || "".equals(su.get(i).get("COLUMN_DEF").toString()) ? ""
 								: su.get(i).get("COLUMN_DEF").toString());
@@ -94,9 +119,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setSynchronousType("");
 				col.setDateCount("");
 				col.setDateSize("");
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				Date nowdate = new Date();
-				String date = df.format(nowdate);
+				Long date =System.currentTimeMillis();
 				col.setUpdateTime(date);
 				col.setSynchronousLogic("");
 				col.setValid("");
@@ -122,7 +145,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 			e.printStackTrace();
 			return bl;
 		}
-		ExportExcel<MateColumnsBean> ex = new ExportExcel<MateColumnsBean>();
+		ExcelUtility<MateColumnsBean> ex = new ExcelUtility<MateColumnsBean>();
 		ex.exportExcel(BiaotiBean.HEADER, meta, out, "yyyy-MM-dd HH:mm:ss");
 		bl = true;
 		return bl;

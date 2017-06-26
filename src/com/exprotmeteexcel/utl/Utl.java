@@ -68,7 +68,7 @@ public class Utl {
 
 	public static boolean isEmpty(String str) {
 
-		return str == null || str.equals("");
+		return str == null || "".equals(str);
 
 	}
 

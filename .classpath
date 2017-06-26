@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-3.10-FINAL-20140208.jar"/>
 	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-examples-3.10-FINAL-20140208.jar"/>
 	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-excelant-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-ooxml-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-ooxml-3.10-FINAL-20140208.jar" sourcepath="C:/Users/Administrator/.m2/repository/org/apache/poi/poi-ooxml/3.10-FINAL/poi-ooxml-3.10-FINAL-sources.jar"/>
 	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-ooxml-schemas-3.10-FINAL-20140208.jar"/>
 	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-scratchpad-3.10-FINAL-20140208.jar"/>
 	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/xmlbeans-2.3.0.jar"/>

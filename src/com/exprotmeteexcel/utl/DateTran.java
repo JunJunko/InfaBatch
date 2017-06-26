@@ -1,5 +1,10 @@
 package com.exprotmeteexcel.utl;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.List;
+
 import com.informatica.powercenter.sdk.mapfwk.core.NativeDataTypes;
 
 public class DateTran {
@@ -7,7 +12,8 @@ public class DateTran {
 
 		public static String Trans(String DataType, String DbType) {
 			String sb = null;
-            String datetype =DataType.indexOf("(")>0?DataType.toString().substring(0, DataType.toString().indexOf("(")):DataType;
+			String datetype = DataType.indexOf("(") > 0
+					? DataType.toString().substring(0, DataType.toString().indexOf("(")) : DataType;
 			if ("oracle".equals(DbType)) {
 				switch (datetype) {
 				case "VARCHAR2":
@@ -53,7 +59,7 @@ public class DateTran {
 				}
 				;
 			} else if ("teradata".equals(DbType)) {
-				// System.out.println(DataType.toString());
+				System.out.println(DataType.toString());
 				switch (datetype) {
 				case "VARCHAR2":
 					sb = NativeDataTypes.Teradata.VARCHAR;
@@ -111,6 +117,7 @@ public class DateTran {
 					break;
 				}
 				;
+
 			} else if ("mysql".equals(DbType)) {
 				switch (datetype) {
 				case "BIGINT":
@@ -159,7 +166,7 @@ public class DateTran {
 				;
 
 			} else if ("mssql".equals(DbType)) {
-				// System.out.println(DataType.toString()+"++++++++++++++++");
+
 				switch (DataType.toString().substring(0, DataType.toString().indexOf("(")).toUpperCase()) {
 				case "BIGINT":
 					sb = NativeDataTypes.SqlServer.BIGINT;
@@ -206,5 +213,26 @@ public class DateTran {
 			}
 			return sb;
 		}
+
+		public static String TransByTd(String DataType, String DbType, List<Object[]> lt) {
+			String sb = null;
+			String datetype = DataType.indexOf("(") > 0
+					? DataType.toString().substring(0, DataType.toString().indexOf("(")) : DataType;
+
+			if (!Utl.isEmpty(lt)) {
+
+				for (Object[] row : lt) {
+					if ("TD".equals(row[0].toString()) && datetype.equals(row[1].toString())) {
+						sb = row[2].toString();
+						break;
+					}
+				}
+			}
+			if (Utl.isEmpty(sb)) {
+				sb = "varchar";
+			}
+			return sb;
+		}
+
 	}
 }
