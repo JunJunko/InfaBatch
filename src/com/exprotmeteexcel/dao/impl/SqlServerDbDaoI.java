@@ -228,7 +228,9 @@ public class SqlServerDbDaoI extends BaseDbDaoI {
 				mp.put("TABLE_NAME", rs.get("TABLE_NAME"));
 				mp.put("COLUMN_SIZE", rs.get("COLUMN_SIZE"));
 				mp.put("TYPE_NAME", rs.get("TYPE_NAME"));
-				mp.put("DB_TYPE", getDb_type());
+				mp.put("DB_TYPE", getDb_type());				
+				mp.put("TABLE_REMARKS", rs.get("TABLE_REMARKS"));
+				mp.put("REMARKS", rs.get("REMARKS"));
 				// String dbtype = getDb_type();
 				mp.put("OWNER", rs.get("OWNER"));
 				mp.put("ISNULL", rs.get("IS_NULLABLE"));

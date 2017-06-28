@@ -13,8 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.exprotmeteexcel.bean.MateColumnsBean;
 
 /**
  * 
@@ -376,5 +380,77 @@ public class ExcelUtility<T> {
 		
 	
 	
+	}
+	
+	/**
+	 * 解析excel
+	 * 
+	 * @param is
+	 *            输入流
+	 * @param row_start
+	 *            起始行
+	 * @return 对象数组类型的集合
+	 */
+	public static Map<String, Object> readExcel(InputStream is,
+			Integer row_start) {
+		POIFSFileSystem fs = null;
+		HSSFWorkbook wb = null;
+		HSSFSheet sheet = null;
+		HSSFRow row = null;
+		Map<String, Object> mp =new HashMap<String, Object>();
+		List<Object[]> data = new ArrayList<Object[]>();
+		Map<String, String> tablemap =new HashMap<String, String>();
+		try {
+			fs = new POIFSFileSystem(is);
+			wb = new HSSFWorkbook(fs);
+
+			sheet = wb.getSheetAt(0);
+			// 总行数
+			int rowNum = sheet.getLastRowNum();
+			row = sheet.getRow(0);
+			// 总列数
+			int colNum = row.getPhysicalNumberOfCells();
+			int row_start_init = 0;
+			/*
+			 * 指定解析开始行、结束行、开始列、结束列
+			 */
+			if (row_start != null) {
+				row_start_init = row_start;
+			}
+			Object[] objs;
+			if (rowNum > 0) {
+				for (int i = row_start_init; i <= rowNum; i++) {
+					row = sheet.getRow(i);
+					objs = new Object[colNum];
+					Cell ce=row.getCell(20);
+				    if(ce.getCellType() == Cell.CELL_TYPE_STRING){
+				    	if(!Utl.isEmpty(ce.getStringCellValue())){
+				    		Cell tablece=row.getCell(2);
+				    		tablemap.put(tablece.getStringCellValue(), ce.getStringCellValue());
+				    	}
+				    }
+					for (int j = 0; j < colNum; j++) {
+						Cell cell = row.getCell(j);
+						if (cell != null) {
+							if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+								objs[j] = cell.getStringCellValue() == null ? ""
+										: cell.getStringCellValue();
+							} else {
+								DecimalFormat df = new DecimalFormat("#");
+								int value = (int) cell.getNumericCellValue();
+								objs[j] = value == 0 ? "" : df.format(cell
+										.getNumericCellValue());
+							}
+						}
+					}
+					data.add(objs);
+				}
+			}
+		} catch (IOException e) {
+			log.error("错误信息", e);
+		}
+		mp.put("LISTDATE", data);
+		mp.put("MAPDATE", tablemap);
+		return mp;
 	}
 }

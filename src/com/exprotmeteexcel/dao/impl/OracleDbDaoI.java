@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.utl.global.SQLGlobal;
-
 
 /**
  * mysql的JDBC操作DAO类
@@ -140,41 +140,53 @@ public class OracleDbDaoI extends BaseDbDaoI {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
 		Connection conn = null;
+		String[] types = { "TABLE" };
+		ResultSet rstable = null;
 		List<Map<String, Object>> su = new ArrayList<Map<String, Object>>();
 
 		List<String> prikey = new ArrayList<String>();
 		DatabaseMetaData dbmd = null;
 		ResultSet rs = null;
 		ResultSet pri = null;
+		String tableRemarks = "";
 		int i = 0;
 		try {
 			long d1 = System.currentTimeMillis();
 			log.info("执行取原数据");
-			conn = this.getConnection();
+			Properties props =new Properties();
+			props.put("remarksReporting","true");
+			conn = this.getConnection( props);		
 			dbmd = conn.getMetaData();
 			List<Map<String, Object>> owntab = ownertables.getMatedate();
 			for (int j = 0; j < owntab.size(); j++) {
 				rs = dbmd.getColumns(ownertables.getDbSid(), owntab.get(j).get("OWNER").toString(),
 						owntab.get(j).get("TABLE_NAME").toString(), null);
+
+				rstable = dbmd.getTables(null, owntab.get(j).get("OWNER").toString(),
+						owntab.get(j).get("TABLE_NAME").toString(), types);
 				pri = dbmd.getPrimaryKeys(ownertables.getDbSid(), owntab.get(j).get("OWNER").toString(),
 						owntab.get(j).get("TABLE_NAME").toString());
 
+				while (rstable.next()) {
+					//System.out.println("table_name:" + rstable.getString("TABLE_NAME")+"table_REMARKS:" + rstable.getString(12));
+					tableRemarks = rstable.getString("REMARKS");
+				}
 				while (pri.next()) {
 					prikey.add(pri.getString("COLUMN_NAME"));
 				}
 				while (rs.next()) {
 
-				
-				    
-					
 					Map<String, Object> mp = new HashMap<String, Object>();
 					mp.put("DB_TYPE", getDb_type());
 					mp.put("OWNER", rs.getString("TABLE_SCHEM"));
 					mp.put("TABLE_NAME", rs.getString("TABLE_NAME"));
-					mp.put("COLUMN_NAME", rs.getString("COLUMN_NAME"));					
+					mp.put("COLUMN_NAME", rs.getString("COLUMN_NAME"));
 					mp.put("TYPE_NAME", rs.getString("TYPE_NAME"));
 					mp.put("COLUMN_SIZE", rs.getInt("COLUMN_SIZE"));
-					//System.out.println(i+":"+rs.getString("COLUMN_DEF"));
+					mp.put("REMARKS", rs.getString("REMARKS"));
+					//System.out.println("REMARKS:"+ rs.getString("REMARKS"));
+					mp.put("TABLE_REMARKS", tableRemarks);
+					// System.out.println(i+":"+rs.getString("COLUMN_DEF"));
 					mp.put("COLUMN_DEF", rs.getObject(12));
 					mp.put("ISNULL", rs.getString("IS_NULLABLE"));
 					mp.put("PRIMARYKEY", prikey.contains(rs.getString("COLUMN_NAME")) ? "pri" : null);

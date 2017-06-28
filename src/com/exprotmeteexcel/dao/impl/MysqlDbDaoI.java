@@ -145,7 +145,10 @@ public class MysqlDbDaoI extends BaseDbDaoI {
 		DatabaseMetaData dbmd = null;
 		ResultSet rs = null;
 		ResultSet pri = null;
+		ResultSet rstable = null;
+		String tableRemarks="";
 		int i = 0;
+		String[] types = { "TABLE" };  
 		try {
 			long d1 = System.currentTimeMillis();
 			log.info("执行取原数据");
@@ -155,9 +158,14 @@ public class MysqlDbDaoI extends BaseDbDaoI {
 			for (int j = 0; j < owntab.size(); j++) {
 				rs = dbmd.getColumns(owntab.get(j).get("OWNER").toString(), null,
 						owntab.get(j).get("TABLE_NAME").toString(), null);
+				
+				rstable = dbmd.getTables(owntab.get(j).get("OWNER").toString(), null, owntab.get(j).get("TABLE_NAME").toString(), types);
 				pri = dbmd.getPrimaryKeys(owntab.get(j).get("OWNER").toString(), null,
 						owntab.get(j).get("TABLE_NAME").toString());
 
+				while (rstable.next()) {
+					 tableRemarks = rstable.getString("REMARKS");
+				}
 				while (pri.next()) {
 					prikey.add(pri.getString("COLUMN_NAME"));
 				}
@@ -171,6 +179,8 @@ public class MysqlDbDaoI extends BaseDbDaoI {
 					mp.put("COLUMN_SIZE", rs.getInt("COLUMN_SIZE"));
 					mp.put("TYPE_NAME", rs.getString("TYPE_NAME"));
 					mp.put("DB_TYPE", getDb_type());
+					mp.put("REMARKS",rs.getString("REMARKS"));
+					mp.put("TABLE_REMARKS",tableRemarks);
 					// String dbtype = getDb_type();
 					mp.put("OWNER",
 							"mysql".equals(getDb_type()) ? rs.getString("TABLE_CAT") : rs.getString("TABLE_SCHEM"));

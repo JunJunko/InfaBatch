@@ -62,6 +62,20 @@ public interface ExprotMeteExcelService {
 	 * @return update
 	 *            ：update配置表状态
 	 */
-	public Boolean updateTdMate(String path,Boolean status);
+	public Boolean updateTdMate(String path, Boolean status);
+	
+	
+	
+	
+	//更新处理完成的配置数据
+	/**
+	 * 得到配置导出的原数据表
+	 * 
+	 * @param path ：路径
+	 * @return Boolean
+	 *            ：Boolean
+	 */
+	public Boolean ReadExcelExprot(String path);
+
 
 }

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,22 @@ public abstract class BaseDbDaoI implements BaseDbDao {
 			e.printStackTrace();
 		}
 		return DriverManager.getConnection(this.db_url, this.db_userName, this.db_userPass);
+
+	}
+	
+	
+	public Connection getConnection(Properties props) throws SQLException {
+
+		String DRIVER = this.DRIVER;
+		props.put("user", this.db_userName);
+		props.put("password", this.db_userPass);
+
+		try {
+			Class.forName(DRIVER);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return DriverManager.getConnection(this.db_url,props);
 
 	}
 

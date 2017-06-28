@@ -1,5 +1,6 @@
 package com.exprotmeteexcel.utl;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -72,4 +73,17 @@ public class Utl {
 
 	}
 
+
+	public static Boolean IsFileExists(String path) {
+		File file = new File(path);
+		Boolean bu = false;
+		if (file.exists()) {
+			bu = true;
+		} else {
+			bu = false;
+		}
+
+		return bu;
+
+	}
 }

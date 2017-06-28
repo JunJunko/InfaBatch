@@ -23,7 +23,7 @@ public class MateColumnsBean {
 	String synchronousType;
 	String dateCount;
 	String dateSize;
-	Long updateTime;
+	String updateTime;
 	String synchronousLogic;
 	String valid;
 	String isGigDateCol;
@@ -142,10 +142,10 @@ public class MateColumnsBean {
 	public void setDateSize(String dateSize) {
 		this.dateSize = dateSize;
 	}
-	public Long getUpdateTime() {
+	public String getUpdateTime() {
 		return updateTime;
 	}
-	public void setUpdateTime(Long updateTime) {
+	public void setUpdateTime(String updateTime) {
 		this.updateTime = updateTime;
 	}
 	public String getSynchronousLogic() {

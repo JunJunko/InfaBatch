@@ -1,16 +1,22 @@
 package com.exprotmeteexcel.main;
 
+import java.awt.BorderLayout;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
+import com.exprotmeteexcel.bean.ShowDialogLintener;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
 import com.exprotmeteexcel.service.imp.ExprotMeteExcelServiceImpl;
 import com.exprotmeteexcel.utl.Utl;
@@ -23,6 +29,10 @@ public class Testdbconn {
 		// TODO Auto-generated method stub
 
 		getTableMateBeanByTest();
+
+		com.exprotmeteexcel.main.ExportExcel.main(null);
+	
+		
 
 	}
 
@@ -43,8 +53,8 @@ public class Testdbconn {
 		tt.setMatedate(alllist);
 		List<MateColumnsBean> lb = ex.getTableColumn(p.getProperty("businesspropertiespath"), tt);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		String formatStr =formatter.format(new Date());
-		String path = "xls\\out\\OUT_" + businessName + "_" + formatStr + ".xls";
+		String formatStr = formatter.format(new Date());
+		String path = "xls\\out\\metaout\\OUT_" + businessName + "_" + formatStr + ".xls";
 		bn = ex.ExprotExcel(lb, path);
 		if (bn) {
 			log.info("运行成功！");
@@ -52,6 +62,17 @@ public class Testdbconn {
 			log.info("运行失败！");
 		}
 
+	}
+
+	public static void ReadExcelExprot(String path) {
+		Boolean bn = false;
+		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
+		bn = ex.ReadExcelExprot(path);
+		if (bn) {
+			log.info("运行成功！");
+		} else {
+			log.info("运行失败！");
+		}
 	}
 
 	/**
@@ -71,7 +92,7 @@ public class Testdbconn {
 		if (!Utl.isEmpty(tt.getMatedate())) {
 			List<MateColumnsBean> lb = ex.getTableColumn(p.getProperty("businesspropertiespath"), tt);
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-			String formatStr =formatter.format(new Date());
+			String formatStr = formatter.format(new Date());
 			String path = "xls\\out\\OUT_" + businessName + "_" + formatStr + ".xls";
 			bn = ex.ExprotExcel(lb, path);
 			ex.updateTdMate(p.getProperty("teradatajdbcpath"), bn);
