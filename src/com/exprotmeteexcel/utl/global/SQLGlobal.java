@@ -44,7 +44,7 @@ public class SQLGlobal {
 			+ " TABLE_NAME AS TABLE_NAME, " 
 			+ " COLUMN_NAME AS COLUMN_NAME, " 
 			+ " DATA_TYPE AS TYPE_NAME, "
-			+ " ISNULL(ISNULL(ISNULL(character_maximum_length,numeric_precision),datetime_precision),1) AS COLUMN_SIZE, "
+			+ " case when NUMERIC_SCALE>0 then cast(ISNULL(ISNULL(ISNULL(character_maximum_length,numeric_precision),datetime_precision),1)as varchar(22))+','+cast(NUMERIC_SCALE as varchar(22)) else cast(ISNULL(ISNULL(ISNULL(character_maximum_length,numeric_precision),datetime_precision),1)as varchar(22)) end AS COLUMN_SIZE, "
 			+ " IS_NULLABLE AS IS_NULLABLE, "
 			+ " convert(varchar(4000), isnull((SELECT C.value FROM sys.tables A1 inner JOIN sys.extended_properties C ON C.major_id = A1.object_id  and minor_id=0 inner join sys.schemas d on a1.schema_id=d.schema_id  where A.TABLE_NAME=a1.name and s.schema_id=d.schema_id),null))  as TABLE_REMARKS ,"
 			+ "	convert(varchar(4000), isnull((SELECT C2.value FROM sys.tables A2 inner join sys.schemas d2 on a2.schema_id=d2.schema_id INNER JOIN sys.columns B2 ON B2.object_id = A2.object_id LEFT JOIN sys.extended_properties C2 ON C2.major_id = B2.object_id AND C2.minor_id = B2.column_id WHERE A.TABLE_NAME=a2.name and s.schema_id=d2.schema_id and a.COLUMN_NAME=b2.name),null)) as REMARKS,"

@@ -100,8 +100,12 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				Properties p = Utl.getProperties("properties/Pub.properties");
 				List<String> BigCloumn = new ArrayList<String>();
 				Collections.addAll(BigCloumn, p.get("BigCloumn").toString().split(","));
-				String typename = su.get(i).get("TYPE_NAME") == null || "".equals(su.get(i).get("TYPE_NAME").toString())
-						? "" : su.get(i).get("TYPE_NAME").toString();
+				String typename = Utl.isEmpty(su.get(i).get("TYPE_NAME").toString()) ? ""
+						: su.get(i).get("TYPE_NAME").toString().indexOf("(") > 0
+								? su.get(i).get("TYPE_NAME").toString().substring(0,
+										su.get(i).get("TYPE_NAME").toString().indexOf("("))
+								: su.get(i).get("TYPE_NAME").toString();
+
 				String isBigCol = BigCloumn.contains(typename.toUpperCase()) ? "是" : "否";
 				// 字段长度
 
@@ -110,7 +114,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 						: "(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
 
 				// 字段类型转换
-				String datatype = su.get(i).get("TYPE_NAME").toString();
+				String datatype = typename;
 				String trandatatype = DataTypeTrans.TransByTd(datatype.toUpperCase(), "teradata", lt);
 				col.setColumnDataType(datatype + datasize);
 				col.setTranColumnDataType(trandatatype + transdatasize);
@@ -218,26 +222,25 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 	public Boolean ReadExcelExprot(String path) {
 		Boolean bl = false;
 		InputStream is = null;
-		File fl=new File(path);
-		String fileName=fl.getName();
+		File fl = new File(path);
+		String fileName = fl.getName();
 		try {
 			is = new FileInputStream(path);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		Map<String, Object> mp=ExcelUtility.readExcel(is, 1);
+		Map<String, Object> mp = ExcelUtility.readExcel(is, 1);
 		@SuppressWarnings("unchecked")
 		List<Object[]> ls = (List<Object[]>) mp.get("LISTDATE");
 		@SuppressWarnings("unchecked")
-		Map<String, String> tablemap=(Map<String, String>) mp.get("MAPDATE");
+		Map<String, String> tablemap = (Map<String, String>) mp.get("MAPDATE");
 		List<MateColumnsBean> listmc = new ArrayList<MateColumnsBean>();
-		Map<String, List<MateColumnsBean>> tableDdl =new HashMap<String, List<MateColumnsBean>>();
+		Map<String, List<MateColumnsBean>> tableDdl = new HashMap<String, List<MateColumnsBean>>();
 
 		if (!Utl.isEmpty(ls)) {
-			
-			for (Object[] obj : ls) {	
-				
-			
+
+			for (Object[] obj : ls) {
+
 				MateColumnsBean col = new MateColumnsBean();
 				// 原库配置信息 dbinfo
 				col.setDbinfo(obj[0].toString());
@@ -247,10 +250,10 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setTableName(obj[2].toString());
 				// 转换表名 tranTableName
 				// 表名加前缀O_XXX（参数化平台简称）、如果拉链表逻辑表后缀加_H存入“转换表名”列
-				String str=tablemap.get(obj[2].toString());
-				String trantablename=obj[3].toString();
-				if(!Utl.isEmpty(str)){
-					trantablename=trantablename+"_H";
+				String str = tablemap.get(obj[2].toString());
+				String trantablename = obj[3].toString();
+				if (!Utl.isEmpty(str)) {
+					trantablename = trantablename + "_H";
 				}
 				col.setTranTableName(trantablename);
 				// tableRemark
@@ -290,7 +293,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				// dateCount
 				col.setDateCount(obj[17] == null || "".equals(obj[17].toString()) ? null : obj[17].toString());
 				// dateSize
-				col.setDateSize(obj[18] == null || "".equals(obj[18].toString()) ? null : obj[18].toString());
+				col.setDateSize(obj[18] == null || "".equals(obj[18]) ? null : obj[18].toString());
 				// updateTime
 				col.setUpdateTime(obj[19] == null || "".equals(obj[19]) ? null : obj[19].toString());
 				// synchronousLogic
@@ -300,19 +303,19 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				// isGigDateCol
 				col.setIsGigDateCol(obj[22] == null || "".equals(obj[22].toString()) ? null : obj[22].toString());
 				listmc.add(col);
-				List<MateColumnsBean> collist=tableDdl.get(obj[2].toString()+"."+obj[2].toString());
-				if(Utl.isEmpty(collist)){
-					List<MateColumnsBean> colist= new ArrayList<MateColumnsBean>();
+				List<MateColumnsBean> collist = tableDdl.get(obj[2].toString() + "." + obj[2].toString());
+				if (Utl.isEmpty(collist)) {
+					List<MateColumnsBean> colist = new ArrayList<MateColumnsBean>();
 					colist.add(col);
-					tableDdl.put(obj[2].toString()+"."+obj[2].toString(), colist);
-				}else{
+					tableDdl.put(obj[2].toString() + "." + obj[2].toString(), colist);
+				} else {
 					collist.add(col);
-					tableDdl.put(obj[2].toString()+"."+obj[2].toString(), collist);
-					
+					tableDdl.put(obj[2].toString() + "." + obj[2].toString(), collist);
+
 				}
-				
+
 			}
-			
+
 			Properties p = Utl.getProperties("properties\\EXPORTMETA.properties");
 			Properties yp = Utl.getProperties(p.getProperty("businesspropertiespath"));
 			String businessName = yp.getProperty("SourceFolder");
@@ -326,4 +329,123 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		return bl;
 	}
 
+	@Override
+	public Map<String, Object> ReadExcel(String path) {
+
+		Boolean bl = false;
+		InputStream is = null;
+		File fl = new File(path);
+		String fileName = fl.getName();
+		Map<String, Object> readmap = new HashMap<String, Object>();
+		try {
+			is = new FileInputStream(path);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		Map<String, Object> mp = ExcelUtility.readExcel(is, 1);
+		@SuppressWarnings("unchecked")
+		List<Object[]> ls = (List<Object[]>) mp.get("LISTDATE");
+		@SuppressWarnings("unchecked")
+		Map<String, String> tablemap = (Map<String, String>) mp.get("MAPDATE");
+		List<MateColumnsBean> listmc = new ArrayList<MateColumnsBean>();
+		Map<String, List<MateColumnsBean>> tableDdl = new HashMap<String, List<MateColumnsBean>>();
+
+		if (!Utl.isEmpty(ls)) {
+
+			for (Object[] obj : ls) {
+
+				MateColumnsBean col = new MateColumnsBean();
+				// 原库配置信息 dbinfo
+				col.setDbinfo(obj[0].toString());
+				// 表的所属者 owner
+				col.setOwner(obj[2].toString());
+				// 表名 tableName
+				col.setTableName(obj[2].toString());
+				// 转换表名 tranTableName
+				// 表名加前缀O_XXX（参数化平台简称）、如果拉链表逻辑表后缀加_H存入“转换表名”列
+				String str = tablemap.get(obj[2].toString());
+				String trantablename = obj[3].toString();
+				if (!Utl.isEmpty(str)) {
+					trantablename = trantablename + "_H";
+				}
+				col.setTranTableName(trantablename);
+				// tableRemark
+				col.setTableRemark(obj[4].toString());
+				// 字段名称 columnsName
+				col.setColumnsName(obj[5].toString());
+
+				String isNull;
+				String defaultValue;
+
+				// 转换字段 tranColumnName
+				// 字段名包含关键字的加_OG存入“转换字段名”列
+				col.setTranColumnName(obj[6].toString());
+				// columnRemark
+				col.setColumnRemark(obj[7].toString());
+
+				// 字段类型 ColumnDataType
+				col.setColumnDataType(obj[8].toString());
+				// 字段类型转换 tranColumnDataType
+				col.setTranColumnDataType(obj[9].toString());
+
+				// 字段能否为空: isNull
+				col.setIsNull(obj[10].toString());
+				// 默认值 defaultValue
+				col.setDefaultValue(obj[11].toString());
+
+				// 主键标记 primaryKey
+				col.setPrimaryKey(obj[12].toString());
+				// piValue
+				col.setPiValue(obj[13] == null || "".equals(obj[13].toString()) ? null : obj[13].toString());
+				// remark
+				col.setRemark(obj[14] == null || "".equals(obj[14].toString()) ? null : obj[14].toString());
+				// pl
+				col.setPl(obj[15] == null || "".equals(obj[15].toString()) ? null : obj[15].toString());
+				// synchronousType
+				col.setSynchronousType(obj[16] == null || "".equals(obj[16].toString()) ? null : obj[16].toString());
+				// dateCount
+				col.setDateCount(obj[17] == null || "".equals(obj[17].toString()) ? null : obj[17].toString());
+				// dateSize
+				col.setDateSize(obj[18] == null || "".equals(obj[18]) ? null : obj[18].toString());
+				// updateTime
+				col.setUpdateTime(obj[19] == null || "".equals(obj[19]) ? null : obj[19].toString());
+				// synchronousLogic
+				col.setSynchronousLogic(obj[20] == null || "".equals(obj[20].toString()) ? null : obj[20].toString());
+				// valid
+				col.setValid(obj[21] == null || "".equals(obj[21].toString()) ? null : obj[21].toString());
+				// isGigDateCol
+				col.setIsGigDateCol(obj[22] == null || "".equals(obj[22].toString()) ? null : obj[22].toString());
+				listmc.add(col);
+				List<MateColumnsBean> collist = tableDdl.get(obj[2].toString() + "." + obj[2].toString());
+				if (Utl.isEmpty(collist)) {
+					List<MateColumnsBean> colist = new ArrayList<MateColumnsBean>();
+					colist.add(col);
+					tableDdl.put(obj[2].toString() + "." + obj[2].toString(), colist);
+				} else {
+					collist.add(col);
+					tableDdl.put(obj[2].toString() + "." + obj[2].toString(), collist);
+
+				}
+
+			}
+
+		}
+		readmap.put("TRANLIST", listmc);
+		readmap.put("TABLEDDL", tableDdl);
+		return readmap;
+	}
+
+	public Boolean ExcelExprot(String path, List<MateColumnsBean> listmc) {
+
+		Boolean bl = false;
+		Properties p = Utl.getProperties(path);
+		Properties yp = Utl.getProperties(p.getProperty("businesspropertiespath"));
+		String businessName = yp.getProperty("SourceFolder");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		String formatStr = formatter.format(new Date());
+
+		String outpath = "xls\\out\\piout\\OUT2_" + businessName + "_" + formatStr + ".xls";
+		return ExprotExcel(listmc, outpath);
+
+	}
 }

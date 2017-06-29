@@ -176,7 +176,8 @@ public class MysqlDbDaoI extends BaseDbDaoI {
 					Map<String, Object> mp = new HashMap<String, Object>();
 					mp.put("COLUMN_NAME", rs.getString("COLUMN_NAME"));
 					mp.put("TABLE_NAME", rs.getString("TABLE_NAME"));
-					mp.put("COLUMN_SIZE", rs.getInt("COLUMN_SIZE"));
+					Object colsize=rs.getInt("DECIMAL_DIGITS")!=0? (rs.getInt("COLUMN_SIZE")+","+rs.getInt("DECIMAL_DIGITS")):rs.getInt("COLUMN_SIZE");
+					mp.put("COLUMN_SIZE",colsize);
 					mp.put("TYPE_NAME", rs.getString("TYPE_NAME"));
 					mp.put("DB_TYPE", getDb_type());
 					mp.put("REMARKS",rs.getString("REMARKS"));

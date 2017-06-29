@@ -39,7 +39,7 @@ class ShowDialogLintener extends MouseAdapter {
 		chooser.showOpenDialog(frame);
 		String filePath = chooser.getSelectedFile().getAbsolutePath();
 		if (Utl.IsFileExists(filePath)) {
-			com.exprotmeteexcel.main.Testdbconn.ReadExcelExprot(filePath);
+			com.exprotmeteexcel.main.Testdbconn.ReadExcelExprot(filePath,"InfaBatch\\properties\\EXPORTMETA.properties");
 		} else {
 			JOptionPane.showMessageDialog(null, "您好，您要导入的excel路径" + filePath + "不存在!");
 

@@ -76,6 +76,26 @@ public interface ExprotMeteExcelService {
 	 *            ：Boolean
 	 */
 	public Boolean ReadExcelExprot(String path);
+	
+	//更新处理完成的配置数据
+	/**
+	 * 读EXCEL生成tableDDl和转换TRANLIST
+	 * 
+	 * @param path ：路径
+	 * @return map
+	 *            ：tableDDl，TRANLIST的集合
+	 */
+	
+	public Map<String,Object> ReadExcel(String path);
 
+	/**
+	 * 得到配置导出的原数据表
+	 * 
+	 * @param path ：路径
+	 * @param listmc:转换的列表
+	 * @return Boolean
+	 *            ：Boolean
+	 */
+	public Boolean ExcelExprot(String path,List<MateColumnsBean> listmc);
 
 }

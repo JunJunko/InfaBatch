@@ -31,8 +31,6 @@ public class Testdbconn {
 		getTableMateBeanByTest();
 
 		com.exprotmeteexcel.main.ExportExcel.main(null);
-	
-		
 
 	}
 
@@ -64,10 +62,17 @@ public class Testdbconn {
 
 	}
 
-	public static void ReadExcelExprot(String path) {
+	public static void ReadExcelExprot(String path,String metapath) {
 		Boolean bn = false;
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
-		bn = ex.ReadExcelExprot(path);
+		Map<String, Object> readmap = ex.ReadExcel(path);
+		@SuppressWarnings({ "unchecked", "unused" })
+		List<MateColumnsBean> listmc = (List<MateColumnsBean>) readmap.get("TRANLIST");
+
+		@SuppressWarnings({ "unchecked", "unused" })
+		Map<String, List<MateColumnsBean>> tableDdl = (Map<String, List<MateColumnsBean>>) readmap.get("TABLEDDL");
+	    ex.ExcelExprot(metapath,listmc);
+		
 		if (bn) {
 			log.info("运行成功！");
 		} else {

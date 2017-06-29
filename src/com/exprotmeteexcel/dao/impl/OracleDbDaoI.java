@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
+import com.exprotmeteexcel.utl.Utl;
 import com.exprotmeteexcel.utl.global.SQLGlobal;
 
 /**
@@ -153,9 +154,9 @@ public class OracleDbDaoI extends BaseDbDaoI {
 		try {
 			long d1 = System.currentTimeMillis();
 			log.info("执行取原数据");
-			Properties props =new Properties();
-			props.put("remarksReporting","true");
-			conn = this.getConnection( props);		
+			Properties props = new Properties();
+			props.put("remarksReporting", "true");
+			conn = this.getConnection(props);
 			dbmd = conn.getMetaData();
 			List<Map<String, Object>> owntab = ownertables.getMatedate();
 			for (int j = 0; j < owntab.size(); j++) {
@@ -168,7 +169,9 @@ public class OracleDbDaoI extends BaseDbDaoI {
 						owntab.get(j).get("TABLE_NAME").toString());
 
 				while (rstable.next()) {
-					//System.out.println("table_name:" + rstable.getString("TABLE_NAME")+"table_REMARKS:" + rstable.getString(12));
+					// System.out.println("table_name:" +
+					// rstable.getString("TABLE_NAME")+"table_REMARKS:" +
+					// rstable.getString(12));
 					tableRemarks = rstable.getString("REMARKS");
 				}
 				while (pri.next()) {
@@ -182,9 +185,11 @@ public class OracleDbDaoI extends BaseDbDaoI {
 					mp.put("TABLE_NAME", rs.getString("TABLE_NAME"));
 					mp.put("COLUMN_NAME", rs.getString("COLUMN_NAME"));
 					mp.put("TYPE_NAME", rs.getString("TYPE_NAME"));
-					mp.put("COLUMN_SIZE", rs.getInt("COLUMN_SIZE"));
+					Object colsize =rs.getInt("COLUMN_SIZE")==0?22:rs.getInt("DECIMAL_DIGITS")!=0? (rs.getInt("COLUMN_SIZE")+","+rs.getInt("DECIMAL_DIGITS")):rs.getInt("COLUMN_SIZE");
+					//System.out.println("DECIMAL_DIGITS:"+rs.getInt("DECIMAL_DIGITS")+";###COLUMN_SIZE:"+rs.getInt("COLUMN_SIZE"));
+					mp.put("COLUMN_SIZE", colsize);
 					mp.put("REMARKS", rs.getString("REMARKS"));
-					//System.out.println("REMARKS:"+ rs.getString("REMARKS"));
+					// System.out.println("REMARKS:"+ rs.getString("REMARKS"));
 					mp.put("TABLE_REMARKS", tableRemarks);
 					// System.out.println(i+":"+rs.getString("COLUMN_DEF"));
 					mp.put("COLUMN_DEF", rs.getObject(12));
