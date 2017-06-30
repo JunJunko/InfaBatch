@@ -151,23 +151,22 @@ public class UpdateXml {
 					name = SOURCEFIELD.getAttribute("NAME");
 					switch (Type) {
 					case "拉链表":
-						String a = SOURCEFIELD.getAttribute("NAME")+"seize_a_seat";
+					case "upsert":
+						String a = SOURCEFIELD.getAttribute("NAME") + "seize_a_seat";
 
-							if (!DT.contains(a)
-									&& !a.substring(0, 3).equals("DW_")) {
+						if (!DT.contains(a) && !a.substring(0, 3).equals("DW_")) {
 
-								// System.out.println(name);
-								name = SOURCEFIELD.getAttribute("NAME").substring(0,
-										SOURCEFIELD.getAttribute("NAME").length() - 1);
-							}
-						 else {
+							// System.out.println(name);
+							name = SOURCEFIELD.getAttribute("NAME").substring(0,
+									SOURCEFIELD.getAttribute("NAME").length() - 1);
+						} else {
 							name = SOURCEFIELD.getAttribute("NAME");
 						}
 						break;
-					case "upsert":
-						name = SOURCEFIELD.getAttribute("NAME").replace("_out", "");
-						break;
-						
+//					case "upsert":
+//						name = SOURCEFIELD.getAttribute("NAME").replace("_out", "");
+//						break;
+
 					}
 					if (Keyword.contains(name)) {
 						// System.out.println(name);
@@ -210,7 +209,15 @@ public class UpdateXml {
 					}
 					break;
 				case "upsert":
-					TOFIELD = ConnLab.getAttribute("TOFIELD").replace("_out", "");
+					// TOFIELD = ConnLab.getAttribute("TOFIELD").replace("_out",
+					// "");
+					// 该用新逻辑
+					if (ConnLab.getAttribute("TOFIELD").length() > 2) {
+						if (!ConnLab.getAttribute("TOFIELD").substring(0, 3).equals("DW_"))
+
+							TOFIELD = ConnLab.getAttribute("TOFIELD").substring(0,
+									ConnLab.getAttribute("TOFIELD").length() - 1);
+					}
 					break;
 				}
 				if (Keyword.contains(TOFIELD)) {

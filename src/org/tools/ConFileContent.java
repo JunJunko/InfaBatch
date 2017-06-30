@@ -92,25 +92,36 @@ public class ConFileContent {
 		StringBuffer Data = new StringBuffer();
 		org.tools.UpdateXml.updateAttributeValue(filename, Type);
 		String UpdateOption = "";
+		String TreatSourceOption = "";
 		switch (Type) {
 		case "全删全插":
 			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
 			break;
 			
 		case "append":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Data driven";
 			break;
 
 		case "upsert":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Data driven";
 			break;
 
 		case "拉链表":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Data driven";
 			break;
 
 		case "check":
-			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
+			break;
+			
+		case "init":
+			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
 			break;
 
 		}
@@ -133,6 +144,7 @@ public class ConFileContent {
 		}
 		return Data.toString()
 				.replace("\"Update else Insert\" VALUE=\"NO", UpdateOption)
+				.replace("\"Treat source rows as\" VALUE=\"Insert", TreatSourceOption)
 				.replace("NAME=\"Sorter Cache Size\" VALUE=\"8388608\"", "NAME=\"Sorter Cache Size\" VALUE=\"auto\"")
 				.replace("<POWERMART", "<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\"><POWERMART")
 				.replace("FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"NO\" FAIL_PARENT_IF_INSTANCE_FAILS=\"NO\"", "FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"YES\" FAIL_PARENT_IF_INSTANCE_FAILS=\"YES\"")

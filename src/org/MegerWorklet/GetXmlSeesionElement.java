@@ -37,7 +37,7 @@ public class GetXmlSeesionElement {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		System.out.println(GetSession("xml\\CheckXml\\M_CHECK_KMS_COMP_DBCP_CK.xml"));
+//		System.out.println(GetSession("xml\\CheckXml\\M_CHECK_KMS_COMP_DBCP_CK.xml"));
 	}
 
 }

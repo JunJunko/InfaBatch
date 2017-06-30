@@ -257,9 +257,9 @@ public class ZipperTable extends Base implements Parameter{
 
 		// 增加router组件
 		List<TransformGroup> transformGrps = new ArrayList<TransformGroup>();
-		TransformGroup transGrp = new TransformGroup("Data_UDs", "isnull(ID) or (ID=IN_ID AND MD5ALL != IN_MD5ALL)");
+		TransformGroup transGrp = new TransformGroup("Data_UDs", "isnull(FD_ID) or (FD_ID=IN_FD_ID AND MD5ALL != IN_MD5ALL)");
 		transformGrps.add(transGrp);
-		transGrp = new TransformGroup("Data_Inserts", "isnull(IN_ID) or (ID=IN_ID AND MD5ALL != IN_MD5ALL)");
+		transGrp = new TransformGroup("Data_Inserts", "isnull(IN_FD_ID) or (FD_ID=IN_FD_ID AND MD5ALL != IN_MD5ALL)");
 		transformGrps.add(transGrp);
 		OutputSet routerOutputSet = helper.router(joinRowSet, transformGrps,
 				"RTR_" + org.tools.GetProperties.getKeyValue("TableNm"));

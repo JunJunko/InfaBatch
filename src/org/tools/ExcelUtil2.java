@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class ExcelUtil {
+public class ExcelUtil2 {
 
 	public static void main(String[] args) {
 		System.out.println(readExecl("D:\\EXCEL\\OUT2_DLPM_20170628171435815.xls"));
@@ -59,33 +59,40 @@ public class ExcelUtil {
 			HashMap<String, Integer> Hm = new HashMap<String, Integer>();
 
 			for (int i = 1; i <= lastRowNum; i++) {
-				row = sheet.getRow(i); // 取得第i行
-				cell_a = row.getCell(0); // 取得i行的第一列
+				//取表名
+				row = sheet.getRow(i); 
+				cell_a = row.getCell(2); 
 
 				cellValue = cell_a.getStringCellValue().trim();
 
 				TableList.add(cellValue);
-
-				row = sheet.getRow(i); // 取得第i行
-				cell_b = row.getCell(1); // 取得i行的第一列
+				
+                //取字段名
+				row = sheet.getRow(i); 
+				cell_b = row.getCell(5); 
 				cellValue2 = cell_b.getStringCellValue().trim();
 				ColumnList.add(cellValue2);
 
-				row = sheet.getRow(i); // 取得第i行
-				cell_c = row.getCell(3); // 取得i行的第一列
+				//取字段类型
+				row = sheet.getRow(i); 
+				cell_c = row.getCell(9); 
 				cellValue3 = cell_c.getStringCellValue().trim().toUpperCase();
 				TypeList.add(cellValue3);
 
+				//取pi值
 				row = sheet.getRow(i); // 取得第i行
-				cell_d = row.getCell(4); // 取得i行的第一列
+				cell_d = row.getCell(13); // 取得i行的第一列
 				if (!(cell_d == null)) {
 					cellValue4 = cell_d.getStringCellValue().trim();
 				} else {
 					cellValue4 = "";
 				}
-
+				
+                //取入仓逻辑
 				row = sheet.getRow(i); // 取得第i行
-				cell_e = row.getCell(5); // 取得i行的第一列
+				cell_e = row.getCell(20); // 取得i行的第一列
+				
+				
 				cellValue5 = cell_e.getStringCellValue().trim();
 				TableList.add(cellValue5);
 				TypeList.add(cellValue4);

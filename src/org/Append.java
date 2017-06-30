@@ -60,7 +60,10 @@ public class Append extends Base implements Parameter {
 		System.out.println(GetTableList());
 
 	}
-
+	
+	/**
+	 * 生成一个PWC的Session
+	 */
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
@@ -101,6 +104,7 @@ public class Append extends Base implements Parameter {
 		TaskProperties SP = session.getProperties();
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
+		SP.setProperty("Treat source rows as", "Data driven");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "NO");
 
 		newTgtCon.setConnectionVariable(TDConnUpdate);
@@ -116,6 +120,9 @@ public class Append extends Base implements Parameter {
 	}
 
 	@Override
+	/**
+	 * 生成一个PWC的Mapping
+	 */
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
@@ -172,6 +179,9 @@ public class Append extends Base implements Parameter {
 
 	}
 
+	/**
+	 * 设置元或者目标的属性
+	 */
 	public void setSourceTargetProperties() {
 		// TODO Auto-generated method stub
 
@@ -179,7 +189,9 @@ public class Append extends Base implements Parameter {
 		this.employeeSrc.setSessionTransformInstanceProperty("Owner Name", Owner);
 
 	}
-
+	/**
+	 * 生成一个PWC的Source
+	 */
 	@Override
 	protected void createSources() {
 		// TODO Auto-generated method stub
@@ -188,6 +200,9 @@ public class Append extends Base implements Parameter {
 		folder.addSource(employeeSrc);
 	}
 
+	/**
+	 * 生成一个PWC的Target
+	 */
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
@@ -196,6 +211,9 @@ public class Append extends Base implements Parameter {
 		
 	}
 
+	/**
+	 * 生成一个PWC的Workflow
+	 */
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
@@ -206,6 +224,9 @@ public class Append extends Base implements Parameter {
 		folder.addWorkFlow(workflow);
 	}
 
+	/**
+	 * 从工具类读取Excel配置文件的元数据信息
+	 */
 	public static ArrayList<String> GetTableList() {
 		// TODO Auto-generated method stub
 		ArrayList<String> TL = new ArrayList<String>();

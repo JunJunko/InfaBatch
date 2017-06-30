@@ -201,6 +201,10 @@ public class JoinerMd5 extends Base implements Parameter{
 				case "VARCHAR":
 					sb = a.get(2).replace("VARCHAR", "String").replace(")", ",0)");
 					break;
+				
+				case "BIGINT":
+					sb = a.get(2).replace("BIGINT", "bigint").replace(")", ",0)");
+					break;	
 				default:
 					sb = "String(50,0)";
 					break;

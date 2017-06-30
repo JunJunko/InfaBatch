@@ -42,7 +42,7 @@ public class DataTypeTrans {
 	        case "DATETIME": sb = NativeDataTypes.Teradata.TIMESTAMP; break;
 	        case "INT": sb = NativeDataTypes.Teradata.INTEGER; break;
 	        case "TINYINT": sb = NativeDataTypes.Teradata.SMALLINT; break;
-	        case "BIT": sb = NativeDataTypes.Teradata.INTEGER; break;
+	        case "BIT": sb = NativeDataTypes.Teradata.SMALLINT; break;
 	        case "DOUBLE": sb = NativeDataTypes.Teradata.DECIMAL; break;
 	        case "FLOAT": sb = NativeDataTypes.Teradata.DECIMAL; break;
 	        case "TEXT": sb = NativeDataTypes.Teradata.VARCHAR; break;
@@ -60,10 +60,11 @@ public class DataTypeTrans {
 	        case "CHAR": sb = NativeDataTypes.ODBC.CHAR; break;
 	        case "DATE": sb = NativeDataTypes.ODBC.DATE; break;
 	        case "DECIMAL": sb = NativeDataTypes.ODBC.DECIMAL; break;
-	        case "DOUBLE": sb = NativeDataTypes.ODBC.DOUBLE; break;
-	        case "FLOAT": sb = NativeDataTypes.ODBC.FLOAT; break;
+	        case "DOUBLE": sb = NativeDataTypes.ODBC.DECIMAL; break;
+	        case "FLOAT": sb = NativeDataTypes.ODBC.DECIMAL; break;
 	        case "VARCHAR": sb = NativeDataTypes.ODBC.VARCHAR; break;
 	        case "TINYINT": sb = NativeDataTypes.ODBC.INTEGER; break;
+	        case "BIT": sb = NativeDataTypes.ODBC.SMALLINT; break;
 	        case "TEXT": sb = NativeDataTypes.ODBC.LONG_VARBINARY; break;
 	        default: sb = NativeDataTypes.Teradata.VARCHAR; break; 
 	        };
