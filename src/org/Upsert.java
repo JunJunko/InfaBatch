@@ -40,7 +40,7 @@ import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationCon
  * 
  * 
  */
-public class JoinerMd52 extends Base implements Parameter {
+public class Upsert extends Base implements Parameter {
 	protected Target outputTarget;
 
 	protected Source ordersSource;
@@ -374,15 +374,11 @@ public class JoinerMd52 extends Base implements Parameter {
 
 	public static void main(String args[]) {
 		try {
-			JoinerMd52 joinerTrans = new JoinerMd52();
+			Upsert joinerTrans = new Upsert();
 			if (args.length > 0) {
 				if (joinerTrans.validateRunMode(args[0])) {
-					ArrayList<String> a = GetTableList();
-					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for (int i = 0; i < a.size(); i++) {
 					org.tools.GetProperties.writeProperties("TableNm", args[1]);
 					joinerTrans.execute();
-					// }
 				}
 			} else {
 				joinerTrans.printUsage();

@@ -26,6 +26,9 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+
+
+
 public class Append extends Base implements Parameter {
 
 	protected Source employeeSrc;
@@ -40,14 +43,8 @@ public class Append extends Base implements Parameter {
 			Append expressionTrans = new Append();
 			if (args.length > 0) {
 				if (expressionTrans.validateRunMode(args[0])) {
-					// ArrayList<String> a = GetTableList();
-					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for(int i = 0; i < a.size(); i++){
-
 					org.tools.GetProperties.writeProperties("TableNm", args[1]);
-					// System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
 					expressionTrans.execute();
-					// }
 				}
 			} else {
 				expressionTrans.printUsage();
@@ -57,13 +54,14 @@ public class Append extends Base implements Parameter {
 			System.err.println("Exception is: " + e.getMessage());
 		}
 
-		System.out.println(GetTableList());
 
 	}
 	
 	/**
-	 * 生成一个PWC的Session
+	 * @author    Junko
+	 * @since     生成一个PWC的Session
 	 */
+	
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
@@ -71,17 +69,15 @@ public class Append extends Base implements Parameter {
 				"A_"+"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"");
 		session.setMapping(this.mapping);
-
-		// Adding Connection Objects for substitution mask option
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		ConnectionInfo info = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops = info.getConnProps();
-		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
+//		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
 		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "1");
 
 		ConnectionInfo info2 = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops2 = info2.getConnProps();
-		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
+//		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
 		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "2");
 		List<ConnectionInfo> cons = new ArrayList<ConnectionInfo>();
 		cons.add(info);
@@ -118,11 +114,13 @@ public class Append extends Base implements Parameter {
 		setSourceTargetProperties();
 
 	}
-
-	@Override
+	
 	/**
-	 * 生成一个PWC的Mapping
+	 *  @author    Junko
+	 *  @since      生成一个PWC的Mapping
 	 */
+	@Override
+
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
@@ -190,7 +188,8 @@ public class Append extends Base implements Parameter {
 
 	}
 	/**
-	 * 生成一个PWC的Source
+	 * @author    Junko
+	 *  @since    生成一个PWC的Source
 	 */
 	@Override
 	protected void createSources() {
@@ -201,7 +200,8 @@ public class Append extends Base implements Parameter {
 	}
 
 	/**
-	 * 生成一个PWC的Target
+	 *  @author    Junko
+	 *  @since    生成一个PWC的Target
 	 */
 	@Override
 	protected void createTargets() {
@@ -212,7 +212,8 @@ public class Append extends Base implements Parameter {
 	}
 
 	/**
-	 * 生成一个PWC的Workflow
+	 *  @author    Junko
+	 *  @since     生成一个PWC的Workflow
 	 */
 	@Override
 	protected void createWorkflow() throws Exception {
@@ -224,22 +225,5 @@ public class Append extends Base implements Parameter {
 		folder.addWorkFlow(workflow);
 	}
 
-	/**
-	 * 从工具类读取Excel配置文件的元数据信息
-	 */
-	public static ArrayList<String> GetTableList() {
-		// TODO Auto-generated method stub
-		ArrayList<String> TL = new ArrayList<String>();
-
-		for (int i = 0; i < TableConf.size(); i++) {
-			ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
-			if (!TL.contains(a.get(0))) {
-				TL.add(a.get(0));
-
-			}
-		}
-
-		return TL;
-	}
 
 }

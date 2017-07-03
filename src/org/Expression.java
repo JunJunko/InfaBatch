@@ -30,7 +30,6 @@ public class Expression extends Base implements Parameter {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
-//	protected String TableNmE = org.tools.GetProperties.getKeyValue("ISBigCloumn");
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
@@ -41,15 +40,9 @@ public class Expression extends Base implements Parameter {
 		 try {
 	            Expression expressionTrans = new Expression();
 	            if (args.length > 0) {
-	                if (expressionTrans.validateRunMode( args[0] )) {
-//	                	ArrayList<String> a = GetTableList();
-//	                	org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-//	                	for(int i = 0; i < a.size(); i++){
-	                		
+	                if (expressionTrans.validateRunMode( args[0] )) {	                		
 	                		org.tools.GetProperties.writeProperties("TableNm", args[1]);
-//	                		System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
 	                        expressionTrans.execute();
-//	                	}
 	                }
 	            } else {
 	                expressionTrans.printUsage();
@@ -77,13 +70,7 @@ public class Expression extends Base implements Parameter {
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		ConnectionInfo info = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops = info.getConnProps();
-//		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
-//		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "1");
-//
-//		ConnectionInfo info2 = new ConnectionInfo(SourceTargetType.Oracle);
-//		ConnectionProperties cprops2 = info2.getConnProps();
-//		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
-//		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "2");
+
 		List<ConnectionInfo> cons = new ArrayList<ConnectionInfo>();
 //		cons.add(info);
 //		cons.add(info2);
@@ -123,7 +110,6 @@ public class Expression extends Base implements Parameter {
 
 	@Override
 	protected void createMappings() throws Exception {
-		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
 		mapping = new Mapping("I_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"mapping", "");
