@@ -122,6 +122,8 @@ public class UpdateXml {
 
 							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("ZipSourceFilter"));
 
+							} else if (Type.equals("check")) {
+							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("ZipCheckSourceFilter"));
 							} else {
 							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("UpsertSourceFilter"));
 							}
@@ -163,9 +165,10 @@ public class UpdateXml {
 							name = SOURCEFIELD.getAttribute("NAME");
 						}
 						break;
-//					case "upsert":
-//						name = SOURCEFIELD.getAttribute("NAME").replace("_out", "");
-//						break;
+					// case "upsert":
+					// name = SOURCEFIELD.getAttribute("NAME").replace("_out",
+					// "");
+					// break;
 
 					}
 					if (Keyword.contains(name)) {

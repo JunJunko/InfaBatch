@@ -1,6 +1,12 @@
 package org;
 
 
+/**
+ * describe:
+ * 统一管理参数的接口<p>
+ * @author Junko
+ *
+ */
 public interface Parameter {
 
 	// 源文件夹

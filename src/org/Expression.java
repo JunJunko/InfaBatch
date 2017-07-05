@@ -26,6 +26,13 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+/**
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成全删全插逻辑的XML文件
+ *
+ */
 public class Expression extends Base implements Parameter {
 
 	protected Source employeeSrc;
@@ -51,12 +58,13 @@ public class Expression extends Base implements Parameter {
 	            e.printStackTrace();
 	            System.err.println( "Exception is: " + e.getMessage() );
 	        }
-	    	
-	    	System.out.println(GetTableList());
-	    
+	    		    
 
 	}
-
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Session
+	 */
 	@Override
 	public void createSession() {
 	
@@ -107,7 +115,11 @@ public class Expression extends Base implements Parameter {
 		setSourceTargetProperties();
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Mapping
+	 */
 	@Override
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
@@ -157,7 +169,11 @@ public class Expression extends Base implements Parameter {
 		folder.addMapping(mapping);
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据属性文件配置source的owner信息
+	 */
 	public void setSourceTargetProperties() {
 		// TODO Auto-generated method stub
 
@@ -165,7 +181,11 @@ public class Expression extends Base implements Parameter {
 		this.employeeSrc.setSessionTransformInstanceProperty("Owner Name", Owner);
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Source
+	 */
 	@Override
 	protected void createSources() {
 		// TODO Auto-generated method stub
@@ -174,12 +194,21 @@ public class Expression extends Base implements Parameter {
 		folder.addSource(employeeSrc);
 	}
 
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Target
+	 */
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
 		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Workflow
+	 */
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
@@ -190,20 +219,6 @@ public class Expression extends Base implements Parameter {
 		folder.addWorkFlow(workflow);
 	}
 
-	public static ArrayList<String> GetTableList() {
-		// TODO Auto-generated method stub
-		ArrayList<String> TL = new ArrayList<String> ();
-	      
-        for (int i = 0; i < TableConf.size(); i++){
-        	ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
-        	if(!TL.contains(a.get(0))){
-        		TL.add(a.get(0));
-        		
-        	}
-        }  
-        
-        return TL;
-    }
-	
+
 
 }

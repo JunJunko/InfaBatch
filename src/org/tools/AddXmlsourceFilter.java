@@ -23,11 +23,12 @@ import org.xml.sax.SAXException;
 
 public class AddXmlsourceFilter {
 
+	/**
+	 * @author Junko
+	 * @param filePathÎÄ¼þÂ·¾¶
+	 */
 	public static void updateAttributeValue(String filePath) {
 
-		Element SOURCE = null;
-		Element SOURCEFIELD = null;
-		NodeList SourceLab = null;
 		NodeList ComponAttr = null;
 		DocumentBuilder dBuilder = null;
 		Document doc = null;
@@ -86,26 +87,7 @@ public class AddXmlsourceFilter {
 			}
 			
 			
-			
-//			 Element TOINSTANCE = (Element)
-//			 ConnLab.getElementsByTagName("TOINSTANCE");
-//			String TOINSTANCE = ConnLab.getAttribute("NAMES");
-			// for(int j = 0; j < TOINSTANCE.getLength(); j++){
-			// System.out.println(TOINSTANCE);
-			// if(TOINSTANCE.substring(0, 5).equals("SQ_O_")){
-			// String TOFIELD = ConnLab.getAttribute("TOFIELD");
-			// if(org.tools.RePlaceOG.OG().contains(TOFIELD)){
-			// System.out.println(TOFIELD);
-			// ConnLab.setAttribute("FROMFIELD", TOFIELD+"_OG");
-			//
-			// }
-			// }
-
-			// if(ConnLab.getElementsByTagName("TOINSTANCE").toString().substring(0,
-			// 3) == "1"){
-			// String TOFIELD = ConnLab.getAttribute("TOFIELD");
-			// System.out.println(TOFIELD);
-			// }
+		
 
 		}
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();  

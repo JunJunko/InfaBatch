@@ -277,8 +277,9 @@ public abstract class Base {
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List) TableConf.get(i);
 			// TableList.add(a);
+			//过滤成源表名
 			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_CK", ""))) {
+					.replace("_CK", "").replace("_H", ""))) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
 				// 鍒涘缓 Pattern 瀵硅薄
@@ -300,24 +301,10 @@ public abstract class Base {
 						precision = "0";
 					}
 				}
-				// System.out.println(a.get(2).toString().substring(0,
-				// a.get(2).toString().indexOf("(")));
-
-				// System.out.println(a.get(0).toString());
-				// System.out.println(a.get(3).toString().trim().equals("PI")+
-				// a.get(3).toString().trim());
-
-				// NullEable = false;
-				// System.out.println(a.get(1).toString() + "," +
-				// org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
-				// + len + "," + precision);
+			
 				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
 						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, FieldKeyType.NOT_A_KEY,
 						FieldType.SOURCE, false);
-
-				// Field OWNER=new
-				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
-
 				fields.add(field);
 				TableName = TableNm;
 			}

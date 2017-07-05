@@ -37,8 +37,11 @@ import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationCon
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContextFactory;
 
 /**
- * 
- * 
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成拉链表逻辑的XML文件
+ *
  */
 public class ZipperTable extends Base implements Parameter{
 	protected Target outputTarget;
@@ -124,7 +127,7 @@ public class ZipperTable extends Base implements Parameter{
 
 		RowSet SouSort = helper.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
 				"SRT_" + "O_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H")
+						+ org.tools.GetProperties.getKeyValue("TableNm"))
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -257,9 +260,9 @@ public class ZipperTable extends Base implements Parameter{
 
 		// 增加router组件
 		List<TransformGroup> transformGrps = new ArrayList<TransformGroup>();
-		TransformGroup transGrp = new TransformGroup("Data_UDs", "isnull(FD_ID) or (FD_ID=IN_FD_ID AND MD5ALL != IN_MD5ALL)");
+		TransformGroup transGrp = new TransformGroup("Data_UDs", org.tools.getPrimaryKeyTran2Expresion.getPrimayKeyList(TableConf, org.tools.GetProperties.getKeyValue("TableNm"), "Datsa_UDs"));
 		transformGrps.add(transGrp);
-		transGrp = new TransformGroup("Data_Inserts", "isnull(IN_FD_ID) or (FD_ID=IN_FD_ID AND MD5ALL != IN_MD5ALL)");
+		transGrp = new TransformGroup("Data_Inserts", org.tools.getPrimaryKeyTran2Expresion.getPrimayKeyList(TableConf, org.tools.GetProperties.getKeyValue("TableNm"), "Data_Inserts"));
 		transformGrps.add(transGrp);
 		OutputSet routerOutputSet = helper.router(joinRowSet, transformGrps,
 				"RTR_" + org.tools.GetProperties.getKeyValue("TableNm"));

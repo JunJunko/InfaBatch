@@ -18,12 +18,19 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExcelUtil {
 
 	public static void main(String[] args) {
-		System.out.println(readExecl("D:\\EXCEL\\OUT2_DLPM_20170628171435815.xls"));
-//		System.out.println(readExecl("D:\\EXCEL\\eln.xlsx"));
+//		System.out.println(readExecl("D:\\EXCEL\\OUT2_DLPM_20170628171435815.xls"));
+		System.out.println(readExecl("D:\\EXCEL\\eln.xlsx"));
 
 
 	}
 
+	/**
+	 * Describe：
+	 * 读取Excel的配置信息<p>
+	 * @param 文件路径
+	 * @return 返回Excel的配置信息
+	 * 
+	 */
 	public static ArrayList<ArrayList<String>> readExecl(String fileName) {
 		boolean isE2007 = false; // 判断是否是excel2007格式
 		List<String> TableList = new ArrayList<String>();
@@ -51,11 +58,13 @@ public class ExcelUtil {
 			Cell cell_c = null;
 			Cell cell_d = null;
 			Cell cell_e = null;
+			Cell cell_g = null;
 			String cellValue;
 			String cellValue2;
 			String cellValue3;
 			String cellValue4;
 			String cellValue5;
+			String cellValue6;
 			HashMap<String, Integer> Hm = new HashMap<String, Integer>();
 
 			for (int i = 1; i <= lastRowNum; i++) {
@@ -87,14 +96,19 @@ public class ExcelUtil {
 				row = sheet.getRow(i); // 取得第i行
 				cell_e = row.getCell(5); // 取得i行的第一列
 				cellValue5 = cell_e.getStringCellValue().trim();
+//				(row.getCell(6) != null? row.getCell(6):"")
+				cell_g =  row.getCell(6); // 取得i行的第一列
+				cellValue6 = cell_g != null ? cell_g.getStringCellValue().trim():"";
+				
 				TableList.add(cellValue5);
 				TypeList.add(cellValue4);
-
+				
 				HashList.add(cellValue);
 				HashList.add(cellValue2);
 				HashList.add(cellValue3);
 				HashList.add(cellValue4);
 				HashList.add(cellValue5);
+				HashList.add(cellValue6);
 
 				ReList.add(HashList);
 

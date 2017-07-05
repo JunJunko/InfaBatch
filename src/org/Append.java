@@ -29,6 +29,13 @@ import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationExc
 
 
 
+/**
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成Append逻辑的XML文件
+ *
+ */
 public class Append extends Base implements Parameter {
 
 	protected Source employeeSrc;
@@ -59,7 +66,7 @@ public class Append extends Base implements Parameter {
 	
 	/**
 	 * @author    Junko
-	 * @since     生成一个PWC的Session
+	 * @since     根据Excel配置信息生成一个PWC的Session
 	 */
 	
 	@Override

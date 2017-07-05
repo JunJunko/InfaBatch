@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Describe:
+ * @author Junko
+ * 
+ *
+ */
 public class CallPmrepCom {
 	static String path  = "D:\\workspace\\Uoo-master\\xml\\";
 
@@ -88,18 +94,6 @@ public class CallPmrepCom {
 		
 		// TODO Auto-generated method stub
 		
-//		pmrep objectImport -i D:\workspace\Uoo\m_CRM_CX_FXH_LOGIN.xml -c D:\workspace\Uoo\sample_import_controlfile.xml
-
-
-            
-//			Runtime runtime=Runtime.getRuntime();
-
-//			try{
-////				String commandStr = "cmd /k D:\\software\\Informatica\\9.6.1\\clients\\PowerCenterClient\\client\\binpmrep connect -r dev_store_edw  -h etldsvr01 -o 6005 -n NC_ZJK -x 499099784";
-////				Runtime.getRuntime().exec(commandStr);
-//
-//
-//			}catch(Exception e){
 
 			List<String> FN = getFileName();
 			writeLog("D:\\software\\Informatica\\9.6.1\\clients\\PowerCenterClient\\client\\bin\\pmrep connect -r dev_store_edw  -h etldsvr01 -o 6005 -n NC_ZJK -x 499099784\r");

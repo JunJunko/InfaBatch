@@ -11,9 +11,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+
 public class ConFileContent {
 
-
+	/**
+	 * Describe:
+	 * 从指定的文件读取文件内容<p>
+	 * @author Junko
+	 * @param  文件路径
+	 * @return 已String的形式返回指定的文件内容
+	 * 
+	 * 
+	 */
 	public static String readToString(String fileName) {
 		String encoding = "GBK";
 		File file = new File(fileName);
@@ -36,7 +46,13 @@ public class ConFileContent {
 			return null;
 		}
 	}
-
+	
+	/**
+	 * @author Junko
+	 * @param  xml内容， 入仓逻辑
+	 * @return XML内容
+	 * @see    org.tools.GetProperties.getKeyValue
+	 */
 	public static String writeLog(String str, String Type) {
 		String Platfrom = org.tools.GetProperties.getKeyValue("System");
 		try {
@@ -88,6 +104,15 @@ public class ConFileContent {
 		return str;
 	}
 
+
+	/**
+	 * @author Junko
+	 * @param  文件路径， 入仓逻辑
+	 * @return 返回修改完属性的文件内容
+	 * @see    org.tools.UpdateXml.updateAttributeValue
+	 * 
+	 * 按入仓逻辑修改XML属性内容
+	 */
 	public static String ReplaceColumnNm(String filename, String Type) {
 		StringBuffer Data = new StringBuffer();
 		org.tools.UpdateXml.updateAttributeValue(filename, Type);

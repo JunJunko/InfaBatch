@@ -26,6 +26,13 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+/**
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成始初话逻辑的XML文件
+ *
+ */
 public class Init extends Base implements Parameter {
 
 	protected Source employeeSrc;

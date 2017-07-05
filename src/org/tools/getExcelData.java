@@ -15,15 +15,25 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class ExcelUtil2 {
+/**
+ * describe:从Excel配置文件读取表名、字段名、数据类型、是否PI、入仓逻辑<p>
+ * @author Junko
+ *
+ */
+public class getExcelData {
 
 	public static void main(String[] args) {
-		System.out.println(readExecl("D:\\EXCEL\\OUT2_DLPM_20170628171435815.xls"));
+		System.out.println(readExecl("D:\\EXCEL\\OUT2_OUT_CBI_20170704155607660.xls"));
 //		System.out.println(readExecl("D:\\EXCEL\\eln.xlsx"));
 
 
 	}
-
+	/**
+	 * describe:从Excel配置文件读取表名、字段名、数据类型、是否PI、入仓逻辑<p>
+	 * @author Junko
+	 * @param Excel路径
+	 * @return Excel数据
+	 */
 	public static ArrayList<ArrayList<String>> readExecl(String fileName) {
 		boolean isE2007 = false; // 判断是否是excel2007格式
 		List<String> TableList = new ArrayList<String>();
@@ -51,11 +61,13 @@ public class ExcelUtil2 {
 			Cell cell_c = null;
 			Cell cell_d = null;
 			Cell cell_e = null;
+			Cell cell_m = null;
 			String cellValue;
-			String cellValue2;
-			String cellValue3;
-			String cellValue4;
-			String cellValue5;
+			String ColumnNM;
+			String DataType;
+			String IsPi;
+			String InputLogic;
+			String PrimaryKey;
 			HashMap<String, Integer> Hm = new HashMap<String, Integer>();
 
 			for (int i = 1; i <= lastRowNum; i++) {
@@ -70,38 +82,44 @@ public class ExcelUtil2 {
                 //取字段名
 				row = sheet.getRow(i); 
 				cell_b = row.getCell(5); 
-				cellValue2 = cell_b.getStringCellValue().trim();
-				ColumnList.add(cellValue2);
+				ColumnNM = cell_b.getStringCellValue().trim();
+				ColumnList.add(ColumnNM);
 
 				//取字段类型
 				row = sheet.getRow(i); 
 				cell_c = row.getCell(9); 
-				cellValue3 = cell_c.getStringCellValue().trim().toUpperCase();
-				TypeList.add(cellValue3);
+				DataType = cell_c.getStringCellValue().trim().toUpperCase();
+				TypeList.add(DataType);
 
 				//取pi值
 				row = sheet.getRow(i); // 取得第i行
 				cell_d = row.getCell(13); // 取得i行的第一列
 				if (!(cell_d == null)) {
-					cellValue4 = cell_d.getStringCellValue().trim();
+					IsPi = cell_d.getStringCellValue().trim();
 				} else {
-					cellValue4 = "";
+					IsPi = "";
 				}
 				
                 //取入仓逻辑
 				row = sheet.getRow(i); // 取得第i行
 				cell_e = row.getCell(20); // 取得i行的第一列
+				InputLogic = cell_e.getStringCellValue().trim();
+				
+				//取入仓逻辑
+				row = sheet.getRow(i); // 取得第i行
+				cell_m = row.getCell(12); // 取得i行的第一列
+				PrimaryKey = cell_m.getStringCellValue().trim();
 				
 				
-				cellValue5 = cell_e.getStringCellValue().trim();
-				TableList.add(cellValue5);
-				TypeList.add(cellValue4);
+				TableList.add(InputLogic);
+				TypeList.add(IsPi);
 
 				HashList.add(cellValue);
-				HashList.add(cellValue2);
-				HashList.add(cellValue3);
-				HashList.add(cellValue4);
-				HashList.add(cellValue5);
+				HashList.add(ColumnNM);
+				HashList.add(DataType);
+				HashList.add(IsPi);
+				HashList.add(InputLogic);
+				HashList.add(PrimaryKey);
 
 				ReList.add(HashList);
 
