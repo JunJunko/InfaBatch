@@ -91,7 +91,7 @@ protected Repository rep;
 	public  int doImportObject(String Location, String CtrlFile)
 			throws RepoConnectionObjectOperationException {
 
-		rep.setRepositoryConnectionManager(repmgr);
+//		rep.setRepositoryConnectionManager(repmgr);
 		int i = 0;
 		try {
 			reset();
@@ -110,11 +110,11 @@ protected Repository rep;
 	}
 
 	public static void main(String args[]) throws MapFwkOutputException, IOException {
-//		RepositoryConnectionManagerEx repMgr = new RepositoryConnectionManagerEx();
-		PMREPEXP repMgr = new PMREPEXP(DELIMITER,   null, "dev_store_edw", "Dev_Domain_etldstsvr01", "NC_ZJK", "499099784");
+		RepositoryConnectionManagerEx repMgr = new PmrepRepositoryConnectionManagerEx();			
+//		PMREPEXP repMgr = new PMREPEXP(DELIMITER,   null, "dev_store_edw", "Dev_Domain_etldstsvr01", "NC_ZJK", "499099784");
 		
 		RepoInit repo = new RepoInit();
-		repo.setRepositoryConnectionManager(null);
+		repo.setRepositoryConnectionManager(repMgr);
 		
 		try {
 			repMgr.doImportObject("xml\\CheckXml\\M_CHECK_KMS_KMS_ASK_CATEGORY_CK.xml", "CtrlFile\\check.xml");

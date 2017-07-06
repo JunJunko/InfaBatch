@@ -44,6 +44,7 @@ public class FactoryMapping implements Parameter {
 
 		ArrayList<String> AllKey = new ArrayList<String>();
 		AllKey.addAll(TableCloumnKV.keySet());
+		//清空生成XML目录下的文件
 		org.tools.DelXmlFolder.delAllFile("generaXml\\");
 		org.tools.DelXmlFolder.delAllFile("xml\\CheckXml\\");
 		org.tools.DelXmlFolder.delAllFile("xml\\InsertXml\\");
@@ -59,7 +60,7 @@ public class FactoryMapping implements Parameter {
 
 			switch (Type) {
 
-			/*case "全删全插":
+			case "全删全插":
 				Expression.main(new String[] { "0", AllKey.get(i) });
 
 				
@@ -72,50 +73,50 @@ public class FactoryMapping implements Parameter {
 				Check.main(new String[] { "0", AllKey.get(i), "check" });
 				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(
 						Refolder + "M_CHECK_" + Platfrom + "_" + AllKey.get(i) + "_CK.xml", "check"), "check");
-				break;*/
-//
+				break;
+
 //			case "append":
-//			/*	Append.main(new String[] { "0", AllKey.get(i) });
+//				Append.main(new String[] { "0", AllKey.get(i) });
 //				
 //				org.tools.ConFileContent.writeLog(
 //						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "A_" + MappingNm + ".xml", Type), Type);
 //				Init.main(new String[] { "0", AllKey.get(i) });
 //				org.tools.ConFileContent.writeLog(
-//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "init"), "init");*/
+//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "init"), "init");
 //				
 //				Check.main(new String[] { "0", AllKey.get(i), "check" });
 //				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(
 //						Refolder + "M_CHECK_" + Platfrom + "_" + AllKey.get(i) + "_CK.xml", "check"), "check");
 //				break;
 //
-			case "upsert":
-				Upsert.main(new String[] { "0", AllKey.get(i) });
-
-				org.tools.ConFileContent.writeLog(
-						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "U_" + MappingNm + ".xml", Type), Type);
-				/*Init.main(new String[] { "0", AllKey.get(i) });
-				org.tools.ConFileContent.writeLog(
-						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "全删全插"), "init");
-				Check.main(new String[] { "0", AllKey.get(i), Type });
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(
-						Refolder + "M_CHECK_" + Platfrom + "_" + AllKey.get(i) + "_CK.xml", "check"), "check");*/
-				break;
-
-			case "拉链表":
-						ZipperTable.main(new String[] { "0", AllKey.get(i) });
-
-				org.tools.ConFileContent.writeLog(
-						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "H_" + MappingNm + ".xml", Type), Type);
-				/*ZipInit.main(new String[] { "0", AllKey.get(i) });
-
-					org.tools.ConFileContent.writeLog(
-						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "全删全插"), "init");
-
-				ZipCheck.main(new String[] { "0", AllKey.get(i), Type });
-
-				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(
-						Refolder + "M_CHECK_" + Platfrom + "_" + AllKey.get(i) + "_CK.xml", "check"), "check");*/
-				break;
+//			case "upsert":
+//				Upsert.main(new String[] { "0", AllKey.get(i) });
+//
+//				org.tools.ConFileContent.writeLog(
+//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "U_" + MappingNm + ".xml", Type), Type);
+//				Init.main(new String[] { "0", AllKey.get(i) });
+//				org.tools.ConFileContent.writeLog(
+//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "全删全插"), "init");
+//				Check.main(new String[] { "0", AllKey.get(i), Type });
+//				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(
+//						Refolder + "M_CHECK_" + Platfrom + "_" + AllKey.get(i) + "_CK.xml", "check"), "check");
+//				break;
+//
+//			case "拉链表":
+//						ZipperTable.main(new String[] { "0", AllKey.get(i) });
+//
+//				org.tools.ConFileContent.writeLog(
+//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + "H_" + MappingNm + ".xml", Type), Type);
+//				ZipInit.main(new String[] { "0", AllKey.get(i) });
+//
+//					org.tools.ConFileContent.writeLog(
+//						org.tools.ConFileContent.ReplaceColumnNm(Refolder + MappingNm + ".xml", "全删全插"), "init");
+//
+//				ZipCheck.main(new String[] { "0", AllKey.get(i), Type });
+//
+//				org.tools.ConFileContent.writeLog(org.tools.ConFileContent.ReplaceColumnNm(
+//						Refolder + "M_CHECK_" + Platfrom + "_" + AllKey.get(i) + "_CK.xml", "check"), "check");
+//				break;
 
 			}
 

@@ -16,6 +16,13 @@ public class DelXmlFolder {
 	}
 
 	
+	/**
+	 * Describe:
+	 * 删除指定目录下的所有文件<p>
+	 * @author Junko
+	 * @param path
+	 * @return 操作标识
+	 */
 	public static boolean delAllFile(String path) {
 	       boolean flag = false;
 	       File file = new File(path);

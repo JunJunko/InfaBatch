@@ -17,6 +17,7 @@ public class PmrepRepositoryConnectionManagerEx extends RepositoryConnectionMana
 	protected int _importObjectIntoRepository(String paramString1, String paramString2)
 			throws RepoConnectionObjectOperationException, MapFwkOutputException {
 		// TODO Auto-generated method stub
+		connect();
 		return 0;
 	}
 
