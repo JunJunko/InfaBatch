@@ -223,7 +223,7 @@ public class ExcelUtility<T> {
 						// 是数字当作double处理
 						cell.setCellValue(Double.parseDouble(textValue));
 					} else {
-						System.out.println("textValue:" + textValue + "第几行：" + index + "第几个：" + i);
+						//System.out.println("textValue:" + textValue + "第几行：" + index + "第几个：" + i);
 						HSSFRichTextString richString = new HSSFRichTextString(textValue);
 					/*	HSSFFont font3 = workbook.createFont();
 						font3.setColor(HSSFColor.BLACK.index);
@@ -399,6 +399,7 @@ public class ExcelUtility<T> {
 		HSSFRow row = null;
 		Map<String, Object> mp =new HashMap<String, Object>();
 		List<Object[]> data = new ArrayList<Object[]>();
+		//拉链表MAP
 		Map<String, String> tablemap =new HashMap<String, String>();
 		try {
 			fs = new POIFSFileSystem(is);
@@ -422,6 +423,7 @@ public class ExcelUtility<T> {
 				for (int i = row_start_init; i <= rowNum; i++) {
 					row = sheet.getRow(i);
 					objs = new Object[colNum];
+					//是否拉链表逻辑
 					Cell ce=row.getCell(20);
 				    if(ce.getCellType() == Cell.CELL_TYPE_STRING){
 				    	if(!Utl.isEmpty(ce.getStringCellValue())){
@@ -450,6 +452,7 @@ public class ExcelUtility<T> {
 			log.error("错误信息", e);
 		}
 		mp.put("LISTDATE", data);
+		//拉链表MAP
 		mp.put("MAPDATE", tablemap);
 		return mp;
 	}

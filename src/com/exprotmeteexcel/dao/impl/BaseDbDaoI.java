@@ -155,6 +155,7 @@ public abstract class BaseDbDaoI implements BaseDbDao {
 		return rs;
 	}
 
+	
 	/**
 	 * 用于执行 INSERT、UPDATE 或 DELETE 语句
 	 * 
@@ -493,6 +494,7 @@ public abstract class BaseDbDaoI implements BaseDbDao {
 
 			conn = getConnection();
 			pstmt = conn.prepareStatement(sql);
+			
 			rs = pstmt.executeQuery();
 			ResultSetMetaData md = rs.getMetaData();
 			int columnCount = md.getColumnCount();
@@ -521,6 +523,42 @@ public abstract class BaseDbDaoI implements BaseDbDao {
 	 * @param sql
 	 * @return
 	 */
+	public List getDateForMap(String sql,Object... params) {
+		Connection conn = null;
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		List list = new ArrayList();
+		try {
+
+			long d1 = System.currentTimeMillis();
+			log.info("执行 SQL：" + sql);
+
+			conn = getConnection();
+			pstmt = conn.prepareStatement(sql);
+			if (params != null) {
+				for (int i = 0; i < params.length; i++) {
+					pstmt.setString(i + 1, params[i].toString());
+				}
+			}
+			rs = pstmt.executeQuery();
+			ResultSetMetaData md = rs.getMetaData();
+			int columnCount = md.getColumnCount(); // Map rowData;
+			while (rs.next()) { // rowData = new HashMap(columnCount);
+				Map rowData = new HashMap();
+				for (int i = 1; i <= columnCount; i++) {
+					rowData.put(md.getColumnName(i), rs.getObject(i));
+				}
+				list.add(rowData);
+			}
+			log.info("执行SQL 耗时：" + (System.currentTimeMillis() - d1) + "毫秒");
+		} catch (Exception e) {
+			log.error("错误信息", e);
+		} finally {
+			closeAll(conn, pstmt, rs);
+		}
+		return list;
+	}
+
 	public List getDateForMap(String sql) {
 		Connection conn = null;
 		ResultSet rs = null;

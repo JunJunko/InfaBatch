@@ -1,6 +1,6 @@
 package com.exprotmeteexcel.bean;
 
-public class MateColumnsBean {
+public class MateColumnsBean implements Cloneable{
 	String dbinfo;
 	String owner;
 	String tableName;
@@ -28,6 +28,15 @@ public class MateColumnsBean {
 	String valid;
 	String isGigDateCol;
 	
+	public Object clone() {  
+		MateColumnsBean o = null;  
+        try {  
+            o = (MateColumnsBean) super.clone();  
+        } catch (CloneNotSupportedException e) {  
+            e.printStackTrace();  
+        }  
+        return o;  
+    }  
 	public String getDbinfo() {
 		return dbinfo;
 	}

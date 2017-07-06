@@ -1,22 +1,17 @@
 package com.exprotmeteexcel.main;
 
-import java.awt.BorderLayout;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
-import com.exprotmeteexcel.bean.ShowDialogLintener;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
 import com.exprotmeteexcel.service.imp.ExprotMeteExcelServiceImpl;
 import com.exprotmeteexcel.utl.Utl;
@@ -28,8 +23,6 @@ public class Testdbconn {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		getTableMateBeanByTest();
-
 		com.exprotmeteexcel.main.ExportExcel.main(null);
 
 	}
@@ -40,39 +33,41 @@ public class Testdbconn {
 	 * @return MateBean
 	 */
 
-	public static void getTableMateBeanByTest() {
+	public static void getTableMateBeanByTest(String path) {
 		Boolean bn = false;
-		Properties p = Utl.getProperties("properties\\EXPORTMETA.properties");
+		Properties p = Utl.getProperties(path);
 		Properties yp = Utl.getProperties(p.getProperty("businesspropertiespath"));
 		String businessName = yp.getProperty("SourceFolder");
 		List<Map<String, Object>> alllist = getTableColAll(p.getProperty("businesspropertiespath"));
+
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		MateBean tt = new MateBean();
 		tt.setMatedate(alllist);
 		List<MateColumnsBean> lb = ex.getTableColumn(p.getProperty("businesspropertiespath"), tt);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		String formatStr = formatter.format(new Date());
-		String path = "xls\\out\\metaout\\OUT_" + businessName + "_" + formatStr + ".xls";
-		bn = ex.ExprotExcel(lb, path);
+		String opath = "xls\\out\\metaout\\OUT_" + businessName + "_" + formatStr + ".xls";
+		bn = ex.ExprotExcel(lb, opath);
 		if (bn) {
 			log.info("运行成功！");
+			log.info("表个数："+alllist.size());
 		} else {
 			log.info("运行失败！");
 		}
 
 	}
 
-	public static void ReadExcelExprot(String path,String metapath) {
+	public static void ReadExcelExprot(String path) {
 		Boolean bn = false;
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		Map<String, Object> readmap = ex.ReadExcel(path);
 		@SuppressWarnings({ "unchecked", "unused" })
 		List<MateColumnsBean> listmc = (List<MateColumnsBean>) readmap.get("TRANLIST");
+		File file = new File(path);
+		String metapath = file.getName();
+		String str = metapath.substring(0, metapath.lastIndexOf("."));
+		bn = ex.ExcelExprot(str, listmc);
 
-		@SuppressWarnings({ "unchecked", "unused" })
-		Map<String, List<MateColumnsBean>> tableDdl = (Map<String, List<MateColumnsBean>>) readmap.get("TABLEDDL");
-	    ex.ExcelExprot(metapath,listmc);
-		
 		if (bn) {
 			log.info("运行成功！");
 		} else {
@@ -81,26 +76,30 @@ public class Testdbconn {
 	}
 
 	/**
-	 * 原数据导出
+	 * 原数据导出excel
 	 * 
 	 * @return MateBean
 	 */
-	public static void getTableMateBean() {
+	public static void getTableMateBean(String path) {
 		Boolean bn = false;
-		Properties p = Utl.getProperties("properties\\EXPORTMETA.properties");
-
-		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		MateBean tt = new MateBean();
-		tt = ex.getTdMate(p.getProperty("teradatajdbcpath"));
-		Properties yp = Utl.getProperties(p.getProperty("businesspropertiespath"));
-		String businessName = yp.getProperty("SourceFolder");
+		Properties p = Utl.getProperties(path);
+		Properties py = Utl.getProperties(p.getProperty("businesspropertiespath"));
+		String businessName = py.getProperty("System");
+		//1、得到业务配置表
+		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();	
+		tt = ex.getTdMate(p.getProperty("teradatajdbcpath"),businessName);		
 		if (!Utl.isEmpty(tt.getMatedate())) {
+			//锁定对应的表
+			ex.updateTdMate(p.getProperty("teradatajdbcpath"), "running",businessName);
+			//得到每个配置表的对原数据信息
 			List<MateColumnsBean> lb = ex.getTableColumn(p.getProperty("businesspropertiespath"), tt);
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 			String formatStr = formatter.format(new Date());
-			String path = "xls\\out\\OUT_" + businessName + "_" + formatStr + ".xls";
-			bn = ex.ExprotExcel(lb, path);
-			ex.updateTdMate(p.getProperty("teradatajdbcpath"), bn);
+			String outpath = "xls\\out\\OUT_" + businessName + "_" + formatStr + ".xls";
+			bn = ex.ExprotExcel(lb, outpath);
+		   //完成后更新表
+			ex.updateTdMate(p.getProperty("teradatajdbcpath"), bn?"ok":"",businessName);
 		}
 
 		if (bn) {

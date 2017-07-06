@@ -51,7 +51,7 @@ public interface ExprotMeteExcelService {
 	 * @return MateBean
 	 *            ：配置表
 	 */
-	public MateBean getTdMate(String path);
+	public MateBean getTdMate(String path,String plaform);
 	
 	//更新处理完成的配置数据
 	/**
@@ -62,7 +62,7 @@ public interface ExprotMeteExcelService {
 	 * @return update
 	 *            ：update配置表状态
 	 */
-	public Boolean updateTdMate(String path, Boolean status);
+	public Boolean updateTdMate(String path, String status,String businessName) ;
 	
 	
 	
@@ -75,7 +75,7 @@ public interface ExprotMeteExcelService {
 	 * @return Boolean
 	 *            ：Boolean
 	 */
-	public Boolean ReadExcelExprot(String path);
+	//public Boolean ReadExcelExprot(String path);
 	
 	//更新处理完成的配置数据
 	/**
@@ -97,5 +97,13 @@ public interface ExprotMeteExcelService {
 	 *            ：Boolean
 	 */
 	public Boolean ExcelExprot(String path,List<MateColumnsBean> listmc);
+	/**
+	 * 得到配置导出的各库的原数据表，导出excal
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 */
 
+	public  Boolean ExprotTableMateBean(String path);
 }
