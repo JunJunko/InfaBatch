@@ -106,4 +106,15 @@ public interface ExprotMeteExcelService {
 	 */
 
 	public Boolean ExprotTableMateBean(String path);
+	/**
+	 * 得到配置表
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @param plaform：平台
+	 * @return List ：
+	 */
+
+	
+	public List getAutodev(String path, String plaform);
 }

@@ -26,67 +26,62 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+/**
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成全删全插逻辑的XML文件
+ *
+ */
 public class Expression extends Base implements Parameter {
 
 	protected Source employeeSrc;
 	protected Target TdTarget;
-	// protected String TableNmE =
-	// org.tools.GetProperties.getKeyValue("ISBigCloumn");
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
+	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		try {
-			Expression expressionTrans = new Expression();
-			if (args.length > 0) {
-				if (expressionTrans.validateRunMode(args[0])) {
-					// ArrayList<String> a = GetTableList();
-					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for(int i = 0; i < a.size(); i++){
-
-					org.tools.GetProperties.writeProperties("TableNm", args[1]);
-					// System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
-					expressionTrans.execute();
-					// }
-				}
-			} else {
-				expressionTrans.printUsage();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Exception is: " + e.getMessage());
-		}
-
-		System.out.println(GetTableList());
+		 try {
+	            Expression expressionTrans = new Expression();
+	            if (args.length > 0) {
+	                if (expressionTrans.validateRunMode( args[0] )) {	                		
+	                		org.tools.GetProperties.writeProperties("TableNm", args[1]);
+	                        expressionTrans.execute();
+	                }
+	            } else {
+	                expressionTrans.printUsage();
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            System.err.println( "Exception is: " + e.getMessage() );
+	        }
+	    		    
 
 	}
-
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Session
+	 */
 	@Override
 	public void createSession() {
-
+	
 		// TODO Auto-generated method stub
 		session = new Session("I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
+				"I_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"");
 		session.setMapping(this.mapping);
 
 		// Adding Connection Objects for substitution mask option
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		ConnectionInfo info = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops = info.getConnProps();
-		// cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME,
-		// "Oracle");
-		// cprops.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "1");
-		//
-		// ConnectionInfo info2 = new ConnectionInfo(SourceTargetType.Oracle);
-		// ConnectionProperties cprops2 = info2.getConnProps();
-		// cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME,
-		// "Oracle");
-		// cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "2");
+
 		List<ConnectionInfo> cons = new ArrayList<ConnectionInfo>();
-		// cons.add(info);
-		// cons.add(info2);
+//		cons.add(info);
+//		cons.add(info2);
 
 		ConnectionInfo newSrcCon = new ConnectionInfo(SourceTargetType.Oracle);
 		newSrcCon.setConnectionVariable(org.tools.GetProperties.getKeyValue("Connection"));
@@ -107,6 +102,8 @@ public class Expression extends Base implements Parameter {
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "YES");
 
+		
+
 		newTgtCon.setConnectionVariable(TDConnUpdate);
 
 		try {
@@ -118,12 +115,16 @@ public class Expression extends Base implements Parameter {
 		setSourceTargetProperties();
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Mapping
+	 */
 	@Override
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
-		mapping = new Mapping("I_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
+		mapping = new Mapping("I_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"mapping", "");
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
 		// creating DSQ Transformation
@@ -136,15 +137,16 @@ public class Expression extends Base implements Parameter {
 		}
 		RowSet dsqRS = (RowSet) outSet.getRowSets().get(0);
 
-		String expr = "integer(1,0) DW_OPER_FLAG = 1";
-		TransformField outField = new TransformField(expr);
-
-		String expr2 = "date/time(10, 0) DW_ETL_DT= to_date($$PRVS1D_CUR_DATE, 'yyyymmdd')";
-		TransformField outField2 = new TransformField(expr2);
-
-		String expr3 = "date/time(19, 0) DW_UPD_TM= SESSSTARTTIME";
-		TransformField outField3 = new TransformField(expr3);
-
+      String expr = "integer(1,0) DW_OPER_FLAG = 1";
+      TransformField outField = new TransformField( expr );
+      
+      String expr2 = "date/time(10, 0) DW_ETL_DT= to_date($$PRVS1D_CUR_DATE, 'yyyymmdd')";
+      TransformField outField2 = new TransformField( expr2 );
+      
+      String expr3 = "date/time(19, 0) DW_UPD_TM= SESSSTARTTIME";
+      TransformField outField3 = new TransformField( expr3 );
+		
+		
 		List<TransformField> transFields = new ArrayList<TransformField>();
 		transFields.add(outField);
 		transFields.add(outField2);
@@ -167,7 +169,11 @@ public class Expression extends Base implements Parameter {
 		folder.addMapping(mapping);
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据属性文件配置source的owner信息
+	 */
 	public void setSourceTargetProperties() {
 		// TODO Auto-generated method stub
 
@@ -175,7 +181,11 @@ public class Expression extends Base implements Parameter {
 		this.employeeSrc.setSessionTransformInstanceProperty("Owner Name", Owner);
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Source
+	 */
 	@Override
 	protected void createSources() {
 		// TODO Auto-generated method stub
@@ -184,13 +194,21 @@ public class Expression extends Base implements Parameter {
 		folder.addSource(employeeSrc);
 	}
 
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Target
+	 */
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Workflow
+	 */
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
@@ -201,19 +219,6 @@ public class Expression extends Base implements Parameter {
 		folder.addWorkFlow(workflow);
 	}
 
-	public static ArrayList<String> GetTableList() {
-		// TODO Auto-generated method stub
-		ArrayList<String> TL = new ArrayList<String>();
 
-		for (int i = 0; i < TableConf.size(); i++) {
-			ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
-			if (!TL.contains(a.get(0))) {
-				TL.add(a.get(0));
-
-			}
-		}
-
-		return TL;
-	}
 
 }

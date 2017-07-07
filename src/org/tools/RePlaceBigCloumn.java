@@ -5,14 +5,14 @@ import java.util.List;
 
 import org.Parameter;
 
-public class RePlaceOG implements Parameter{
+public class RePlaceBigCloumn implements Parameter{
 
-	public static List<String> OG(){
+	public static List<String> BigCloumn(){
 		
 		String[] strArray = null;  
-        strArray = org.tools.GetProperties.getKeyValue("OGCloumn").toUpperCase().split(",");
-        List<String> OGCloumn =  Arrays.asList(strArray);
-		return OGCloumn;
+        strArray = org.tools.GetProperties.getPubKeyValue("BigCloumn").toUpperCase().split(",");
+        List<String> BCloumn =  Arrays.asList(strArray);
+		return BCloumn;
 		
 	}
 	

@@ -42,7 +42,7 @@ public class ZipExpression extends Base implements Parameter {
 			if (args.length > 0) {
 				if (expressionTrans.validateRunMode(args[0])) {
 					ArrayList<String> a = GetTableList();
-					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
+//					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
 					// for(int i = 0; i < a.size(); i++){
 
 					org.tools.GetProperties.writeProperties("TableNm", args[1]);
@@ -65,8 +65,8 @@ public class ZipExpression extends Base implements Parameter {
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
-		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H",
-				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H",
+		session = new Session("S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H",
+				"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H",
 				"This is session for Expression DMO Tx");
 		session.setMapping(this.mapping);
 
@@ -103,6 +103,8 @@ public class ZipExpression extends Base implements Parameter {
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "YES");
+
+		
 
 		newTgtCon.setConnectionVariable(TDConnUpdate);
 

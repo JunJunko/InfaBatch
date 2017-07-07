@@ -16,7 +16,7 @@
 		<param name="DatePattern" value="'.'yyyy-MM-dd"></param>	
 		<param name="Append" value="true" />
 		<!-- <param name="File" value="${catalina.base}/logs/shsnc_mvc.log" /> -->
-		<param name="File" value="../shsnclogs/shsnc_mvc.log" />
+		<param name="File" value="logs/mvc.log" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern"
 				value="[%p][%d{yyyy-MM-dd HH\:mm\:ss,SSS}][%c]%m%n" />
@@ -27,7 +27,7 @@
 		class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="DatePattern" value="'.'yyyy-MM-dd"></param>	
 		<param name="Append" value="true" />
-		 <param name="File" value="${catalina.base}/logs/shsnc_dcl.log" /> 
+		 <param name="File" value="logs/dcl.log" /> 
 		<!-- <param name="File" value="d:/shsnc_dlc.log" /> -->
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern"
@@ -44,8 +44,8 @@
 		class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="DatePattern" value="'.'yyyy-MM-dd"></param>	
 		<param name="Append" value="true" />
-		<!-- <param name="File" value="${catalina.base}/logs/shsnc_dcl.log" /> -->
-		<param name="File" value="../shsnclogs/shsnc_aud.log" />
+		<!-- <param name="File" value="logs/run.log" /> -->
+		<param name="File" value="logs/aud.log" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern"
 				value="[%p][%d{yyyy-MM-dd HH\:mm\:ss,SSS}][%c]%m%n" />

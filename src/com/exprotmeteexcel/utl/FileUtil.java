@@ -8,9 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class FileUtil {
 
@@ -363,4 +365,39 @@ public class FileUtil {
 		return ret;
 	}
 
+	public static boolean wirteProperty(String path, String keyname, String keyvalue) {
+		Properties prop = new Properties();// 属性集合对象
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(path);
+			prop.load(fis);// 将属性文件流装载到Properties对象中
+			fis.close();// 关闭流
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		prop.setProperty(keyname, keyvalue);
+		// 文件输出流
+		try {
+			FileOutputStream fos = new FileOutputStream(path);
+			// 将Properties集合保存到流中
+			prop.store(fos, "Copyright (c) Boxcode Studio");
+			fos.close();// 关闭流
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		System.out.println("获取修改后的属性值："+keyname+"=" + prop.getProperty(keyname));
+		return true;
+	}
 }

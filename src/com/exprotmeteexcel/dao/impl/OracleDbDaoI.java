@@ -139,7 +139,6 @@ public class OracleDbDaoI extends BaseDbDaoI {
 	@Override
 	public List<Map<String, Object>> getTableColumnByMeta(MateBean ownertables) {
 		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
 		Connection conn = null;
 		String[] types = { "TABLE" };
 		ResultSet rstable = null;

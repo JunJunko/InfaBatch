@@ -419,7 +419,7 @@ public class ExcelUtility<T> {
 					// 是否拉链表逻辑
 					Cell ce = row.getCell(20);
 					if (ce.getCellType() == Cell.CELL_TYPE_STRING) {
-						if (!Utl.isEmpty(ce.getStringCellValue())) {
+						if (!Utl.isEmpty(ce.getStringCellValue())&&"拉链表".equals(ce.getStringCellValue())) {
 							Cell tablece = row.getCell(2);
 							tablemap.put(tablece.getStringCellValue(), ce.getStringCellValue());
 						}

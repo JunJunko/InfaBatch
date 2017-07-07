@@ -39,7 +39,7 @@ import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationCon
  * 
  * 
  */
-public class JoinerMd5 extends Base implements Parameter {
+public class JoinerMd5 extends Base implements Parameter{
 	protected Target outputTarget;
 
 	protected Source ordersSource;
@@ -55,13 +55,15 @@ public class JoinerMd5 extends Base implements Parameter {
 	 * Create sources
 	 */
 	protected void createSources() {
-		ordersSource = this.CreateCrm("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"),
+		ordersSource = this.CreateCrm(
+				"O_" + Platfrom + "_"
+						+ org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
 		folder.addSource(ordersSource);
 		orderDetailsSource = this.CreateCrm(org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
-
+		
 	}
 
 	/**
@@ -69,11 +71,12 @@ public class JoinerMd5 extends Base implements Parameter {
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
+				"O_" + Platfrom + "_"
+						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
 	protected void createMappings() throws Exception {
-		mapping = new Mapping("U_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
+		mapping = new Mapping("U_M_"  +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -82,35 +85,38 @@ public class JoinerMd5 extends Base implements Parameter {
 		// 导入目标的sourceQualifier
 		RowSet TagSQ = (RowSet) helper.sourceQualifier(orderDetailsSource).getRowSets().get(0);
 
+
 		// Pipeline - 2
 		// // 导入源的sourceQualifier
 
 		RowSet SouSQ = (RowSet) helper.sourceQualifier(ordersSource).getRowSets().get(0);
 		//
-
+		
+		
 		// 增加MD5
-		ArrayList<String> AllPort = new ArrayList<String>();
+				ArrayList<String> AllPort = new ArrayList<String>();
 
-		for (int i = 0; i < TableConf.size(); i++) {
-			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
-				AllPort.add(TableConf.get(i).get(1));
-			}
+				for (int i = 0; i < TableConf.size(); i++) {
+					if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
+						AllPort.add(TableConf.get(i).get(1));
+					}
 
-		}
-		List<TransformField> transFieldsMD5 = new ArrayList<TransformField>();
-		String expMD5 = "string(50, 0) MD5ALL = md5("
-				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
-		System.out.println(expMD5);
-		TransformField outFieldMD5 = new TransformField(expMD5);
-		transFieldsMD5.add(outFieldMD5);
+				}
+				List<TransformField> transFieldsMD5 = new ArrayList<TransformField>();
+				String expMD5 = "string(50, 0) MD5ALL = md5(" + AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
+				System.out.println(expMD5);
+				TransformField outFieldMD5 = new TransformField(expMD5);
+				transFieldsMD5.add(outFieldMD5);
 
-		RowSet expRowSetMD5_S = (RowSet) helper
-				.expression(SouSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
-				.getRowSets().get(0);
+				RowSet expRowSetMD5_S = (RowSet) helper
+						.expression(SouSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm")+"md5_S")
+						.getRowSets().get(0);
+				
+				RowSet expRowSetMD5_T = (RowSet) helper
+						.expression(TagSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm")+"md5_T")
+						.getRowSets().get(0);
 
-		RowSet expRowSetMD5_T = (RowSet) helper
-				.expression(TagSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
-				.getRowSets().get(0);
+				
 
 		// 将md5之后进来的数据进行排序
 		String IDColunmNM = org.tools.GetProperties.getKeyValue("IDColunmNM");
@@ -118,9 +124,8 @@ public class JoinerMd5 extends Base implements Parameter {
 		RowSet TagSort = helper.sorter(expRowSetMD5_T, new String[] { IDColunmNM }, new boolean[] { false },
 				"SRT_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
-		RowSet SouSort = helper
-				.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
-						"SRT_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"))
+		RowSet SouSort = helper.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false }, "SRT_" + "O_"
+				+ Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"))
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -196,6 +201,10 @@ public class JoinerMd5 extends Base implements Parameter {
 				case "VARCHAR":
 					sb = a.get(2).replace("VARCHAR", "String").replace(")", ",0)");
 					break;
+				
+				case "BIGINT":
+					sb = a.get(2).replace("BIGINT", "bigint").replace(")", ",0)");
+					break;	
 				default:
 					sb = "String(50,0)";
 					break;
@@ -239,7 +248,7 @@ public class JoinerMd5 extends Base implements Parameter {
 				.getRowSets().get(0);
 
 		String[] strArray = null;
-		Column = Column + ",MD5ALL,IN_MD5ALL";
+		Column = Column+",MD5ALL,IN_MD5ALL";
 		strArray = Column.split(",");
 
 		PortPropagationContext exclOrderID2 = PortPropagationContextFactory.getContextForExcludeColsFromAll(strArray); // exclude
@@ -288,11 +297,11 @@ public class JoinerMd5 extends Base implements Parameter {
 			if (args.length > 0) {
 				if (joinerTrans.validateRunMode(args[0])) {
 					ArrayList<String> a = GetTableList();
-					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for (int i = 0; i < a.size(); i++) {
-					org.tools.GetProperties.writeProperties("TableNm", args[1]);
-					joinerTrans.execute();
-					// }
+//					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
+//					for (int i = 0; i < a.size(); i++) {
+						org.tools.GetProperties.writeProperties("TableNm", args[1]);
+						joinerTrans.execute();
+//					}
 				}
 			} else {
 				joinerTrans.printUsage();
@@ -320,10 +329,12 @@ public class JoinerMd5 extends Base implements Parameter {
 
 	private void setSourceTargetProperties() {
 
+		
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
-
-		this.ordersSource.setSessionTransformInstanceProperty("Source Filter", "DW_OPER_FLAG=1");
+		
+		this.ordersSource.setSessionTransformInstanceProperty("Source Filter",
+				"DW_OPER_FLAG=1");
 
 	}
 
@@ -335,7 +346,8 @@ public class JoinerMd5 extends Base implements Parameter {
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
 		session = new Session("U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
+				"U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"");
 		session.setMapping(this.mapping);
 
 		// Adding Connection Objects for substitution mask option
@@ -362,8 +374,8 @@ public class JoinerMd5 extends Base implements Parameter {
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable(TDConnExport);
-		DSQTransformation Tdsq = (DSQTransformation) mapping
-				.getTransformation("SQ_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"));
+		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation("SQ_" + "O_"
+				+ Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"));
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);
 		session.setTaskInstanceProperty("REUSABLE", "YES");
@@ -371,6 +383,7 @@ public class JoinerMd5 extends Base implements Parameter {
 		ConnectionInfo newTgtCon = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 
 		ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
+
 
 		TaskProperties SP = session.getProperties();
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");

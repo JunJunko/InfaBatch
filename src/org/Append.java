@@ -26,6 +26,16 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+
+
+
+/**
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成Append逻辑的XML文件
+ *
+ */
 public class Append extends Base implements Parameter {
 
 	protected Source employeeSrc;
@@ -34,21 +44,14 @@ public class Append extends Base implements Parameter {
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
 			Append expressionTrans = new Append();
 			if (args.length > 0) {
 				if (expressionTrans.validateRunMode(args[0])) {
-					// ArrayList<String> a = GetTableList();
-					// org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for(int i = 0; i < a.size(); i++){
-
 					org.tools.GetProperties.writeProperties("TableNm", args[1]);
-					// System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
 					expressionTrans.execute();
-					// }
 				}
 			} else {
 				expressionTrans.printUsage();
@@ -58,27 +61,30 @@ public class Append extends Base implements Parameter {
 			System.err.println("Exception is: " + e.getMessage());
 		}
 
-		System.out.println(GetTableList());
 
 	}
-
+	
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Session
+	 */
+	
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
-		session = new Session("A_" + "S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"A_" + "S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
+		session = new Session("A_"+"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"A_"+"S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"");
 		session.setMapping(this.mapping);
-
-		// Adding Connection Objects for substitution mask option
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		ConnectionInfo info = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops = info.getConnProps();
-		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
+//		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
 		cprops.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "1");
 
 		ConnectionInfo info2 = new ConnectionInfo(SourceTargetType.Oracle);
 		ConnectionProperties cprops2 = info2.getConnProps();
-		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
+//		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNAME, "Oracle");
 		cprops2.setProperty(ConnectionPropsConstants.CONNECTIONNUMBER, "2");
 		List<ConnectionInfo> cons = new ArrayList<ConnectionInfo>();
 		cons.add(info);
@@ -101,6 +107,7 @@ public class Append extends Base implements Parameter {
 		TaskProperties SP = session.getProperties();
 		SP.setProperty(SessionPropsConstants.CFG_OVERRIDE_TRACING, "terse");
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
+		SP.setProperty("Treat source rows as", "Data driven");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "NO");
 
 		newTgtCon.setConnectionVariable(TDConnUpdate);
@@ -114,12 +121,19 @@ public class Append extends Base implements Parameter {
 		setSourceTargetProperties();
 
 	}
-
+	
+	/**
+	 *  @author    Junko
+	 *  @since      生成一个PWC的Mapping
+	 */
 	@Override
+
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-		mapping = new Mapping("A_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
+		mapping = new Mapping(
+				"A_M_"  + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() , "mapping",
+				"");
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
 		// creating DSQ Transformation
@@ -170,6 +184,9 @@ public class Append extends Base implements Parameter {
 
 	}
 
+	/**
+	 * 设置元或者目标的属性
+	 */
 	public void setSourceTargetProperties() {
 		// TODO Auto-generated method stub
 
@@ -177,7 +194,10 @@ public class Append extends Base implements Parameter {
 		this.employeeSrc.setSessionTransformInstanceProperty("Owner Name", Owner);
 
 	}
-
+	/**
+	 * @author    Junko
+	 *  @since    生成一个PWC的Source
+	 */
 	@Override
 	protected void createSources() {
 		// TODO Auto-generated method stub
@@ -186,14 +206,22 @@ public class Append extends Base implements Parameter {
 		folder.addSource(employeeSrc);
 	}
 
+	/**
+	 *  @author    Junko
+	 *  @since    生成一个PWC的Target
+	 */
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
 		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
-
+				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() );
+		
 	}
 
+	/**
+	 *  @author    Junko
+	 *  @since     生成一个PWC的Workflow
+	 */
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
@@ -204,19 +232,5 @@ public class Append extends Base implements Parameter {
 		folder.addWorkFlow(workflow);
 	}
 
-	public static ArrayList<String> GetTableList() {
-		// TODO Auto-generated method stub
-		ArrayList<String> TL = new ArrayList<String>();
-
-		for (int i = 0; i < TableConf.size(); i++) {
-			ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
-			if (!TL.contains(a.get(0))) {
-				TL.add(a.get(0));
-
-			}
-		}
-
-		return TL;
-	}
 
 }

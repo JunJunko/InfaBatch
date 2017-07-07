@@ -36,8 +36,11 @@ import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationCon
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContextFactory;
 
 /**
- * 
- * 
+ * @author Junko
+ * <p> 
+ * Description: 
+ * 根据Excel配置表生成校验逻辑的XML文件
+ *
  */
 public class Check extends Base implements Parameter {
 	protected Target outputTarget;
@@ -52,7 +55,8 @@ public class Check extends Base implements Parameter {
 	// protected String System = Platfrom;
 
 	/**
-	 * Create sources
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Source
 	 */
 	protected void createSources() {
 		ordersSource = this.CheckSouce("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"),
@@ -62,11 +66,11 @@ public class Check extends Base implements Parameter {
 		orderDetailsSource = this.CheckSouce(org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
-		// System.out.println(orderDetailsSource);
 	}
 
 	/**
-	 * Create targets
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Target
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
@@ -144,16 +148,7 @@ public class Check extends Base implements Parameter {
 		RowSet joinRowSet = (RowSet) helper.join(inputSets, new InputSet(TagSort), "MD5ALL = IN_MD5ALL", JoinProperty,
 				"JNR_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
-		// InputSet joinInputSet = new InputSet(joinRowSet);
-
-		// Apply expression to calculate TotalOrderCost
-
 		List<TransformField> transFields = new ArrayList<TransformField>();
-
-		// String expr = "integer(1,0) DW_OPER_FLAG = 1";
-		// TransformField outField = new TransformField( expr );
-		// transFields.add( outField );
-
 		String Column = "";
 		for (int i = 0; i < TableConf.size(); i++) {
 			List<String> a = TableConf.get(i);
@@ -207,31 +202,20 @@ public class Check extends Base implements Parameter {
 					sb = "String(50,0)";
 					break;
 				}
-				;
-				//
-				// System.out.println(sb);
-				// String exp = sb + " " + a.get(1) + "_out" + " = iif(isnull("
-				// + a.get(1) + ")," + "IN_" + a.get(1) + ","
-				// + a.get(1) + ")";
-				// TransformField outField = new TransformField(exp);
-				// transFields.add(outField);
+				
+			
 				if (a.get(1) != null && !a.get(1).equals("ROW_ID")) {
 					if (Column == "") {
 						Column = /* a.get(1) + "," + */ "IN_" + a.get(1);
 					} else {
 						Column = Column/* + "," + a.get(1) */ + "," + "IN_" + a.get(1);
 					}
-					// System.out.println(Column);
 				}
 
 			}
 		}
 		Column = Column + ", DW_START_DT";
-		// String[] toBeStored = Column.toArray(new String[Column.size()]);
-
 		TransformField totalOrderCost = null;
-		// new TransformField(
-		// "decimal(24,0) TotalOrderCost = OrderCost + Freight");
 
 		RowSet expRowSet = (RowSet) helper
 				.expression(joinRowSet, transFields, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm"))
@@ -252,11 +236,6 @@ public class Check extends Base implements Parameter {
 		RowSet expRowSet2 = (RowSet) helper.expression(joinInputSet2, totalOrderCost,
 				"EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "1").getRowSets().get(0);
 
-		// RowSet filterRS = (RowSet) helper.updateStrategy(expRowSet2,
-		// "IIF(DW_OPER_FLAG = 2,DD_REJECT, DD_UPDATE)",
-		// "UPD_" +
-		// org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
-
 		RowSet filterRS = (RowSet) helper
 				.filter(expRowSet2, "IIF(ISNULL(MD5ALL),'0',MD5ALL) != IIF(ISNULL(IN_MD5ALL),'0',IN_MD5ALL)",
 						"FIT_" + org.tools.GetProperties.getKeyValue("TableNm"))
@@ -274,7 +253,8 @@ public class Check extends Base implements Parameter {
 	}
 
 	/**
-	 * Create workflow method
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Workflow
 	 */
 	protected void createWorkflow() throws Exception {
 
@@ -295,13 +275,9 @@ public class Check extends Base implements Parameter {
 			Check joinerTrans = new Check();
 			if (args.length > 0) {
 				if (joinerTrans.validateRunMode(args[0])) {
-					ArrayList<String> a = GetTableList();
-					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-					// for (int i = 0; i < a.size(); i++) {
 					org.tools.GetProperties.writeProperties("TableNm", args[1]);
 					org.tools.GetProperties.writeProperties("LoadType", args[2]);
 					joinerTrans.execute();
-					// }
 				}
 			} else {
 				joinerTrans.printUsage();
@@ -313,47 +289,21 @@ public class Check extends Base implements Parameter {
 
 	}
 
-	public static ArrayList<String> GetTableList() {
-		ArrayList<String> TL = new ArrayList<String>();
-
-		for (int i = 0; i < TableConf.size(); i++) {
-			ArrayList<String> a = (ArrayList<String>) TableConf.get(i);
-			if (!TL.contains(a.get(0))) {
-				TL.add(a.get(0));
-
-			}
-		}
-
-		return TL;
-	}
-
+	/**
+	 * @author    Junko
+	 * @since     根据属性文件的信息配置源的owner
+	 */
 	private void setSourceTargetProperties() {
 
-		// get the DSQ Transformation (if Source name is "JOBS", then
-		// corresponding SQ name is
-		// "SQ_JOBS")
-		// DSQTransformation dsq =
-		// (DSQTransformation)this.mapping.getTransformation("SQ_"+org.tools.GetProperties.getKeyValue("TableNm"));
-
-		// set the Source Qualifier properties
-
-		// set Source properties
+		
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
 
-		if (org.tools.GetProperties.getKeyValue("LoadType").equals("拉链表")) {
-			this.ordersSource.setSessionTransformInstanceProperty("Source Filter",
-					"DW_END_DT=to_date('2999-12-31','YYYY-MM-DD')");
-		} else {
-			this.ordersSource.setSessionTransformInstanceProperty("Source Filter", "DW_OPER_FLAG=1");
-		}
-
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.informatica.powercenter.sdk.mapfwk.samples.Base#createSession()
+	/**
+	 * @author    Junko
+	 * @since     根据Excel配置信息生成一个PWC的Session
 	 */
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
@@ -403,13 +353,7 @@ public class Check extends Base implements Parameter {
 		SP.setProperty("Parameter Filename", "$PMRootDir/EDWParam/edw.param");
 		newTgtConprops.setProperty(ConnectionPropsConstants.TRUNCATE_TABLE, "YES");
 		newTgtCon.setConnectionVariable(TDConnUpdate);
-		// ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
-		// newTgtConprops.setProperty( ConnectionPropsConstants.CONNECTIONNAME,
-		// "$DBConnection_TD");
-
 		session.addConnectionInfoObject(outputTarget, newTgtCon);
-		// Setting session level property.
-		// session.addSessionTransformInstanceProperties(dmo, props);
 		setSourceTargetProperties();
 	}
 }

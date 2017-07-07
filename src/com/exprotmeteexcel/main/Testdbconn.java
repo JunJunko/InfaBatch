@@ -36,14 +36,13 @@ public class Testdbconn {
 	public static void getTableMateBeanByTest(String path) {
 		Boolean bn = false;
 		Properties p = Utl.getProperties(path);
-		Properties yp = Utl.getProperties(p.getProperty("businesspropertiespath"));
-		String businessName = yp.getProperty("SourceFolder");
-		List<Map<String, Object>> alllist = getTableColAll(p.getProperty("businesspropertiespath"));
-
+		//Properties yp = Utl.getProperties(p.getProperty("businesspropertiespath"));
+		String businessName =p.getProperty("System");
+		List<Map<String, Object>> alllist = getTableColAll(path);
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		MateBean tt = new MateBean();
 		tt.setMatedate(alllist);
-		List<MateColumnsBean> lb = ex.getTableColumn(p.getProperty("businesspropertiespath"), tt);
+		List<MateColumnsBean> lb = ex.getTableColumn(path, tt);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		String formatStr = formatter.format(new Date());
 		String opath = "xls\\out\\metaout\\OUT_" + businessName + "_" + formatStr + ".xls";

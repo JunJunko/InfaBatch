@@ -11,8 +11,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+
 public class ConFileContent {
 
+	/**
+	 * Describe:
+	 * 从指定的文件读取文件内容<p>
+	 * @author Junko
+	 * @param  文件路径
+	 * @return 已String的形式返回指定的文件内容
+	 * 
+	 * 
+	 */
 	public static String readToString(String fileName) {
 		String encoding = "GBK";
 		File file = new File(fileName);
@@ -35,39 +46,46 @@ public class ConFileContent {
 			return null;
 		}
 	}
-
+	
+	/**
+	 * @author Junko
+	 * @param  xml内容， 入仓逻辑
+	 * @return XML内容
+	 * @see    org.tools.GetProperties.getKeyValue
+	 */
 	public static String writeLog(String str, String Type) {
 		String Platfrom = org.tools.GetProperties.getKeyValue("System");
 		try {
 			String path = "";
 			switch (Type) {
 			case "全删全插":
-				path = "xml\\InsertXml\\M_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_I" + ".xml";
+				path = "xml\\InsertXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_I"
+						+ ".xml";
 				break;
-
+				
 			case "init":
-				path = "xml\\InitXml\\M_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + ".xml";
+				path = "xml\\InitXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()
+						+ ".xml";
 				break;
 
 			case "upsert":
-				path = "xml\\UpsertXml\\M_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_U" + ".xml";
+				path = "xml\\UpsertXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_U"
+						+ ".xml";
+				break;
+				
+			case "append":
+				path = "xml\\Append\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_A"
+						+ ".xml";
 				break;
 
-			case "append":
-				path = "xml\\Append\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()
-						+ "_A" + ".xml";
-				break;
 
 			case "拉链表":
-				path = "xml\\ZipXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()
-						+ "_H" + ".xml";
+				path = "xml\\ZipXml\\M_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H"
+						+ ".xml";
 				break;
 			case "check":
-				path = "xml\\CheckXml\\M_CHECK_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK" + ".xml";
+				path = "xml\\CheckXml\\M_CHECK_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK"
+						+ ".xml";
 				break;
 
 			}
@@ -86,29 +104,49 @@ public class ConFileContent {
 		return str;
 	}
 
+
+	/**
+	 * @author Junko
+	 * @param  文件路径， 入仓逻辑
+	 * @return 返回修改完属性的文件内容
+	 * @see    org.tools.UpdateXml.updateAttributeValue
+	 * 
+	 * 按入仓逻辑修改XML属性内容
+	 */
 	public static String ReplaceColumnNm(String filename, String Type) {
 		StringBuffer Data = new StringBuffer();
 		org.tools.UpdateXml.updateAttributeValue(filename, Type);
 		String UpdateOption = "";
+		String TreatSourceOption = "";
 		switch (Type) {
 		case "全删全插":
 			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
 			break;
-
+			
 		case "append":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Data driven";
 			break;
 
 		case "upsert":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Data driven";
 			break;
 
 		case "拉链表":
 			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Data driven";
 			break;
 
 		case "check":
-			UpdateOption = "\"Update else Insert\" VALUE=\"YES";
+			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
+			break;
+			
+		case "init":
+			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
 			break;
 
 		}
@@ -129,11 +167,12 @@ public class ConFileContent {
 			e.printStackTrace();
 			System.out.println("读取" + filename + "出错！");
 		}
-		return Data.toString().replace("\"Update else Insert\" VALUE=\"NO", UpdateOption)
+		return Data.toString()
+				.replace("\"Update else Insert\" VALUE=\"NO", UpdateOption)
+				.replace("\"Treat source rows as\" VALUE=\"Insert", TreatSourceOption)
 				.replace("NAME=\"Sorter Cache Size\" VALUE=\"8388608\"", "NAME=\"Sorter Cache Size\" VALUE=\"auto\"")
 				.replace("<POWERMART", "<!DOCTYPE POWERMART SYSTEM \"powrmart.dtd\"><POWERMART")
-				.replace("FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"NO\" FAIL_PARENT_IF_INSTANCE_FAILS=\"NO\"",
-						"FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"YES\" FAIL_PARENT_IF_INSTANCE_FAILS=\"YES\"")
+				.replace("FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"NO\" FAIL_PARENT_IF_INSTANCE_FAILS=\"NO\"", "FAIL_PARENT_IF_INSTANCE_DID_NOT_RUN=\"YES\" FAIL_PARENT_IF_INSTANCE_FAILS=\"YES\"")
 		// .replace("Expression DMO Tx\" REUSABLE=\"NO\"", "Expression DMO Tx\"
 		// REUSABLE=\"YES\"")
 		;
@@ -141,7 +180,7 @@ public class ConFileContent {
 	}
 
 	public static void main(String args[]) {
-
+		
 		writeLog(ReplaceColumnNm("D:\\workspace\\Uoo-master\\M_TLK_ONSITE_SERVICE_1_H.xml", "拉链表"), "拉链表");
 		// org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\M_TLK_ONSITE_SERVICE_1_H.xml",
 		// "拉链表");

@@ -120,11 +120,12 @@ public class UpdateXml {
 							// compon.length()).equals("_H")){
 							if (Type.equals("拉链表")) {
 
-								Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("ZipSourceFilter"));
+							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("ZipSourceFilter"));
 
+							} else if (Type.equals("check")) {
+							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("ZipCheckSourceFilter"));
 							} else {
-								Attr.setAttribute("VALUE",
-										org.tools.GetProperties.getPubKeyValue("UpsertSourceFilter"));
+							Attr.setAttribute("VALUE", org.tools.GetProperties.getPubKeyValue("UpsertSourceFilter"));
 							}
 						// System.out.println(Attr.getAttribute("NAME")+"
 						// "+Attr.getAttribute("VALUE"));
@@ -152,6 +153,7 @@ public class UpdateXml {
 					name = SOURCEFIELD.getAttribute("NAME");
 					switch (Type) {
 					case "拉链表":
+					case "upsert":
 						String a = SOURCEFIELD.getAttribute("NAME") + "seize_a_seat";
 
 						if (!DT.contains(a) && !a.substring(0, 3).equals("DW_")) {
@@ -163,9 +165,10 @@ public class UpdateXml {
 							name = SOURCEFIELD.getAttribute("NAME");
 						}
 						break;
-					case "upsert":
-						name = SOURCEFIELD.getAttribute("NAME").replace("_out", "");
-						break;
+					// case "upsert":
+					// name = SOURCEFIELD.getAttribute("NAME").replace("_out",
+					// "");
+					// break;
 
 					}
 					if (Keyword.contains(name)) {
@@ -209,7 +212,15 @@ public class UpdateXml {
 					}
 					break;
 				case "upsert":
-					TOFIELD = ConnLab.getAttribute("TOFIELD").replace("_out", "");
+					// TOFIELD = ConnLab.getAttribute("TOFIELD").replace("_out",
+					// "");
+					// 该用新逻辑
+					if (ConnLab.getAttribute("TOFIELD").length() > 2) {
+						if (!ConnLab.getAttribute("TOFIELD").substring(0, 3).equals("DW_"))
+
+							TOFIELD = ConnLab.getAttribute("TOFIELD").substring(0,
+									ConnLab.getAttribute("TOFIELD").length() - 1);
+					}
 					break;
 				}
 				if (Keyword.contains(TOFIELD)) {
@@ -252,8 +263,7 @@ public class UpdateXml {
 
 	public static void main(String[] args) {
 
-		// updateAttributeValue("xml\\CheckXml\\M_CHECK_ELN_SURVEY_ITEM_BACK_CK.xml",
-		// "check");
+		updateAttributeValue("D:\\workspace\\Uoo-master\\xml\\CheckXml\\M_CHECK_ELN_SURVEY_ITEM_BACK_CK.xml", "check");
 		// System.out.println("ITEM_APNTMNT_OPERATION_TIME22".substring(0,
 		// "ITEM_APNTMNT_OPERATION_TIME22".length()-1));
 

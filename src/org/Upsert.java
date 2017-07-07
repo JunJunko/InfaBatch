@@ -40,10 +40,10 @@ import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationCon
  * @author Junko
  * <p> 
  * Description: 
- * 根据Excel配置表生成拉链表逻辑的XML文件
+ * 根据Excel配置表生成Upsert逻辑的XML文件
  *
  */
-public class ZipperTable extends Base implements Parameter{
+public class Upsert extends Base implements Parameter {
 	protected Target outputTarget;
 
 	protected Source ordersSource;
@@ -52,16 +52,14 @@ public class ZipperTable extends Base implements Parameter{
 
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
-	
+
 	// protected String System = Platfrom;
 
 	/**
 	 * Create sources
 	 */
 	protected void createSources() {
-		ordersSource = this.CreateZipper(
-				"O_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H",
+		ordersSource = this.CreateCrm("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") ,
 				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
 		folder.addSource(ordersSource);
 		orderDetailsSource = this.CreateZipper(org.tools.GetProperties.getKeyValue("TableNm"),
@@ -74,14 +72,12 @@ public class ZipperTable extends Base implements Parameter{
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H");
+				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() );
 	}
 
 	protected void createMappings() throws Exception {
-		
 
-		mapping = new Mapping("H_M_"  +org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
+		mapping = new Mapping("U_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
@@ -89,7 +85,6 @@ public class ZipperTable extends Base implements Parameter{
 		// Pipeline - 1
 		// 导入目标的sourceQualifier
 		RowSet TagSQ = (RowSet) helper.sourceQualifier(orderDetailsSource).getRowSets().get(0);
-		
 
 		// Pipeline - 2
 		// // 导入源的sourceQualifier
@@ -125,9 +120,9 @@ public class ZipperTable extends Base implements Parameter{
 		RowSet TagSort = helper.sorter(expRowSetMD5_T, new String[] { IDColunmNM }, new boolean[] { false },
 				"SRT_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
-		RowSet SouSort = helper.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
-				"SRT_" + "O_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm"))
+		RowSet SouSort = helper
+				.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
+						"SRT_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") )
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -229,23 +224,6 @@ public class ZipperTable extends Base implements Parameter{
 		String exp = "date/time(29,9) DW_START_DT_out = DW_START_DT";
 		TransformField outField = new TransformField(exp);
 		transFields.add(outField);
-		// String[] toBeStored = Column.toArray(new String[Column.size()]);
-
-		// String exp1 = "date/time(10, 0) DW_END_DT = ADD_TO_DATE ( sysdate,
-		// 'DD', -1 )";
-		// String exp2 = "date/time(10, 0) DW_ETL_DT =
-		// to_date($$PRVS1D_CUR_DATE,'yyyymmdd')";
-		// String exp3 = "date/time(19, 0) DW_UPD_TM = SESSSTARTTIME";
-		// TransformField outField1 = new TransformField(exp1);
-		// TransformField outField2 = new TransformField(exp2);
-		// TransformField outField3 = new TransformField(exp3);
-		// transFields.add(outField1);
-		// transFields.add(outField2);
-		// transFields.add(outField3);
-
-		TransformField totalOrderCost = null;
-		// new TransformField(
-		// "decimal(24,0) TotalOrderCost = OrderCost + Freight");
 
 		String[] strArray = null;
 		Column = Column + ",MD5ALL,IN_MD5ALL,falg";
@@ -285,7 +263,7 @@ public class ZipperTable extends Base implements Parameter{
 
 			}
 			TagCloumn.add("IN_MD5ALL1");
-			TagCloumn.remove(0);
+//			TagCloumn.remove(0);
 			String Port[] = TagCloumn.toArray(new String[TagCloumn.size()]);
 			;
 
@@ -321,28 +299,25 @@ public class ZipperTable extends Base implements Parameter{
 		// 为Insert的Express增加DW字段
 
 		List<TransformField> Exp = new ArrayList<TransformField>();
-		String exp1 = "date/time(10, 0) DW_START_DT = SYSDATE";
-		String exp2 = "date/time(10, 0) DW_END_DT = to_date('2999-12-31','YYYY-MM-DD')";
-		String exp3 = "date/time(10, 0) DW_ETL_DT = to_date($$PRVS1D_CUR_DATE,'yyyymmdd')";
-		String exp4 = "date/time(19, 0) DW_UPD_TM = SESSSTARTTIME";
-		String exp5 = "integer(10, 0) falg = 0";
+		String exp1 = "integer(1, 0) DW_OPER_FLAG = 1";
+		String exp2 = "date/time(10, 0) DW_ETL_DT = to_date($$PRVS1D_CUR_DATE,'yyyymmdd')";
+		String exp3 = "date/time(19, 0) DW_UPD_TM = SESSSTARTTIME";
+		String exp4 = "integer(10, 0) falg = 0";
 		TransformField outField1 = new TransformField(exp1);
 		TransformField outField2 = new TransformField(exp2);
 		TransformField outField3 = new TransformField(exp3);
 		TransformField outField4 = new TransformField(exp4);
-		TransformField outField5 = new TransformField(exp5);
 		Exp.add(outField1);
 		Exp.add(outField2);
 		Exp.add(outField3);
 		Exp.add(outField4);
-		Exp.add(outField5);
 
 		RowSet expData_Ins_Dw = (RowSet) helper
 				.expression(expData_Ins, Exp, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "_Ins2")
 				.getRowSets().get(0);
 
 		List<TransformField> Exp2 = new ArrayList<TransformField>();
-		exp1 = "date/time(10, 0) DW_END_DT = ADD_TO_DATE ( sysdate, 'DD', -1 )";
+		exp1 = "integer(1, 0) DW_OPER_FLAG = 0";
 		exp2 = "date/time(10, 0) DW_ETL_DT = to_date($$PRVS1D_CUR_DATE,'yyyymmdd')";
 		exp3 = "date/time(19, 0) DW_UPD_TM = SESSSTARTTIME";
 		exp4 = "integer(10, 0) falg = 1";
@@ -359,7 +334,6 @@ public class ZipperTable extends Base implements Parameter{
 				.expression(expData_Ups, Exp2, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "_Ups2")
 				.getRowSets().get(0);
 
-
 		List<InputSet> UninputSets = new ArrayList<InputSet>();
 		UninputSets.add(new InputSet(expData_Ins_Dw));
 		UninputSets.add(new InputSet(expData_Ups_Dw));
@@ -372,13 +346,12 @@ public class ZipperTable extends Base implements Parameter{
 				.sorter(UnionSet, "falg", false, "SOR_" + org.tools.GetProperties.getKeyValue("TableNm") + "_2")
 				.getRowSets().get(0);
 
-
 		RowSet filterRS = (RowSet) helper.updateStrategy(SortFlag, "iif(falg=0,DD_INSERT,DD_UPDATE)",
 				"UPD_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
 		// write to target
 		mapping.writeTarget(new InputSet(filterRS, exclOrderID2), outputTarget);
-		
+
 		// 增加参数
 		MappingVariable mappingVar = new MappingVariable(MappingVariableDataTypes.STRING, "0",
 				"mapping variable example", true, "$$PRVS1D_CUR_DATE", "20", "0", true);
@@ -393,8 +366,8 @@ public class ZipperTable extends Base implements Parameter{
 	 */
 	protected void createWorkflow() throws Exception {
 
-		workflow = new Workflow("H_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"H_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
+		workflow = new Workflow("U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		workflow.addSession(session);
 		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
 				org.tools.GetProperties.getKeyValue("Domain"));
@@ -404,15 +377,11 @@ public class ZipperTable extends Base implements Parameter{
 
 	public static void main(String args[]) {
 		try {
-			ZipperTable joinerTrans = new ZipperTable();
+			Upsert joinerTrans = new Upsert();
 			if (args.length > 0) {
 				if (joinerTrans.validateRunMode(args[0])) {
-					ArrayList<String> a = GetTableList();
-					org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-//					for (int i = 0; i < a.size(); i++) {
-						org.tools.GetProperties.writeProperties("TableNm", args[1]);
-						joinerTrans.execute();
-//					}
+					org.tools.GetProperties.writeProperties("TableNm", args[1]);
+					joinerTrans.execute();
 				}
 			} else {
 				joinerTrans.printUsage();
@@ -440,10 +409,9 @@ public class ZipperTable extends Base implements Parameter{
 
 	private void setSourceTargetProperties() {
 
-
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
-		
+
 		this.ordersSource.setSessionTransformInstanceProperty("Source Filter",
 				"DW_END_DT=to_date('2999-12-31','YYYY-MM-DD')");
 
@@ -456,9 +424,8 @@ public class ZipperTable extends Base implements Parameter{
 	 */
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
-		session = new Session("H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"H_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
-				"");
+		session = new Session("U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
+				"U_S_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		session.setMapping(this.mapping);
 
 		// Adding Connection Objects for substitution mask option
@@ -485,18 +452,15 @@ public class ZipperTable extends Base implements Parameter{
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable(TDConnExport);
-		DSQTransformation Tdsq = (DSQTransformation) mapping
-				.getTransformation("SQ_" + "O_" + Platfrom + "_"
-						+ org.tools.GetProperties.getKeyValue("TableNm") + "_H");
+		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation(
+				"SQ_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") );
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);
 		session.setTaskInstanceProperty("REUSABLE", "YES");
 		// Overriding target connection in Seesion level
 		ConnectionInfo newTgtCon = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 
-//		ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
-
-		
+		// ConnectionProperties newTgtConprops = newTgtCon.getConnProps();
 
 		TaskProperties SP = session.getProperties();
 
@@ -513,4 +477,6 @@ public class ZipperTable extends Base implements Parameter{
 		// session.addSessionTransformInstanceProperties(dmo, props);
 		setSourceTargetProperties();
 	}
+	
+	
 }

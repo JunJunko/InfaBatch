@@ -232,6 +232,17 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		return mb;
 
 	}
+	
+	public List getAutodev(String path, String plaform) {
+		// TODO Auto-generated method stub
+		List<Map<String, Object>> lt = new ArrayList<Map<String, Object>>();
+		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
+		String sql = "select * from  CONF_AUTODEV where FLAG =1 and PLAFORM=?";
+		lt = db.getDateForMap(sql, plaform);
+
+		return lt;
+
+	}
 
 	public String getSql(String Type) {
 		String sql = "";
@@ -521,8 +532,8 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		Boolean bn = false;
 		MateBean tt = new MateBean();
 		Properties p = Utl.getProperties(path);
-		Properties py = Utl.getProperties(p.getProperty("businesspropertiespath"));
-		String businessName = py.getProperty("System");
+		//Properties py = Utl.getProperties(p.getProperty("businesspropertiespath"));
+		String businessName = p.getProperty("System");
 		// 1、得到业务配置表
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		tt = ex.getTdMate(p.getProperty("teradatajdbcpath"), businessName);
@@ -530,7 +541,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 			// 锁定对应的表
 			ex.updateTdMate(p.getProperty("teradatajdbcpath"), "running", businessName);
 			// 得到每个配置表的对原数据信息
-			List<MateColumnsBean> lb = ex.getTableColumn(p.getProperty("businesspropertiespath"), tt);
+			List<MateColumnsBean> lb = ex.getTableColumn(path, tt);
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 			String formatStr = formatter.format(new Date());
 			String outpath = "xls\\out\\metaout\\OUT_" + businessName + "_" + formatStr + ".xls";
