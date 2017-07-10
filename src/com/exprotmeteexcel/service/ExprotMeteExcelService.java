@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
+import com.exprotmeteexcel.bean.PropertiesMap;
 
 /**
  * 原数据导出Service接口
@@ -106,8 +107,9 @@ public interface ExprotMeteExcelService {
 	 */
 
 	public Boolean ExprotTableMateBean(String path);
+	
 	/**
-	 * 得到配置表
+	 * 得到配置Autodev表
 	 * 
 	 * @param path
 	 *            ：路径
@@ -117,4 +119,12 @@ public interface ExprotMeteExcelService {
 
 	
 	public List getAutodev(String path, String plaform);
+	
+	/**
+	 * 得到每一个平台配置文件路径
+	 * 
+	 * @param 配置文件集合
+	 * 
+	 */
+	public Map<String,PropertiesMap> getPropertiesMapList(String path);
 }

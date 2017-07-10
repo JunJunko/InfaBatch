@@ -26,6 +26,7 @@ public class MateColumnsBean implements Cloneable {
 	String synchronousLogic;
 	String valid;
 	String isGigDateCol;
+	String system;
 
 	public Object clone() {
 		MateColumnsBean o = null;
@@ -219,6 +220,14 @@ public class MateColumnsBean implements Cloneable {
 
 	public void setIsGigDateCol(String isGigDateCol) {
 		this.isGigDateCol = isGigDateCol;
+	}
+
+	public String getSystem() {
+		return system;
+	}
+
+	public void setSystem(String system) {
+		this.system = system;
 	}
 
 	@Override

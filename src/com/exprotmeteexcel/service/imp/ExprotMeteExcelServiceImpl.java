@@ -21,10 +21,12 @@ import org.slf4j.LoggerFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
+import com.exprotmeteexcel.bean.PropertiesMap;
 import com.exprotmeteexcel.dao.impl.BaseDbDaoI;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
 import com.exprotmeteexcel.utl.DateTran.DataTypeTrans;
 import com.exprotmeteexcel.utl.ExcelUtility;
+import com.exprotmeteexcel.utl.FileUtil;
 import com.exprotmeteexcel.utl.Getjdbcconfig;
 import com.exprotmeteexcel.utl.Utl;
 import com.exprotmeteexcel.utl.global.BiaotiBean;
@@ -56,6 +58,8 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		// TODO Auto-generated method stub
 		Getjdbcconfig dbcof = new Getjdbcconfig(path);
 		Properties yp = Utl.getProperties(path);
+		//properties\Pub.properties
+		Properties p = Utl.getProperties("properties/Pub.properties");
 		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
 		List<MateColumnsBean> listmc = new ArrayList<MateColumnsBean>();
 		List<Map<String, Object>> su = new ArrayList<Map<String, Object>>();
@@ -89,7 +93,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setColumnsName(su.get(i).get("COLUMN_NAME").toString());
 				// 转换表名
 				// 表名加前缀O_XXX（参数化平台简称）、如果拉链表逻辑表后缀加_H存入“转换表名”列
-				col.setTranTableName("O_" + yp.getProperty("SourceFolder") + "_"
+				col.setTranTableName(yp.getProperty("prefix") + yp.getProperty("System") + "_"
 						+ su.get(i).get("TABLE_NAME").toString().toUpperCase());
 				//
 				col.setTableRemark(
@@ -100,7 +104,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				// 字段名包含关键字的加_OG存入“转换字段名”列
 
 				List<String> trnsCloumn = new ArrayList<String>();
-				Collections.addAll(trnsCloumn, yp.get("OGCloumn").toString().toUpperCase().split(","));
+				Collections.addAll(trnsCloumn, p.get("OGCloumn").toString().toUpperCase().split(","));
 				String trnsCloumnName = trnsCloumn.contains(su.get(i).get("COLUMN_NAME").toString().toUpperCase())
 						? su.get(i).get("COLUMN_NAME").toString() + "_OG"
 						: Utl.isChinese(su.get(i).get("COLUMN_NAME").toString())
@@ -111,7 +115,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setColumnRemark(su.get(i).get("REMARKS") == null || "".equals(su.get(i).get("REMARKS")) ? null
 						: su.get(i).get("REMARKS").toString());
 				// 是否大字段
-				Properties p = Utl.getProperties("properties/Pub.properties");
+		
 				List<String> BigCloumn = new ArrayList<String>();
 				Collections.addAll(BigCloumn, p.get("BigCloumn").toString().split(","));
 				String typename = Utl.isEmpty(su.get(i).get("TYPE_NAME").toString()) ? ""
@@ -158,6 +162,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setValid("");
 
 				col.setIsGigDateCol(isBigCol);
+				col.setSystem(yp.getProperty("System"));
 				listmc.add(col);
 
 			}
@@ -479,6 +484,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setValid(obj[21] == null || "".equals(obj[21].toString()) ? null : obj[21].toString());
 				// isGigDateCol
 				col.setIsGigDateCol(obj[22] == null || "".equals(obj[22].toString()) ? null : obj[22].toString());
+				col.setSystem(Utl.isEmpty(obj[23])?"null":obj[23].toString());
 				listmc.add(col);
 				List<MateColumnsBean> collist = tableDdl.get(obj[1].toString() + "." + obj[2].toString());
 				MateColumnsBean col2 = null;
@@ -557,5 +563,26 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		}
 		return bn;
 
+	}
+	/**
+	 * 得到每一个平台配置文件路径
+	 * 
+	 * @param 配置文件集合
+	 * 
+	 */
+	public Map<String,PropertiesMap> getPropertiesMapList(String path){
+		Map<String,PropertiesMap> lp=new HashMap<String,PropertiesMap>(); 
+		 List<String> ls=FileUtil.getFile("properties\\businessconfig");
+		 for(String str: ls){
+			 PropertiesMap pm=new PropertiesMap();
+			 pm.setPath(str);
+			 pm.setSystem(Utl.getProperties(str).getProperty("System"));
+			 pm.setDDLSchema(Utl.getProperties(str).getProperty("DDLSchema")); 
+			 pm.setDATASchema(Utl.getProperties(str).getProperty("DATASchema"));
+			 lp.put(Utl.getProperties(str).getProperty("System"), pm);
+		 }
+
+		return lp;
+		
 	}
 }

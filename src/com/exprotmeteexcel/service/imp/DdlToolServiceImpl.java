@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.exprotmeteexcel.bean.MateColumnsBean;
+import com.exprotmeteexcel.bean.PropertiesMap;
 import com.exprotmeteexcel.main.ExportExcel;
 import com.exprotmeteexcel.service.DdlToolService;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
@@ -34,71 +35,80 @@ public class DdlToolServiceImpl implements DdlToolService {
 
 		String TableRemark = "";
 		Boolean llt = false;
-		sb.append("--------------------------CREATE TABLE " + ownTable + "-------------------------------------" + "\n"
-				+ "");
-		sb.append("DROP TABLE ODS_DDL." + cols.get(0).getTranTableName() + ";" + "\n" + "");
-		sb.append("CREATE MULTISET TABLE ODS_DDL." + cols.get(0).getTranTableName() + " " + "\n" + " (");
-		for (int i = 0; i < cols.size(); i++) {
-			if (!Utl.isEmpty(cols.get(i).getTableRemark())) {
-				TableRemark = cols.get(i).getTableRemark();
-			}
-			String ColumnName = cols.get(i).getTranColumnName();
-			String ColumnDataType = cols.get(i).getTranColumnDataType();
-			String ColumnRemark = cols.get(i).getColumnRemark();
-			String IsNull = cols.get(i).getIsNull();
-			String colTitle = !Utl.isEmpty(ColumnRemark) ? "TITLE '" + ColumnRemark + "'" : "";
-			String datetype = ColumnDataType.indexOf("(") > 0
-					? ColumnDataType.toString().substring(0, ColumnDataType.toString().indexOf("(")) : ColumnDataType;
-			String UNICODE = "VARCHAR".equals(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
-
-			if (!Utl.isEmpty(cols.get(i).getPiValue())) {
-				PRIMARY.append("PI".equals(cols.get(i).getPiValue().toString().toUpperCase())
-						? cols.get(i).getTranColumnName().toString() + "," : "");
-			}
-			if (i == 0) {
-				sb.append(ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " " + IsNull);
-			} else {
-				sb.append("," + "\n" + " " + ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " "
-						+ IsNull);
-			}
-
-			if (!Utl.isEmpty(cols.get(i).getSynchronousLogic())) {
-				if ("拉链表".equals(cols.get(i).getSynchronousLogic().toString())) {
-					llt = true;
-				}
-			}
-
-		}
-		if (llt) {
-			sb.append("," + "\n" + " DW_START_DT   TITLE '开始日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
-			sb.append("," + "\n" + " DW_END_DT   TITLE '结束日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
-			sb.append("," + "\n" + " DW_ETL_DT   TITLE '翻牌日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
-			sb.append("," + "\n" + " DW_UPD_TM TIMESTAMP(0)  TITLE '更新时间'  DEFAULT CURRENT_TIMESTAMP(0) ");
-
-		} else {
-			sb.append("," + "\n" + " DW_OPER_FLAG SMALLINT  TITLE '操作标识' DEFAULT 1 ");
-			sb.append("," + "\n" + " DW_ETL_DT    TITLE '翻牌日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
-			sb.append("," + "\n" + " DW_UPD_TM TIMESTAMP(0) TITLE '更新时间' DEFAULT CURRENT_TIMESTAMP(0) ");
-
-		}
-		sb.append(")" + "\n" + " ");
-
-		if (!Utl.isEmpty(PRIMARY.toString())) {
-
-			sb.append("PRIMARY INDEX (" + "\n" + "" + PRIMARY.substring(0, PRIMARY.length() - 1) + "" + "\n" + ");"
+		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
+		Map<String, PropertiesMap> pm = ex.getPropertiesMapList("properties\\businessconfig");
+		PropertiesMap p = pm.get(cols.get(0).getSystem());
+		if (!Utl.isEmpty(p)) {
+			sb.append("--------------------------CREATE TABLE " + ownTable + "-------------------------------------"
 					+ "\n" + "");
+			sb.append("DROP TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + ";" + "\n" + "");
+			sb.append("CREATE MULTISET TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " " + "\n"
+					+ " (");
+			for (int i = 0; i < cols.size(); i++) {
+				if (!Utl.isEmpty(cols.get(i).getTableRemark())) {
+					TableRemark = cols.get(i).getTableRemark();
+				}
+				String ColumnName = cols.get(i).getTranColumnName();
+				String ColumnDataType = cols.get(i).getTranColumnDataType();
+				String ColumnRemark = cols.get(i).getColumnRemark();
+				String IsNull = cols.get(i).getIsNull();
+				String colTitle = !Utl.isEmpty(ColumnRemark) ? "TITLE '" + ColumnRemark + "'" : "";
+				String datetype = ColumnDataType.indexOf("(") > 0
+						? ColumnDataType.toString().substring(0, ColumnDataType.toString().indexOf("("))
+						: ColumnDataType;
+				String UNICODE = "VARCHAR".equals(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
+
+				if (!Utl.isEmpty(cols.get(i).getPiValue())) {
+					PRIMARY.append("PI".equals(cols.get(i).getPiValue().toString().toUpperCase())
+							? cols.get(i).getTranColumnName().toString() + "," : "");
+				}
+				if (i == 0) {
+					sb.append(ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " " + IsNull);
+				} else {
+					sb.append("," + "\n" + " " + ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle
+							+ " " + IsNull);
+				}
+
+				if (!Utl.isEmpty(cols.get(i).getSynchronousLogic())) {
+					if ("拉链表".equals(cols.get(i).getSynchronousLogic().toString())) {
+						llt = true;
+					}
+				}
+
+			}
+			if (llt) {
+				sb.append("," + "\n" + " DW_START_DT   TITLE '开始日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
+				sb.append("," + "\n" + " DW_END_DT   TITLE '结束日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
+				sb.append("," + "\n" + " DW_ETL_DT   TITLE '翻牌日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
+				sb.append("," + "\n" + " DW_UPD_TM TIMESTAMP(0)  TITLE '更新时间'  DEFAULT CURRENT_TIMESTAMP(0) ");
+
+			} else {
+				sb.append("," + "\n" + " DW_OPER_FLAG SMALLINT  TITLE '操作标识' DEFAULT 1 ");
+				sb.append("," + "\n" + " DW_ETL_DT    TITLE '翻牌日期' DATE FORMAT 'YYYY-MM-DD' NULL ");
+				sb.append("," + "\n" + " DW_UPD_TM TIMESTAMP(0) TITLE '更新时间' DEFAULT CURRENT_TIMESTAMP(0) ");
+
+			}
+			sb.append(")" + "\n" + " ");
+
+			if (!Utl.isEmpty(PRIMARY.toString())) {
+
+				sb.append("PRIMARY INDEX (" + "\n" + "" + PRIMARY.substring(0, PRIMARY.length() - 1) + "" + "\n" + ");"
+						+ "\n" + "");
+			} else {
+
+				return "noPiValue";
+
+			}
+
+			if (!Utl.isEmpty(TableRemark)) {
+				sb.append("COMMENT ON TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " IS '" + TableRemark + "';" + "\n" + "");
+			}
+
+			System.out.println(sb.toString());
+			return sb.toString();
 		} else {
-
-			return "noPiValue";
-
+			return null;
 		}
-
-		if (!Utl.isEmpty(TableRemark)) {
-			sb.append("COMMENT ON TABLE " + ownTable + " IS '" + TableRemark + "';" + "\n" + "");
-		}
-
-		System.out.println(sb.toString());
-		return sb.toString();
 
 	}
 
@@ -115,47 +125,53 @@ public class DdlToolServiceImpl implements DdlToolService {
 	public String getCkDdlStr(String ownTable, List<MateColumnsBean> cols) {
 		StringBuffer sb = new StringBuffer();
 		String TableRemark = "";
+		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
+		Map<String, PropertiesMap> pm = ex.getPropertiesMapList("properties\\businessconfig");
+		PropertiesMap p = pm.get(cols.get(0).getSystem());
+		if (!Utl.isEmpty(p)) {
+			sb.append("--------------------------CREATE TABLE " + ownTable + "-------------------------------------"
+					+ "\n" + "");
+			sb.append("DROP TABLE " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "_CK ;" + "\n" + "");
+			sb.append("CREATE MULTISET TABLE " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "_CK "
+					+ "\n" + " (");
+			for (int i = 0; i < cols.size(); i++) {
+				if (!Utl.isEmpty(cols.get(i).getTableRemark())) {
+					TableRemark = cols.get(i).getTableRemark();
+				}
+				String ColumnName = cols.get(i).getTranColumnName();
+				String ColumnDataType = cols.get(i).getTranColumnDataType();
+				String ColumnRemark = cols.get(i).getColumnRemark();
+				// String IsNull = cols.get(i).getIsNull();
+				String colTitle = !Utl.isEmpty(ColumnRemark) ? "TITLE '" + ColumnRemark + "'" : "";
+				String datetype = ColumnDataType.indexOf("(") > 0
+						? ColumnDataType.toString().substring(0, ColumnDataType.toString().indexOf("("))
+						: ColumnDataType;
+				String UNICODE = "VARCHAR".equals(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
 
-		sb.append("--------------------------CREATE TABLE " + ownTable + "-------------------------------------" + "\n"
-				+ "");
-		sb.append("DROP TABLE ODS_DATA." + cols.get(0).getTranTableName() + "_CK ;" + "\n" + "");
-		sb.append("CREATE MULTISET TABLE ODS_DATA." + cols.get(0).getTranTableName() + "_CK " + "\n" + " (");
-		for (int i = 0; i < cols.size(); i++) {
-			if (!Utl.isEmpty(cols.get(i).getTableRemark())) {
-				TableRemark = cols.get(i).getTableRemark();
+				if (i == 0) {
+					sb.append(ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " ");
+				} else {
+					sb.append("," + "\n" + " " + ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle
+							+ " ");
+				}
+
 			}
-			String ColumnName = cols.get(i).getTranColumnName();
-			String ColumnDataType = cols.get(i).getTranColumnDataType();
-			String ColumnRemark = cols.get(i).getColumnRemark();
-			//String IsNull = cols.get(i).getIsNull();
-			String colTitle = !Utl.isEmpty(ColumnRemark) ? "TITLE '" + ColumnRemark + "'" : "";
-			String datetype = ColumnDataType.indexOf("(") > 0
-					? ColumnDataType.toString().substring(0, ColumnDataType.toString().indexOf("(")) : ColumnDataType;
-			String UNICODE = "VARCHAR".equals(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
-	
-			if (i == 0) {
-				sb.append(ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " " );
-			} else {
-				sb.append("," + "\n" + " " + ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " "
-						);
+
+			sb.append("," + "\n" + " IN_ID BIGINT  NULL ");
+			sb.append("," + "\n" + " MD5ALL VARCHAR(50) CHARACTER SET UNICODE  NULL ");
+			sb.append("," + "\n" + " IN_MD5ALL VARCHAR(50) CHARACTER SET UNICODE  NULL ");
+
+			sb.append(");" + "\n" + " ");
+
+			if (!Utl.isEmpty(TableRemark)) {
+				sb.append("COMMENT ON TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " IS '" + TableRemark + "';" + "\n" + "");
 			}
 
+			System.out.println(sb.toString());
+			return sb.toString();
+		} else {
+			return null;
 		}
-
-		sb.append("," + "\n" + " IN_ID BIGINT  NULL ");
-		sb.append("," + "\n" + " MD5ALL VARCHAR(50) CHARACTER SET UNICODE  NULL ");
-		sb.append("," + "\n" + " IN_MD5ALL VARCHAR(50) CHARACTER SET UNICODE  NULL ");
-
-		sb.append(");" + "\n" + " ");
-
-		
-
-		if (!Utl.isEmpty(TableRemark)) {
-			sb.append("COMMENT ON TABLE " + ownTable + " IS '" + TableRemark + "';" + "\n" + "");
-		}
-
-		System.out.println(sb.toString());
-		return sb.toString();
 
 	}
 
@@ -171,12 +187,19 @@ public class DdlToolServiceImpl implements DdlToolService {
 	 */
 	public String getOdsDdlStr(String ownTable, List<MateColumnsBean> cols) {
 		StringBuffer sb = new StringBuffer();
+		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
+		Map<String, PropertiesMap> pm = ex.getPropertiesMapList("properties\\businessconfig");
+		PropertiesMap p = pm.get(cols.get(0).getSystem());
+		if (!Utl.isEmpty(p)) {
 
-		sb.append("drop table ODS_DATA." + cols.get(0).getTranTableName() + "	; " + "\n" + "");
-		sb.append("create table ODS_DATA." + cols.get(0).getTranTableName() + "	 AS ODS_DDL."
-				+ cols.get(0).getTranTableName() + " with NO DATA; " + "\n" + "");
+			sb.append("drop table " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "	; " + "\n" + "");
+			sb.append("create table " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "	 AS " + p.getDDLSchema() + "."
+					+ cols.get(0).getTranTableName() + " with NO DATA; " + "\n" + "");
 
-		return sb.toString();
+			return sb.toString();
+		} else {
+			return null;
+		}
 
 	}
 

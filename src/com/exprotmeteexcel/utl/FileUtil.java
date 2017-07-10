@@ -11,7 +11,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class FileUtil {
@@ -364,6 +366,29 @@ public class FileUtil {
 		ret.add(allFileName);
 		return ret;
 	}
+	
+
+	/**
+	 * 获取某个目录下所有的文件集合；
+	 * 
+	 * @return List
+	 */
+	public static List<String> getFile(String mulu) {
+		File file = new File(mulu);
+		File[] files = file.listFiles();
+		List<String> ret = new ArrayList<String>();
+
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isFile()) {		
+				ret.add(files[i].toString());
+			}
+		}
+	
+
+		return ret;
+	}
+	
+	
 
 	public static boolean wirteProperty(String path, String keyname, String keyvalue) {
 		Properties prop = new Properties();// 属性集合对象

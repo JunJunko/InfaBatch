@@ -14,6 +14,7 @@ import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
 import com.exprotmeteexcel.service.imp.ExprotMeteExcelServiceImpl;
+import com.exprotmeteexcel.utl.FileUtil;
 import com.exprotmeteexcel.utl.Utl;
 
 public class Testdbconn {
@@ -23,8 +24,9 @@ public class Testdbconn {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		com.exprotmeteexcel.main.ExportExcel.main(null);
-
+		//com.exprotmeteexcel.main.ExportExcel.main(null);
+		ExprotMeteExcelService t =new ExprotMeteExcelServiceImpl();
+		t.getPropertiesMapList("properties\\businessconfig");
 	}
 
 	/**

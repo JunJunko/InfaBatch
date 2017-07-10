@@ -193,8 +193,9 @@ public class OracleDbDaoI extends BaseDbDaoI {
 					mp.put("REMARKS", rs.getString("REMARKS"));
 					// System.out.println("REMARKS:"+ rs.getString("REMARKS"));
 					mp.put("TABLE_REMARKS", tableRemarks);
-					// System.out.println(i+":"+rs.getString("COLUMN_DEF"));
-					mp.put("COLUMN_DEF", rs.getObject(12));
+					//System.out.println(i+"getObject(12):"+rs.getObject(12));
+					//System.out.println(i+"getObject(13):"+rs.getObject(13));
+					mp.put("COLUMN_DEF", "");
 					mp.put("ISNULL", rs.getString("IS_NULLABLE"));
 					mp.put("PRIMARYKEY", prikey.contains(rs.getString("COLUMN_NAME")) ? "pri" : null);
 					su.add(mp);
