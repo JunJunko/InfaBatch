@@ -1,5 +1,8 @@
 package org;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 /*
  * Joiner.java Created on Nov 4, 2005.
  *
@@ -10,8 +13,6 @@ package org;
 import java.util.ArrayList;
 
 import java.util.List;
-
-import org.tools.ExcelUtil;
 
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
@@ -35,11 +36,19 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContext;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContextFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tools.ExcelUtil;
+
+
 /**
- * @author Junko
- *         <p>
- *         Description: 根据Excel配置表生成拉链表的校验插逻辑的XML文件
- *
+* =============================================
+* @Copyright 2017上海新炬网络技术有限公司
+* @version：1.0.1
+* @author：Junko
+* @date：2017年7月11日下午3:05:48
+* @Description: 根据Excel配置表生成拉链表的校验插逻辑的XML文件
+* =============================================
  */
 public class ZipCheck extends Base implements Parameter {
 	protected Target outputTarget;
@@ -50,31 +59,42 @@ public class ZipCheck extends Base implements Parameter {
 
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
+	protected final String  TablePrefix  = org.tools.GetProperties.getKeyValue("prefix");
+	protected static Log log = LogFactory.getLog(ZipCheck.class);
 
 	// protected String System = Platfrom;
 
+	
 	/**
-	 * @author Junko
-	 * <p> describe: 根据Excel配置信息生成一个PWC的Source
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSources()
+	 * @date: 2017年7月11日下午3:05:59 
+	 * @Description: 根据Excel配置信息生成一个PWC的Source
 	 */
 	protected void createSources() {
-		ordersSource = this.CheckSouce("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm")+"_H" ,
-				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
+//		System.out.println(org.tools.GetProperties.getKeyValue("TableNm"));
+		ordersSource = this.CheckSouce(TablePrefix + org.tools.GetProperties.getKeyValue("TableNm")+"_H" ,
+				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType, org.tools.GetProperties.getKeyValue("TableNm") );
 		
 		folder.addSource(ordersSource);
 
 		orderDetailsSource = this.CheckSouce(org.tools.GetProperties.getKeyValue("TableNm"),
-				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
+				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType, org.tools.GetProperties.getKeyValue("TableNm") );
 		folder.addSource(orderDetailsSource);
 	}
 
+
 	/**
-	 * @author Junko
-	 * <p> describe: 根据Excel配置信息生成一个PWC的Target
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createTargets()
+	 * @date: 2017年7月11日下午3:06:17 
+	 * @Description: 根据Excel配置信息生成一个PWC的Target
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H_CK");
+				TablePrefix + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_H_CK");
 	}
 
 	protected void createMappings() throws Exception {
@@ -84,6 +104,13 @@ public class ZipCheck extends Base implements Parameter {
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
+		for (int i = 0; i < ordersSource.getFields().size(); i++) {
+			String tmp = ordersSource.getFields().get(i).getName();
+			if (tmp.length() > 3)
+				if (tmp.substring(tmp.length() - 3, tmp.length()).equals("_OG"))
+					//
+					ordersSource.getField(tmp).setName("IN_" + tmp);
+		}
 
 		// Pipeline - 1
 		// 导入目标的sourceQualifier
@@ -94,33 +121,55 @@ public class ZipCheck extends Base implements Parameter {
 
 		RowSet SouSQ = (RowSet) helper.sourceQualifier(ordersSource).getRowSets().get(0);
 		//
-
+		
 		// 增加MD5
 		ArrayList<String> AllPort = new ArrayList<String>();
 
-		for (int i = 0; i < TableConf.size(); i++) {
-			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
-				if (TableConf.get(i).get(2).substring(0, TableConf.get(i).get(2).toString().indexOf("(")).toUpperCase()
-						.equals("CHAR")) {
-					AllPort.add("rtrim(" + TableConf.get(i).get(1) + ")");
+		for (int i = 0; i < SouSQ.getFields().size(); i++) {
+			if (SouSQ.getFields().get(i).getDataType().equals("char")) {
+
+					AllPort.add("rtrim(" + SouSQ.getFields().get(i).getName() + ")");
+				
 				} else {
-					AllPort.add(TableConf.get(i).get(1));
-				}
+					AllPort.add(SouSQ.getFields().get(i).getName());
+				
 			}
 
 		}
-		List<TransformField> transFieldsMD5 = new ArrayList<TransformField>();
-		String expMD5 = "string(50, 0) MD5ALL = md5("
+		List<TransformField> transFieldsMD5_S = new ArrayList<TransformField>();
+		String expMD5_S = "string(50, 0) MD5ALL = md5("
 				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
-		TransformField outFieldMD5 = new TransformField(expMD5);
-		transFieldsMD5.add(outFieldMD5);
+		TransformField outFieldMD5_S = new TransformField(expMD5_S);
+		
+		transFieldsMD5_S.add(outFieldMD5_S);
 
 		RowSet expRowSetMD5_S = (RowSet) helper
-				.expression(SouSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
+				.expression(SouSQ, transFieldsMD5_S, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
 				.getRowSets().get(0);
+		
+		AllPort.clear();
+		for (int i = 0; i < SouSQ.getFields().size(); i++) {
+//			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
+				if (TagSQ.getFields().get(i).getDataType().equals("char")) {
+					AllPort.add("rtrim(" + TagSQ.getFields().get(i).getName() + ")");
+					
+				} else {
+					AllPort.add(TagSQ.getFields().get(i).getName());
+					
+//				}
+			}
+		}
+		
+		List<TransformField> transFieldsMD5_T = new ArrayList<TransformField>();
+		String expMD5_T = "string(50, 0) MD5ALL = md5("
+				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
+		TransformField outFieldMD5_T = new TransformField(expMD5_T);
+		
+		transFieldsMD5_T.add(outFieldMD5_T);
+		
 
 		RowSet expRowSetMD5_T = (RowSet) helper
-				.expression(TagSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
+				.expression(TagSQ, transFieldsMD5_T, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
 				.getRowSets().get(0);
 
 		// 将md5之后进来的数据进行排序
@@ -131,7 +180,7 @@ public class ZipCheck extends Base implements Parameter {
 
 		RowSet SouSort = helper
 				.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
-						"SRT_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm")+"_H")
+						"SRT_" + TablePrefix + org.tools.GetProperties.getKeyValue("TableNm")+"1"+"_H")
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -202,12 +251,15 @@ public class ZipCheck extends Base implements Parameter {
 					sb = "String(50,0)";
 					break;
 				}
+				String tmp = "";
 
-				if (a.get(1) != null && !a.get(1).equals("ROW_ID")) {
+				if (!a.get(5).equals("pri")) {
+					tmp = Keyword.contains(a.get(1))? "IN_" + a.get(1)+"_OG": "IN_" + a.get(1);
+
 					if (Column == "") {
-						Column = /* a.get(1) + "," + */ "IN_" + a.get(1);
+						Column = /* a.get(1) + "," + */ tmp;
 					} else {
-						Column = Column/* + "," + a.get(1) */ + "," + "IN_" + a.get(1);
+						Column = Column/* + "," + a.get(1) */ + "," + tmp;
 					}
 				}
 
@@ -242,6 +294,12 @@ public class ZipCheck extends Base implements Parameter {
 
 		// write to target
 		mapping.writeTarget(new InputSet(filterRS, exclOrderID2), outputTarget);
+		for (int i = 0; i < ordersSource.getFields().size(); i++) {
+			String tmp = ordersSource.getFields().get(i).getName();
+			if (tmp.length() > 3)
+				if (tmp.substring(0, 3).equals("IN_"))
+					ordersSource.getField(tmp).setName(tmp.substring(3, tmp.length()));
+		}
 		// 增加参数
 		MappingVariable mappingVar = new MappingVariable(MappingVariableDataTypes.STRING, "0",
 				"mapping variable example", true, "$$PRVS1D_CUR_DATE", "20", "0", true);
@@ -251,9 +309,14 @@ public class ZipCheck extends Base implements Parameter {
 
 	}
 
+
 	/**
-	 * @author Junko
-	 * <p> describe: 根据Excel配置信息生成一个PWC的Workflow
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createWorkflow()
+	 * @date: 2017年7月11日下午3:06:33 
+	 * @Description: 根据Excel配置信息生成一个PWC的Workflow
+	 * @throws Exception
 	 */
 	protected void createWorkflow() throws Exception {
 
@@ -261,8 +324,8 @@ public class ZipCheck extends Base implements Parameter {
 				"WF_CHECK_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK", "");
 		workflow.addSession(session);
-		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
-				org.tools.GetProperties.getKeyValue("Domain"));
+		workflow.assignIntegrationService(org.tools.GetProperties.getPubKeyValue("Integration"),
+				org.tools.GetProperties.getPubKeyValue("Domain"));
 
 		folder.addWorkFlow(workflow);
 
@@ -281,15 +344,20 @@ public class ZipCheck extends Base implements Parameter {
 				joinerTrans.printUsage();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Exception is: " + e.getMessage());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+			e.printStackTrace(new PrintStream(baos));  
+			String exception = baos.toString();  
+			log.error( exception);		
 		}
 
 	}
 
+
 	/**
-	 * @author Junko
-	 * <p> describe: 根据属性文件的信息配置源的owner
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午3:06:43 
+	 * @Description: 根据属性文件的信息配置源的owner
 	 */
 	private void setSourceTargetProperties() {
 
@@ -298,9 +366,14 @@ public class ZipCheck extends Base implements Parameter {
 
 	}
 
+
 	/**
-	 * @author Junko
-	 * <p> describe: 根据Excel配置信息生成一个PWC的Session
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSession()
+	 * @date: 2017年7月11日下午3:06:50 
+	 * @Description: 根据Excel配置信息生成一个PWC的Session
+	 * @throws Exception
 	 */
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
@@ -335,7 +408,7 @@ public class ZipCheck extends Base implements Parameter {
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable(TDConnExport);
 		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation(
-				"SQ_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm")+"_H");
+				"SQ_" + TablePrefix + org.tools.GetProperties.getKeyValue("TableNm")+"_H");
 
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);

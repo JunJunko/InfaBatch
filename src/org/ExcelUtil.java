@@ -20,6 +20,15 @@ package org;
     import org.apache.poi.xssf.usermodel.XSSFSheet;  
     import org.apache.poi.xssf.usermodel.XSSFWorkbook;  
       
+    /**
+    * =============================================
+    * @Copyright 2017上海新炬网络技术有限公司
+    * @version：1.0.1
+    * @author：Junko
+    * @date：2017年7月11日上午11:50:50
+    * @Description: 从Excel取出数据的工具类
+    * =============================================
+     */
     public class ExcelUtil {  
         //默认单元格内容为数字时格式  
         private static DecimalFormat df = new DecimalFormat("0");  

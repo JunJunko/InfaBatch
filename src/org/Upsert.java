@@ -1,5 +1,8 @@
 package org;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 /*
  * Joiner.java Created on Nov 4, 2005.
  *
@@ -11,7 +14,6 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-import org.tools.ExcelUtil;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionPropsConstants;
@@ -36,12 +38,18 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContext;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContextFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tools.ExcelUtil;
+
 /**
- * @author Junko
- * <p> 
- * Description: 
- * 根据Excel配置表生成Upsert逻辑的XML文件
- *
+ * =============================================
+ * 
+ * @Copyright 2017上海新炬网络技术有限公司 @version：1.0.1
+ * @author：Junko
+ * @date：2017年7月11日上午11:58:46
+ * @Description: 根据Excel配置表生成Upsert逻辑的XML文件
+ *               =============================================
  */
 public class Upsert extends Base implements Parameter {
 	protected Target outputTarget;
@@ -53,76 +61,135 @@ public class Upsert extends Base implements Parameter {
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 
-	// protected String System = Platfrom;
+	protected final String TablePrefix = org.tools.GetProperties.getKeyValue("prefix");
+	protected static Log log = LogFactory.getLog(Upsert.class);
 
 	/**
-	 * Create sources
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSources()
+	 * @date: 2017年7月11日上午11:58:58
+	 * @Description: 生成PWC的sources
 	 */
 	protected void createSources() {
-		ordersSource = this.CreateCrm("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") ,
-				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
+		ordersSource = this.CreateUpserAppendSource(TablePrefix + org.tools.GetProperties.getKeyValue("TableNm"),
+				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType,
+				org.tools.GetProperties.getKeyValue("TableNm"));
 		folder.addSource(ordersSource);
-		orderDetailsSource = this.CreateZipper(org.tools.GetProperties.getKeyValue("TableNm"),
+		orderDetailsSource = this.CreateCrm(org.tools.GetProperties.getKeyValue("TableNm"),
 				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
 		folder.addSource(orderDetailsSource);
 	}
 
 	/**
-	 * Create targets
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createTargets()
+	 * @date: 2017年7月11日上午11:59:25
+	 * @Description: 生成PWC的targets
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() );
+				TablePrefix + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createMappings()
+	 * @date: 2017年7月11日上午11:59:39
+	 * @Description: 生成PWC的Mappings
+	 * @throws Exception
+	 */
 	protected void createMappings() throws Exception {
 
 		mapping = new Mapping("U_M_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "mapping", "");
+//		List<String> SourcePrimaryKeyList = new ArrayList<String>();
+//		List<String> TargetPrimaryKeyList = new ArrayList<String>();
+
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
 
 		// Pipeline - 1
 		// 导入目标的sourceQualifier
-		RowSet TagSQ = (RowSet) helper.sourceQualifier(orderDetailsSource).getRowSets().get(0);
+		RowSet TagSQ =	(RowSet) helper.sourceQualifier(orderDetailsSource).getRowSets().get(0);
 
 		// Pipeline - 2
 		// // 导入源的sourceQualifier
 
 		RowSet SouSQ = (RowSet) helper.sourceQualifier(ordersSource).getRowSets().get(0);
+		
 		//
 		// 增加MD5
 		ArrayList<String> AllPort = new ArrayList<String>();
+		for (int i = 0; i < SouSQ.getFields().size(); i++) {
+			
+			if (SouSQ.getFields().get(i).getDataType().equals("char")) {
 
-		for (int i = 0; i < TableConf.size(); i++) {
-			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
-				AllPort.add(TableConf.get(i).get(1));
+					AllPort.add("rtrim(" + SouSQ.getFields().get(i).getName() + ")");
+				
+				} else {
+					AllPort.add(SouSQ.getFields().get(i).getName());
+				
 			}
 
 		}
-		List<TransformField> transFieldsMD5 = new ArrayList<TransformField>();
-		String expMD5 = "string(50, 0) MD5ALL = md5("
+		List<TransformField> transFieldsMD5_S = new ArrayList<TransformField>();
+		String expMD5_S = "string(50, 0) MD5ALL = md5("
 				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
-		TransformField outFieldMD5 = new TransformField(expMD5);
-		transFieldsMD5.add(outFieldMD5);
+		TransformField outFieldMD5_S = new TransformField(expMD5_S);
+		
+		transFieldsMD5_S.add(outFieldMD5_S);
 
 		RowSet expRowSetMD5_S = (RowSet) helper
-				.expression(SouSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
+				.expression(SouSQ, transFieldsMD5_S, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
 				.getRowSets().get(0);
+		
+		AllPort.clear();
+		for (int i = 0; i < SouSQ.getFields().size(); i++) {
+//			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
+				if (TagSQ.getFields().get(i).getDataType().equals("char")) {
+					AllPort.add("rtrim(" + TagSQ.getFields().get(i).getName() + ")");
+					
+				} else {
+					AllPort.add(TagSQ.getFields().get(i).getName());
+					
+//				}
+			}
+		}
+		
+		List<TransformField> transFieldsMD5_T = new ArrayList<TransformField>();
+		String expMD5_T = "string(50, 0) MD5ALL = md5("
+				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
+		TransformField outFieldMD5_T = new TransformField(expMD5_T);
+		
+		transFieldsMD5_T.add(outFieldMD5_T);
 
 		RowSet expRowSetMD5_T = (RowSet) helper
-				.expression(TagSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
+				.expression(TagSQ, transFieldsMD5_T, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
 				.getRowSets().get(0);
 
-		// 将md5之后进来的数据进行排序
-		String IDColunmNM = org.tools.GetProperties.getKeyValue("IDColunmNM");
+		// 将md5之后进来的数据进行排序		
+		String[] TagSortKey = SourcePrimaryKeyListNotIN.toArray(new String[SourcePrimaryKeyListNotIN.size()]); 
+		System.out.println(TagSortKey);
+		
+		String[] SouSortKey = TargetPrimaryKeyList.toArray(new String[TargetPrimaryKeyList.size()]);
+		
+		boolean [] sort = new boolean[TargetPrimaryKeyList.size()];
+		for(int i = 0; i < TargetPrimaryKeyList.size(); i++) {    
+			sort[i] = false;
+		}   
+		
 
-		RowSet TagSort = helper.sorter(expRowSetMD5_T, new String[] { IDColunmNM }, new boolean[] { false },
+//		System.out.println(SouSortKey); 
+
+		RowSet TagSort = helper.sorter(expRowSetMD5_T, TagSortKey, sort,
 				"SRT_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
 		RowSet SouSort = helper
-				.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
-						"SRT_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") )
+				.sorter(expRowSetMD5_S, SouSortKey, sort,
+						"SRT_" + TablePrefix + org.tools.GetProperties.getKeyValue("TableNm") + "_2")
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -136,7 +203,8 @@ public class Upsert extends Base implements Parameter {
 		JoinProperty.setProperty("Joiner Data Cache Size", "auto");
 		JoinProperty.setProperty("Joiner Index Cache Size", "auto");
 		// 将SQ连到Join组件
-		RowSet joinRowSet = (RowSet) helper.join(inputSets, new InputSet(TagSort), "MD5ALL = IN_MD5ALL", JoinProperty,
+		RowSet joinRowSet = (RowSet) helper.join(inputSets, new InputSet(TagSort), org.tools.getPrimaryKeyTran2Expresion
+				.getPrimayKeyList(SourcePrimaryKeyList, TargetPrimaryKeyList, "Join"), JoinProperty,
 				"JNR_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
 		// InputSet joinInputSet = new InputSet(joinRowSet);
@@ -226,7 +294,7 @@ public class Upsert extends Base implements Parameter {
 		transFields.add(outField);
 
 		String[] strArray = null;
-		Column = Column + ",MD5ALL,IN_MD5ALL,falg";
+		Column =  "falg";
 		strArray = Column.split(",");
 
 		PortPropagationContext exclOrderID2 = PortPropagationContextFactory.getContextForExcludeColsFromAll(strArray); // exclude
@@ -238,10 +306,12 @@ public class Upsert extends Base implements Parameter {
 
 		// 增加router组件
 		List<TransformGroup> transformGrps = new ArrayList<TransformGroup>();
-		TransformGroup transGrp = new TransformGroup("Data_UDs", org.tools.getPrimaryKeyTran2Expresion.getPrimayKeyList(TableConf, org.tools.GetProperties.getKeyValue("TableNm"), "Datsa_UDs"));
+		TransformGroup transGrp = new TransformGroup("Data_UDs", org.tools.getPrimaryKeyTran2Expresion
+				.getPrimayKeyList(SourcePrimaryKeyList, TargetPrimaryKeyList, "Datsa_UDs"));
 		transformGrps.add(transGrp);
-		transGrp = new TransformGroup("Data_Inserts", org.tools.getPrimaryKeyTran2Expresion.getPrimayKeyList(TableConf, org.tools.GetProperties.getKeyValue("TableNm"), "Data_Inserts"));
+		transGrp = new TransformGroup("Data_Inserts", org.tools.getPrimaryKeyTran2Expresion.getPrimayKeyList(SourcePrimaryKeyList, TargetPrimaryKeyList, "Data_Inserts"));
 		transformGrps.add(transGrp);
+		
 		OutputSet routerOutputSet = helper.router(joinRowSet, transformGrps,
 				"RTR_" + org.tools.GetProperties.getKeyValue("TableNm"));
 
@@ -252,18 +322,19 @@ public class Upsert extends Base implements Parameter {
 		RowSet expData_Ups = null;
 		ArrayList<String> TagCloumn = new ArrayList<String>();
 		ArrayList<String> SouCloumn = new ArrayList<String>();
+		
 		if (outRS != null) {
 
-			for (int i = 0; i < outRS.size(); i++) {
+			for (int i = outRS.size()/2-1; i < outRS.size(); i++) {
 
-				if (!outRS.getFields().get(i).getName().toString().substring(0, 3).equals("IN_")) {
+//				if (!outRS.getFields().get(i).getName().toString().substring(0, 3).equals("IN_")) {
 
 					TagCloumn.add(outRS.getFields().get(i).getName().toString());
-				}
+//				}
 
 			}
 			TagCloumn.add("IN_MD5ALL1");
-//			TagCloumn.remove(0);
+			// TagCloumn.remove(0);
 			String Port[] = TagCloumn.toArray(new String[TagCloumn.size()]);
 			;
 
@@ -275,13 +346,13 @@ public class Upsert extends Base implements Parameter {
 
 		}
 		outRS = routerOutputSet.getRowSet("Data_Inserts");
-
 		if (outRS != null) {
 
-			for (int i = 0; i < outRS.size(); i++) {
-				if (outRS.getFields().get(i).getName().toString().substring(0, 3).equals("IN_")) {
+			for (int i = 0; i < outRS.size()/2; i++) {
+//				if (outRS.getFields().get(i).getName().toString().substring(0, 3).equals("IN_")) {
+
 					SouCloumn.add(outRS.getFields().get(i).getName().toString());
-				}
+//				}
 			}
 			SouCloumn.add("MD5ALL2");
 			SouCloumn.add("DW_START_DT2");
@@ -339,14 +410,14 @@ public class Upsert extends Base implements Parameter {
 		UninputSets.add(new InputSet(expData_Ups_Dw));
 		//
 		RowSet UnionSet = (RowSet) helper
-				.union(UninputSets, expData_Ins_Dw, "UNI_" + org.tools.GetProperties.getKeyValue("TableNm"))
+				.union(UninputSets, expData_Ups_Dw, "UNI_" + org.tools.GetProperties.getKeyValue("TableNm"))
 				.getRowSets().get(0);
 
-		RowSet SortFlag = (RowSet) helper
-				.sorter(UnionSet, "falg", false, "SOR_" + org.tools.GetProperties.getKeyValue("TableNm") + "_2")
-				.getRowSets().get(0);
+//		RowSet SortFlag = (RowSet) helper
+//				.sorter(UnionSet, "falg", false, "SOR_" + org.tools.GetProperties.getKeyValue("TableNm") + "_2")
+//				.getRowSets().get(0);
 
-		RowSet filterRS = (RowSet) helper.updateStrategy(SortFlag, "iif(falg=0,DD_INSERT,DD_UPDATE)",
+		RowSet filterRS = (RowSet) helper.updateStrategy(UnionSet, "DD_UPDATE",
 				"UPD_" + org.tools.GetProperties.getKeyValue("TableNm")).getRowSets().get(0);
 
 		// write to target
@@ -362,15 +433,20 @@ public class Upsert extends Base implements Parameter {
 	}
 
 	/**
-	 * Create workflow method
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createWorkflow()
+	 * @date: 2017年7月11日下午12:00:04
+	 * @Description: 生成PWC的workflow
+	 * @throws Exception
 	 */
 	protected void createWorkflow() throws Exception {
 
 		workflow = new Workflow("U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"U_WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(), "");
 		workflow.addSession(session);
-		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
-				org.tools.GetProperties.getKeyValue("Domain"));
+		workflow.assignIntegrationService(org.tools.GetProperties.getPubKeyValue("Integration"),
+				org.tools.GetProperties.getPubKeyValue("Domain"));
 		folder.addWorkFlow(workflow);
 
 	}
@@ -387,8 +463,10 @@ public class Upsert extends Base implements Parameter {
 				joinerTrans.printUsage();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Exception is: " + e.getMessage());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+			e.printStackTrace(new PrintStream(baos));  
+			String exception = baos.toString();  
+			log.error( exception);
 		}
 
 	}
@@ -407,6 +485,12 @@ public class Upsert extends Base implements Parameter {
 		return TL;
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午12:00:20
+	 * @Description: 配置Session的属性信息
+	 */
 	private void setSourceTargetProperties() {
 
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
@@ -417,9 +501,13 @@ public class Upsert extends Base implements Parameter {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSession()
+	 * @date: 2017年7月11日下午12:00:29
+	 * @Description: 生成PWC的Session
+	 * @throws Exception
 	 * @see com.informatica.powercenter.sdk.mapfwk.samples.Base#createSession()
 	 */
 	protected void createSession() throws Exception {
@@ -446,14 +534,16 @@ public class Upsert extends Base implements Parameter {
 		// Overriding source connection in Seesion level
 		ConnectionInfo SrcConOra = new ConnectionInfo(SourceTargetType.Oracle);
 		SrcConOra.setConnectionVariable(org.tools.GetProperties.getKeyValue("Connection"));
-		DSQTransformation dsq = (DSQTransformation) mapping
-				.getTransformation("SQ_" + org.tools.GetProperties.getKeyValue("TableNm"));
+		String SqInstanNM = TablePrefix.length() == 0 ? "SQ_" + org.tools.GetProperties.getKeyValue("TableNm") + 1
+				: "SQ_" + org.tools.GetProperties.getKeyValue("TableNm");
+
+		DSQTransformation dsq = (DSQTransformation) mapping.getTransformation(SqInstanNM);
 		session.addConnectionInfoObject(dsq, SrcConOra);
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable(TDConnExport);
-		DSQTransformation Tdsq = (DSQTransformation) mapping.getTransformation(
-				"SQ_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm") );
+		DSQTransformation Tdsq = (DSQTransformation) mapping
+				.getTransformation("SQ_" + TablePrefix + org.tools.GetProperties.getKeyValue("TableNm"));
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);
 		session.setTaskInstanceProperty("REUSABLE", "YES");
@@ -477,6 +567,5 @@ public class Upsert extends Base implements Parameter {
 		// session.addSessionTransformInstanceProperties(dmo, props);
 		setSourceTargetProperties();
 	}
-	
-	
+
 }

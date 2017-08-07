@@ -11,29 +11,7 @@ import org.dom4j.Element;
 
 public class GetXmlSeesionElement {
 
-	public static String GetSession(String filePath) {
-
-		String[] T = filePath.split("\\\\");
-		List<String> Type = new ArrayList<String>();
-		Type.toArray(T);
-
-		SAXReader reader = new SAXReader();
-		Document document = null;
-
-		try {
-			reader.setEntityResolver(new IgnoreDTDEntityResolver()); 
-			document = (Document) reader.read(new File(filePath));
-		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Element rootElm = document.getRootElement();
-		String testxml = rootElm.asXML();
-		String result = testxml.substring(testxml.indexOf("<SESSION"), testxml.lastIndexOf("</SESSION>")+10);
-		//
-//		System.out.println(result);
-		return result;
-	}
+	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

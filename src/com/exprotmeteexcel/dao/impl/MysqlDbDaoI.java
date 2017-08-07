@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.utl.global.SQLGlobal;
@@ -23,7 +23,7 @@ import com.exprotmeteexcel.utl.global.SQLGlobal;
  */
 public class MysqlDbDaoI extends BaseDbDaoI {
 
-	private static final Logger log = LoggerFactory.getLogger(OracleDbDaoI.class);
+	private static final Log log = LogFactory.getLog(OracleDbDaoI.class);
 
 	/**
 	 * 构造方法
@@ -185,8 +185,7 @@ public class MysqlDbDaoI extends BaseDbDaoI {
 					mp.put("REMARKS", rs.getString("REMARKS"));
 					mp.put("TABLE_REMARKS", tableRemarks);
 					// String dbtype = getDb_type();
-					mp.put("OWNER",
-							"mysql".equals(getDb_type()) ? rs.getString("TABLE_CAT") : rs.getString("TABLE_SCHEM"));
+					mp.put("OWNER",rs.getString("TABLE_CAT"));
 					mp.put("ISNULL", rs.getString("IS_NULLABLE"));
 					mp.put("COLUMN_DEF", rs.getString("COLUMN_DEF"));
 					mp.put("PRIMARYKEY", prikey.contains(rs.getString("COLUMN_NAME")) ? "pri" : null);
@@ -201,7 +200,7 @@ public class MysqlDbDaoI extends BaseDbDaoI {
 			log.error(System.currentTimeMillis() + "getTableColumnByMeta方法");
 			log.error(System.currentTimeMillis() + "异常原因：" + e.toString());
 			log.error("执行到行数:" + i);
-			e.printStackTrace();
+			//e.printStackTrace();
 
 		} finally {
 			try {

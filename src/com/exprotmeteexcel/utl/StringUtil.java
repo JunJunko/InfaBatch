@@ -13,22 +13,22 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oracle.sql.CLOB;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import oracle.sql.CLOB;
 
 /**
  * 字符串处理工具类
  * 
- * @author lb
+ * @author wujunqing
  * 
  */
 
@@ -38,7 +38,7 @@ public class StringUtil {
 		super();
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(StringUtil.class);
+	private static final Log log = LogFactory.getLog(StringUtil.class);
 
 	/**
 	 * 判断是否匹配正则表达式
@@ -58,6 +58,13 @@ public class StringUtil {
 			}
 		}
 		return return_value;
+	}
+
+	public static boolean checkRegex(String src, String regex) {
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(src);
+		boolean b = m.matches();
+		return b;
 	}
 
 	/**
@@ -205,6 +212,24 @@ public class StringUtil {
 			}
 		}
 		return r;
+	}
+
+	/**
+	 * * 转义正则特殊字符 （$()*+.[]?\^{},|）
+	 * 
+	 * @param keyword
+	 * @return
+	 */
+	public static String escapeExprSpecialWord(String keyword) {
+		if (StringUtils.isNotBlank(keyword)) {
+			String[] fbsArr = { "\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
+			for (String key : fbsArr) {
+				if (keyword.contains(key)) {
+					keyword = keyword.replace(key, "\\" + key);
+				}
+			}
+		}
+		return keyword;
 	}
 
 	/**
@@ -892,6 +917,25 @@ public class StringUtil {
 		SimpleDateFormat dfs = new SimpleDateFormat(format);
 		String time = dfs.format(date);
 		return time;
+	}
+
+	/**
+	 * 获取指定字符串出现的次数
+	 * 
+	 * @param srcText
+	 *            源字符串
+	 * @param findText
+	 *            要查找的字符串
+	 * @return
+	 */
+	public static int appearNumber(String srcText, String findText) {
+		int count = 0;
+		Pattern p = Pattern.compile(findText);
+		Matcher m = p.matcher(srcText);
+		while (m.find()) {
+			count++;
+		}
+		return count;
 	}
 
 }

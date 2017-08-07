@@ -1,5 +1,6 @@
 package com.exprotmeteexcel.service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -107,7 +108,7 @@ public interface ExprotMeteExcelService {
 	 */
 
 	public Boolean ExprotTableMateBean(String path);
-	
+
 	/**
 	 * 得到配置Autodev表
 	 * 
@@ -117,14 +118,79 @@ public interface ExprotMeteExcelService {
 	 * @return List ：
 	 */
 
-	
 	public List getAutodev(String path, String plaform);
-	
+
 	/**
 	 * 得到每一个平台配置文件路径
 	 * 
 	 * @param 配置文件集合
 	 * 
 	 */
-	public Map<String,PropertiesMap> getPropertiesMapList(String path);
+	public Map<String, PropertiesMap> getPropertiesMapList(String path);
+
+	/**
+	 * 得到配置excal,导出excal
+	 * 
+	 * 
+	 * 
+	 */
+
+	public void ReadExcelExprot(String path);
+
+	/**
+	 * 得到每一个平台配置文件路径
+	 * 
+	 * @param 配置文件
+	 * 
+	 */
+	public PropertiesMap getPropertiesMap(String path);
+
+	/**
+	 * 导入XML到informatica
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Boolean ExprotXmlToinfo(String path);
+	
+	/**
+	 * 导入XML到informatica
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Boolean ExprotXmlToinfoS(Map<String, Object> map) ;
+	/**
+	 * 导入XML到informatica
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public List<String> ExprotXmlFile(File[] files);
+	
+	/**
+	 * 导入XML到生成BAT文件
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Map<String, Object> ExprotXmltoBat(File[] files);
+	
+	/**
+	 * 导入XML到生成XmlModel
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Boolean ExprotXmlModel (String path);
 }

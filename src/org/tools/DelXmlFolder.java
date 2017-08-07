@@ -2,6 +2,15 @@ package org.tools;
 
 import java.io.File;
 
+/**
+* =============================================
+* @Copyright 2017上海新炬网络技术有限公司
+* @version：1.0.1
+* @author：Junko
+* @date：2017年7月11日下午3:32:54
+* @Description: 情况生成XML文件的目录
+* =============================================
+ */
 public class DelXmlFolder {
 	public static void delFolder(String folderPath) {
 	     try {
@@ -16,10 +25,12 @@ public class DelXmlFolder {
 	}
 
 	
+	
 	/**
-	 * Describe:
-	 * 删除指定目录下的所有文件<p>
-	 * @author Junko
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午3:33:24 
+	 * @Description: 删除指定目录下的所有文件
 	 * @param path
 	 * @return 操作标识
 	 */

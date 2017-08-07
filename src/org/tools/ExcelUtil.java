@@ -20,19 +20,30 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author Junko
  *
  */
+/**
+* =============================================
+* @Copyright 2017上海新炬网络技术有限公司
+* @version：1.0.1
+* @author：Junko
+* @date：2017年7月11日下午3:34:24
+* @Description: 读取Excel的配置信息
+* =============================================
+ */
 public class ExcelUtil {
 
 	public static void main(String[] args) {
-		System.out.println(readExecl("D:\\EXCEL\\OUT2_OUT_CBI_20170704155607660.xls"));
+		System.out.println(readExecl("xls\\out\\piout\\DLPM_20170727.xls"));
 //		System.out.println(readExecl("D:\\EXCEL\\eln.xlsx"));
 
 
 	}
 	/**
-	 * describe:从Excel配置文件读取表名、字段名、数据类型、是否PI、入仓逻辑<p>
-	 * @author Junko
-	 * @param Excel路径
-	 * @return Excel数据
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午3:33:53 
+	 * @Description: 读取Excel的配置信息
+	 * @param fileName
+	 * @return 返回Excel的配置信息
 	 */
 	public static ArrayList<ArrayList<String>> readExecl(String fileName) {
 		boolean isE2007 = false; // 判断是否是excel2007格式
@@ -62,9 +73,15 @@ public class ExcelUtil {
 			Cell cell_d = null;
 			Cell cell_e = null;
 			Cell cell_m = null;
+			Cell cell_j = null;
+			Cell cell_pk = null;
+			Cell cell_g = null;
+			
 			String cellValue;
 			String ColumnNM;
-			String DataType;
+			String ColumnTNM;
+			String SourceDataType;
+			String TargetDataType;
 			String IsPi;
 			String InputLogic;
 			String PrimaryKey;
@@ -79,47 +96,55 @@ public class ExcelUtil {
 
 				TableList.add(cellValue);
 				
-                //取字段名
-				row = sheet.getRow(i); 
+                //取源字段名
 				cell_b = row.getCell(5); 
-				ColumnNM = cell_b.getStringCellValue().trim();
+				ColumnNM = cell_b.getStringCellValue().trim().toUpperCase();
 				ColumnList.add(ColumnNM);
+				
+//				取目标字段名
+				cell_g = row.getCell(6); 
+				ColumnTNM = cell_g.getStringCellValue().trim().toUpperCase();
 
-				//取字段类型
-				row = sheet.getRow(i); 
-				cell_c = row.getCell(9); 
-				DataType = cell_c.getStringCellValue().trim().toUpperCase();
-				TypeList.add(DataType);
+				//取源字段类型
+				cell_c = row.getCell(8); 	
+				SourceDataType = cell_c.getStringCellValue().trim();
+				
+				TypeList.add(SourceDataType);
 
 				//取pi值
-				row = sheet.getRow(i); // 取得第i行
 				cell_d = row.getCell(13); // 取得i行的第一列
+				
+				
 				if (!(cell_d == null)) {
-					IsPi = cell_d.getStringCellValue().trim();
+					IsPi = cell_d.getStringCellValue().trim().toUpperCase();
 				} else {
 					IsPi = "";
 				}
 				
                 //取入仓逻辑
-				row = sheet.getRow(i); // 取得第i行
 				cell_e = row.getCell(20); // 取得i行的第一列
-				InputLogic = cell_e.getStringCellValue().trim();
+				InputLogic = cell_e == null? "": cell_e.getStringCellValue().trim();
 				
 				//取入仓逻辑
-				row = sheet.getRow(i); // 取得第i行
 				cell_m = row.getCell(12); // 取得i行的第一列
 				PrimaryKey = cell_m.getStringCellValue().trim();
+				
+				//取目标字段类型
+				cell_j = row.getCell(9); 
+				TargetDataType = cell_j.getStringCellValue().trim();
 				
 				
 				TableList.add(InputLogic);
 				TypeList.add(IsPi);
 
 				HashList.add(cellValue);
-				HashList.add(ColumnNM);
-				HashList.add(DataType);
+				HashList.add(ColumnNM);				
+				HashList.add(SourceDataType);
 				HashList.add(IsPi);
 				HashList.add(InputLogic);
 				HashList.add(PrimaryKey);
+				HashList.add(TargetDataType);
+				HashList.add(ColumnTNM);
 
 				ReList.add(HashList);
 

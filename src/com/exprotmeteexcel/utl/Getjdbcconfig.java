@@ -5,7 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
+/**
+ * jdbcπ§æﬂ¿‡
+ * 
+ * @author wujunqing
+ * @date 2017-06-26 
+ */
 public class Getjdbcconfig {
 
 	private String ip;
@@ -33,7 +38,7 @@ public class Getjdbcconfig {
 		this.username = p.getProperty("username");
 		this.password = p.getProperty("password");
 		this.databasename = p.getProperty("databasename");
-		this.dbtype = p.getProperty("dbtype");
+		this.dbtype = p.getProperty("DBType");
 
 	};
 

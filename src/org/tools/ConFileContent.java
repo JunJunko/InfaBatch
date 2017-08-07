@@ -1,28 +1,34 @@
 package org.tools;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+
+import org.FactoryMapping;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 
 public class ConFileContent {
 
+	protected static Log log = LogFactory.getLog(ConFileContent.class);
+
 	/**
-	 * Describe:
-	 * 从指定的文件读取文件内容<p>
-	 * @author Junko
-	 * @param  文件路径
-	 * @return 已String的形式返回指定的文件内容
-	 * 
-	 * 
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午3:29:51 
+	 * @Description: 用参数指定文件路径以String的形式返回指定的文件内容
+	 * @param fileName
+	 * @return 文件内容
 	 */
 	public static String readToString(String fileName) {
 		String encoding = "GBK";
@@ -47,11 +53,15 @@ public class ConFileContent {
 		}
 	}
 	
+	
 	/**
-	 * @author Junko
-	 * @param  xml内容， 入仓逻辑
-	 * @return XML内容
-	 * @see    org.tools.GetProperties.getKeyValue
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午3:30:37 
+	 * @Description: str参数数据内容， Type判断得出文件路径，将str的内容写入文件
+	 * @param str
+	 * @param Type
+	 * @return
 	 */
 	public static String writeLog(String str, String Type) {
 		String Platfrom = org.tools.GetProperties.getKeyValue("System");
@@ -97,21 +107,25 @@ public class ConFileContent {
 			sb.append(str + "\n");
 			out.write(sb.toString().getBytes("GBK"));// 注意需要转换对应的字符集
 			out.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			System.out.println(ex.getStackTrace());
+		} catch (IOException e) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+			e.printStackTrace(new PrintStream(baos));  
+			String exception = baos.toString();  
+			log.error( exception);	
 		}
 		return str;
 	}
 
 
+	
 	/**
-	 * @author Junko
-	 * @param  文件路径， 入仓逻辑
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日下午3:31:39 
+	 * @Description: 按入仓逻辑修改XML属性内容
+	 * @param filename
+	 * @param Type
 	 * @return 返回修改完属性的文件内容
-	 * @see    org.tools.UpdateXml.updateAttributeValue
-	 * 
-	 * 按入仓逻辑修改XML属性内容
 	 */
 	public static String ReplaceColumnNm(String filename, String Type) {
 		StringBuffer Data = new StringBuffer();
@@ -140,6 +154,11 @@ public class ConFileContent {
 			break;
 
 		case "check":
+			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
+			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
+			break;
+			
+		case "zcheck":
 			UpdateOption = "\"Update else Insert\" VALUE=\"NO";
 			TreatSourceOption = "\"Treat source rows as\" VALUE =\"Insert";
 			break;
@@ -179,11 +198,6 @@ public class ConFileContent {
 
 	}
 
-	public static void main(String args[]) {
-		
-		writeLog(ReplaceColumnNm("D:\\workspace\\Uoo-master\\M_TLK_ONSITE_SERVICE_1_H.xml", "拉链表"), "拉链表");
-		// org.tools.UpdateXml.updateAttributeValue("D:\\workspace\\Uoo-master\\M_TLK_ONSITE_SERVICE_1_H.xml",
-		// "拉链表");
-	}
+
 
 }

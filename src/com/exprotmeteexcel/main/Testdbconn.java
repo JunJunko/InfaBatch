@@ -7,19 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
 import com.exprotmeteexcel.service.ExprotMeteExcelService;
 import com.exprotmeteexcel.service.imp.ExprotMeteExcelServiceImpl;
-import com.exprotmeteexcel.utl.FileUtil;
 import com.exprotmeteexcel.utl.Utl;
 
 public class Testdbconn {
 
-	private static final Logger log = LoggerFactory.getLogger(Testdbconn.class);
+	private static final Log log = LogFactory.getLog(Testdbconn.class);
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

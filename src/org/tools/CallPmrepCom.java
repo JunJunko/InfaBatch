@@ -14,7 +14,7 @@ import java.util.List;
  *
  */
 public class CallPmrepCom {
-	static String path  = "D:\\workspace\\Uoo-master\\xml\\";
+	static String path  = "D:\\workspace\\InfaBatch\\xml\\";
 
 	
 	public static void writeLog(String str)

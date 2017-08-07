@@ -5,12 +5,21 @@ import java.util.List;
 
 import org.Parameter;
 
+/**
+* =============================================
+* @Copyright 2017上海新炬网络技术有限公司
+* @version：1.0.1
+* @author：Junko
+* @date：2017年7月11日下午4:09:55
+* @Description: 将TD的关键字识别出来，并在末尾添加"_OG"
+* =============================================
+ */
 public class RePlaceOG implements Parameter{
 
 	public static List<String> OG(){
 		
 		String[] strArray = null;  
-        strArray = org.tools.GetProperties.getKeyValue("OGCloumn").toUpperCase().split(",");
+        strArray = org.tools.GetProperties.getPubKeyValue("OGCloumn").toUpperCase().split(",");
         List<String> OGCloumn =  Arrays.asList(strArray);
 		return OGCloumn;
 		

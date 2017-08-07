@@ -1,12 +1,14 @@
 package com.exprotmeteexcel.service.imp;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.exprotmeteexcel.bean.MateColumnsBean;
 import com.exprotmeteexcel.bean.PropertiesMap;
@@ -17,7 +19,7 @@ import com.exprotmeteexcel.utl.FileUtil;
 import com.exprotmeteexcel.utl.Utl;
 
 public class DdlToolServiceImpl implements DdlToolService {
-	private static final Logger log = LoggerFactory.getLogger(ExportExcel.class);
+	private static final Log log = LogFactory.getLog(ExportExcel.class);
 
 	/**
 	 * 得到配置导出原数据的类型、字段、长度等
@@ -37,7 +39,10 @@ public class DdlToolServiceImpl implements DdlToolService {
 		Boolean llt = false;
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		Map<String, PropertiesMap> pm = ex.getPropertiesMapList("properties\\businessconfig");
-		PropertiesMap p = pm.get(cols.get(0).getSystem());
+		String system = cols.get(0).getSystem();
+		String spath = system.substring(system.indexOf("(") + 1, system.indexOf(")"));
+		System.out.println(spath);
+		PropertiesMap p = ex.getPropertiesMap(spath);
 		if (!Utl.isEmpty(p)) {
 			sb.append("--------------------------CREATE TABLE " + ownTable + "-------------------------------------"
 					+ "\n" + "");
@@ -56,7 +61,8 @@ public class DdlToolServiceImpl implements DdlToolService {
 				String datetype = ColumnDataType.indexOf("(") > 0
 						? ColumnDataType.toString().substring(0, ColumnDataType.toString().indexOf("("))
 						: ColumnDataType;
-				String UNICODE = "VARCHAR".equals(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
+
+				String UNICODE = isStringType(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
 
 				if (!Utl.isEmpty(cols.get(i).getPiValue())) {
 					PRIMARY.append("PI".equals(cols.get(i).getPiValue().toString().toUpperCase())
@@ -101,7 +107,8 @@ public class DdlToolServiceImpl implements DdlToolService {
 			}
 
 			if (!Utl.isEmpty(TableRemark)) {
-				sb.append("COMMENT ON TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " IS '" + TableRemark + "';" + "\n" + "");
+				sb.append("COMMENT ON TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " IS '"
+						+ TableRemark + "';" + "\n" + "");
 			}
 
 			System.out.println(sb.toString());
@@ -125,9 +132,13 @@ public class DdlToolServiceImpl implements DdlToolService {
 	public String getCkDdlStr(String ownTable, List<MateColumnsBean> cols) {
 		StringBuffer sb = new StringBuffer();
 		String TableRemark = "";
+		StringBuffer pri = new StringBuffer();
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		Map<String, PropertiesMap> pm = ex.getPropertiesMapList("properties\\businessconfig");
-		PropertiesMap p = pm.get(cols.get(0).getSystem());
+		String system = cols.get(0).getSystem();
+		String spath = system.substring(system.indexOf("(") + 1, system.indexOf(")"));
+		// System.out.println(system.substring(0, system.indexOf("(")));
+		PropertiesMap p = ex.getPropertiesMap(spath);
 		if (!Utl.isEmpty(p)) {
 			sb.append("--------------------------CREATE TABLE " + ownTable + "-------------------------------------"
 					+ "\n" + "");
@@ -138,6 +149,7 @@ public class DdlToolServiceImpl implements DdlToolService {
 				if (!Utl.isEmpty(cols.get(i).getTableRemark())) {
 					TableRemark = cols.get(i).getTableRemark();
 				}
+
 				String ColumnName = cols.get(i).getTranColumnName();
 				String ColumnDataType = cols.get(i).getTranColumnDataType();
 				String ColumnRemark = cols.get(i).getColumnRemark();
@@ -146,7 +158,7 @@ public class DdlToolServiceImpl implements DdlToolService {
 				String datetype = ColumnDataType.indexOf("(") > 0
 						? ColumnDataType.toString().substring(0, ColumnDataType.toString().indexOf("("))
 						: ColumnDataType;
-				String UNICODE = "VARCHAR".equals(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
+				String UNICODE = isStringType(datetype.toUpperCase()) ? "CHARACTER SET UNICODE" : "";
 
 				if (i == 0) {
 					sb.append(ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle + " ");
@@ -154,17 +166,22 @@ public class DdlToolServiceImpl implements DdlToolService {
 					sb.append("," + "\n" + " " + ColumnName + " " + ColumnDataType + " " + UNICODE + " " + colTitle
 							+ " ");
 				}
+				if ("pri".equals(cols.get(i).getPrimaryKey())) {
+					pri.append("," + "\n" + " IN_" + ColumnName + " " + ColumnDataType + " " + UNICODE + " " +  " null ");
+				}
 
 			}
 
-			sb.append("," + "\n" + " IN_ID BIGINT  NULL ");
+			// sb.append("," + "\n" + " IN_ID BIGINT NULL ");
+			sb.append(pri.toString());
 			sb.append("," + "\n" + " MD5ALL VARCHAR(50) CHARACTER SET UNICODE  NULL ");
 			sb.append("," + "\n" + " IN_MD5ALL VARCHAR(50) CHARACTER SET UNICODE  NULL ");
 
 			sb.append(");" + "\n" + " ");
 
 			if (!Utl.isEmpty(TableRemark)) {
-				sb.append("COMMENT ON TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " IS '" + TableRemark + "';" + "\n" + "");
+				sb.append("COMMENT ON TABLE " + p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " IS '"
+						+ TableRemark + "';" + "\n" + "");
 			}
 
 			System.out.println(sb.toString());
@@ -189,12 +206,15 @@ public class DdlToolServiceImpl implements DdlToolService {
 		StringBuffer sb = new StringBuffer();
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
 		Map<String, PropertiesMap> pm = ex.getPropertiesMapList("properties\\businessconfig");
-		PropertiesMap p = pm.get(cols.get(0).getSystem());
+		String system = cols.get(0).getSystem();
+		String spath = system.substring(system.indexOf("(") + 1, system.indexOf(")"));
+		// System.out.println(system.substring(0, system.indexOf("(")));
+		PropertiesMap p = ex.getPropertiesMap(spath);
 		if (!Utl.isEmpty(p)) {
 
 			sb.append("drop table " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "	; " + "\n" + "");
-			sb.append("create table " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "	 AS " + p.getDDLSchema() + "."
-					+ cols.get(0).getTranTableName() + " with NO DATA; " + "\n" + "");
+			sb.append("create table " + p.getDATASchema() + "." + cols.get(0).getTranTableName() + "	 AS "
+					+ p.getDDLSchema() + "." + cols.get(0).getTranTableName() + " with NO DATA; " + "\n" + "");
 
 			return sb.toString();
 		} else {
@@ -268,6 +288,25 @@ public class DdlToolServiceImpl implements DdlToolService {
 		}
 		return bn;
 
+	}
+
+	/**
+	 * 得到配置导出的各库的原数据表
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return list ：结果集
+	 */
+
+	public Boolean isStringType(String datetype) {
+		Properties p = Utl.getProperties("properties\\Pub.properties");
+		String[] str = p.getProperty("StringType").split(",");
+		List<String> lt = Arrays.asList(str);
+		if (lt.contains(datetype)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

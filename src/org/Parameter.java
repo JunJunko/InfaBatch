@@ -14,9 +14,9 @@ public interface Parameter {
 	// 目标文件夹
 	public String TagFolder = org.tools.GetProperties.getKeyValue("TDFolder");
 	// 源数据库
-	public String DBType = "Mysql"/*org.tools.GetProperties.getKeyValue("DBType")*/;
+	public String DBType = /*"Mysql"*/org.tools.GetProperties.getKeyValue("DBType");
 	// 目标数据库
-	public String TagDBType = "TD"/*org.tools.GetProperties.getPubKeyValue("TagDBType")*/;
+	public String TagDBType = /*"TD"*/org.tools.GetProperties.getPubKeyValue("TagDBType");
 	// 系统名称
 	public String Platfrom = org.tools.GetProperties.getKeyValue("System");
 	// 源所属owner
@@ -29,9 +29,9 @@ public interface Parameter {
 //	// Upsert目标表名称
 //	public String UpTagTableNm = "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase();
 	// Integration Server Name
-	public String Integration = org.tools.GetProperties.getKeyValue("Integration");
+	public String Integration = org.tools.GetProperties.getPubKeyValue("Integration");
 	// Domain Name
-	public String Domain = org.tools.GetProperties.getKeyValue("Domain");
+	public String Domain = org.tools.GetProperties.getPubKeyValue("Domain");
 	// TD Update type connection
 	public String TDConnUpdate = org.tools.GetProperties.getPubKeyValue("TDConnUpdate");
 	// TD Export type connection

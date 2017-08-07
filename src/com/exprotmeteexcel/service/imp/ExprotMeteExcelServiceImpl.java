@@ -1,11 +1,13 @@
 package com.exprotmeteexcel.service.imp;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,8 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.bean.MateColumnsBean;
@@ -28,9 +31,14 @@ import com.exprotmeteexcel.utl.DateTran.DataTypeTrans;
 import com.exprotmeteexcel.utl.ExcelUtility;
 import com.exprotmeteexcel.utl.FileUtil;
 import com.exprotmeteexcel.utl.Getjdbcconfig;
+import com.exprotmeteexcel.utl.PmrepExeUtl;
+import com.exprotmeteexcel.utl.StringUtil;
 import com.exprotmeteexcel.utl.Utl;
 import com.exprotmeteexcel.utl.global.BiaotiBean;
 import com.exprotmeteexcel.utl.global.SQLGlobal;
+import com.informatica.powercenter.sdk.mapfwk.exception.ConnectionFailedException;
+import com.informatica.powercenter.sdk.mapfwk.exception.RepoConnectionObjectOperationException;
+import com.informatica.powercenter.sdk.mapfwk.repository.RepoConnectionInfo;
 
 /**
  * 原数据导出Service类
@@ -40,7 +48,7 @@ import com.exprotmeteexcel.utl.global.SQLGlobal;
  */
 public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 
-	private static final Logger log = LoggerFactory.getLogger(ExprotMeteExcelServiceImpl.class);
+	private static final Log log = LogFactory.getLog(ExprotMeteExcelServiceImpl.class);
 
 	/**
 	 * 得到配置导出原数据的类型、字段、长度等
@@ -58,116 +66,122 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		// TODO Auto-generated method stub
 		Getjdbcconfig dbcof = new Getjdbcconfig(path);
 		Properties yp = Utl.getProperties(path);
-		//properties\Pub.properties
+		// properties\Pub.properties
 		Properties p = Utl.getProperties("properties/Pub.properties");
 		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
-		List<MateColumnsBean> listmc = new ArrayList<MateColumnsBean>();
-		List<Map<String, Object>> su = new ArrayList<Map<String, Object>>();
-		su = db.getTableColumnByMeta(mb);
-		List<Object[]> lt = ExcelUtility.getReadExcelContent("xls\\config\\config.xlsx", 1);
-		/*
-		 * String dbinfo; String owner; String tableName; String tranTableName;
-		 * String tableRemark; String columnsName; String tranColumnName; String
-		 * columnRemark; String columnDataType; String tranColumnDataType;
-		 * String isNull; String defaultValue;
-		 */
-		/*
-		 * String primaryKey; String piValue; String remark; String pl; String
-		 * synchronousType; String dateCount; String dateSize; String
-		 * updateTime; String synchronousLogic; String valid; String
-		 * isGigDateCol;
-		 */
-		// log.info("插入行数：" + su.size());
-		if (su != null) {
-			for (int i = 0; i < su.size(); i++) {
-				MateColumnsBean col = new MateColumnsBean();
-				// 原库配置信息
-				col.setDbinfo(dbcof.getDbtype() + ":(" + dbcof.getIp() + ":" + dbcof.getPort() + ";sid:"
-						+ dbcof.getDatabasename() + ")");
-				// 表的所属者
-				col.setOwner(su.get(i).get("OWNER").toString());
-				// 表名
-				col.setTableName(su.get(i).get("TABLE_NAME").toString());
+		if (!Utl.isEmpty(db)) {
+			List<MateColumnsBean> listmc = new ArrayList<MateColumnsBean>();
+			List<Map<String, Object>> su = new ArrayList<Map<String, Object>>();
+			su = db.getTableColumnByMeta(mb);
+			List<Object[]> lt = ExcelUtility.getReadExcelContent("xls\\config\\SOURCE2TD.xlsx", 1);
+			/*
+			 * String dbinfo; String owner; String tableName; String
+			 * tranTableName; String tableRemark; String columnsName; String
+			 * tranColumnName; String columnRemark; String columnDataType;
+			 * String tranColumnDataType; String isNull; String defaultValue;
+			 */
+			/*
+			 * String primaryKey; String piValue; String remark; String pl;
+			 * String synchronousType; String dateCount; String dateSize; String
+			 * updateTime; String synchronousLogic; String valid; String
+			 * isGigDateCol;
+			 */
+			// log.info("插入行数：" + su.size());
+			if (su != null) {
+				for (int i = 0; i < su.size(); i++) {
+					MateColumnsBean col = new MateColumnsBean();
+					// 原库配置信息
+					col.setDbinfo(dbcof.getDbtype() + ":(" + dbcof.getIp() + ":" + dbcof.getPort() + ";sid:"
+							+ dbcof.getDatabasename() + ")");
+					// 表的所属者
+					col.setOwner(su.get(i).get("OWNER").toString());
+					// 表名
+					col.setTableName(su.get(i).get("TABLE_NAME").toString());
 
-				// 字段名称
-				col.setColumnsName(su.get(i).get("COLUMN_NAME").toString());
-				// 转换表名
-				// 表名加前缀O_XXX（参数化平台简称）、如果拉链表逻辑表后缀加_H存入“转换表名”列
-				col.setTranTableName(yp.getProperty("prefix") + yp.getProperty("System") + "_"
-						+ su.get(i).get("TABLE_NAME").toString().toUpperCase());
-				//
-				col.setTableRemark(
-						su.get(i).get("TABLE_REMARKS") == null || "".equals(su.get(i).get("TABLE_REMARKS").toString())
-								? "" : su.get(i).get("TABLE_REMARKS").toString());
+					// 字段名称
+					col.setColumnsName(su.get(i).get("COLUMN_NAME").toString());
+					// 转换表名
+					// 表名加前缀O_XXX（参数化平台简称）、如果拉链表逻辑表后缀加_H存入“转换表名”列
+					String str1 = Utl.isEmpty(yp.getProperty("prefix")) ? "" : yp.getProperty("prefix");
+					col.setTranTableName(str1 + su.get(i).get("TABLE_NAME").toString().toUpperCase());
+					//
+					col.setTableRemark(su.get(i).get("TABLE_REMARKS") == null
+							|| "".equals(su.get(i).get("TABLE_REMARKS").toString()) ? ""
+									: su.get(i).get("TABLE_REMARKS").toString());
 
-				// 转换字段
-				// 字段名包含关键字的加_OG存入“转换字段名”列
+					// 转换字段
+					// 字段名包含关键字的加_OG存入“转换字段名”列
 
-				List<String> trnsCloumn = new ArrayList<String>();
-				Collections.addAll(trnsCloumn, p.get("OGCloumn").toString().toUpperCase().split(","));
-				String trnsCloumnName = trnsCloumn.contains(su.get(i).get("COLUMN_NAME").toString().toUpperCase())
-						? su.get(i).get("COLUMN_NAME").toString() + "_OG"
-						: Utl.isChinese(su.get(i).get("COLUMN_NAME").toString())
-								? "\"" + su.get(i).get("COLUMN_NAME").toString() + "\""
-								: su.get(i).get("COLUMN_NAME").toString();
-				col.setTranColumnName(trnsCloumnName.toUpperCase());
+					List<String> trnsCloumn = new ArrayList<String>();
+					Collections.addAll(trnsCloumn, p.get("OGCloumn").toString().toUpperCase().split(","));
+					String trnsCloumnName = trnsCloumn.contains(su.get(i).get("COLUMN_NAME").toString().toUpperCase())
+							? su.get(i).get("COLUMN_NAME").toString() + "_OG"
+							: Utl.isChinese(su.get(i).get("COLUMN_NAME").toString())
+									? "\"" + su.get(i).get("COLUMN_NAME").toString() + "\""
+									: su.get(i).get("COLUMN_NAME").toString();
+					col.setTranColumnName(trnsCloumnName.toUpperCase());
 
-				col.setColumnRemark(su.get(i).get("REMARKS") == null || "".equals(su.get(i).get("REMARKS")) ? null
-						: su.get(i).get("REMARKS").toString());
-				// 是否大字段
-		
-				List<String> BigCloumn = new ArrayList<String>();
-				Collections.addAll(BigCloumn, p.get("BigCloumn").toString().split(","));
-				String typename = Utl.isEmpty(su.get(i).get("TYPE_NAME").toString()) ? ""
-						: su.get(i).get("TYPE_NAME").toString().indexOf("(") > 0
-								? su.get(i).get("TYPE_NAME").toString().substring(0,
-										su.get(i).get("TYPE_NAME").toString().indexOf("("))
-								: su.get(i).get("TYPE_NAME").toString();
+					col.setColumnRemark(su.get(i).get("REMARKS") == null || "".equals(su.get(i).get("REMARKS")) ? null
+							: su.get(i).get("REMARKS").toString());
+					// 是否大字段
 
-				String isBigCol = BigCloumn.contains(typename.toUpperCase()) ? "是" : "否";
-				// 字段长度
+					List<String> BigCloumn = new ArrayList<String>();
+					Collections.addAll(BigCloumn, p.get("BigCloumn").toString().split(","));
+					String typename = Utl.isEmpty(su.get(i).get("TYPE_NAME").toString()) ? ""
+							: su.get(i).get("TYPE_NAME").toString().indexOf("(") > 0
+									? su.get(i).get("TYPE_NAME").toString().substring(0,
+											su.get(i).get("TYPE_NAME").toString().indexOf("("))
+									: su.get(i).get("TYPE_NAME").toString();
 
-				String datasize = "(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
-				String transdatasize = "是".equals(isBigCol) ? "(1234)"
-						: "(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
+					String isBigCol = BigCloumn.contains(typename.toUpperCase()) ? "是" : "否";
+					// 字段长度
 
-				// 字段类型转换
-				String datatype = typename;
-				String trandatatype = DataTypeTrans.TransByTd(datatype.toUpperCase(), "teradata", lt);
-				col.setColumnDataType(datatype + datasize);
-				String TranColumnDataType = "integer".equals(trandatatype) ? "int"
-						: "bigint".equals(trandatatype) ? "bigint"
-								: "timestamp".equals(trandatatype) ? "timestamp(6)"
-										: "smallint".equals(trandatatype) ? "smallint" : (trandatatype + transdatasize);
+					String datasize = "(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
+					String transdatasize = "是".equals(isBigCol) ? "(1234)"
+							: "(" + su.get(i).get("COLUMN_SIZE").toString() + ")";
 
-				col.setTranColumnDataType(TranColumnDataType);
+					// 字段类型转换
+					String datatype = typename;
+					String trandatatype = DataTypeTrans.TransByTd(datatype.toUpperCase(), db.getDb_type(), lt);
+					col.setColumnDataType(datatype + datasize);
+					String TranColumnDataType = "integer".equals(trandatatype) ? "int"
+							: "bigint".equals(trandatatype) ? "bigint"
+									: "timestamp".equals(trandatatype) ? "timestamp(6)"
+											: "smallint".equals(trandatatype) ? "smallint"
+													: (trandatatype + transdatasize);
 
-				// 字段能否为空: NOT NULL:不为空 ; NULL:可为null
-				col.setIsNull("NO".equals(su.get(i).get("ISNULL").toString()) ? "NOT NULL" : "NULL");
+					col.setTranColumnDataType(TranColumnDataType);
 
-				col.setDefaultValue(
-						su.get(i).get("COLUMN_DEF") == null || "".equals(su.get(i).get("COLUMN_DEF").toString()) ? ""
-								: su.get(i).get("COLUMN_DEF").toString());
-				col.setPrimaryKey(
-						su.get(i).get("PRIMARYKEY") == null || "".equals(su.get(i).get("PRIMARYKEY").toString()) ? null
-								: su.get(i).get("PRIMARYKEY").toString());
-				col.setPiValue("");
-				col.setRemark("");
-				col.setPl("");
-				col.setSynchronousType("");
-				col.setDateCount("");
-				col.setDateSize("");
-				col.setUpdateTime(null);
-				col.setSynchronousLogic("");
-				col.setValid("");
+					// 字段能否为空: NOT NULL:不为空 ; NULL:可为null
+					col.setIsNull("NO".equals(su.get(i).get("ISNULL").toString()) ? "NOT NULL" : "NULL");
 
-				col.setIsGigDateCol(isBigCol);
-				col.setSystem(yp.getProperty("System"));
-				listmc.add(col);
+					col.setDefaultValue(
+							su.get(i).get("COLUMN_DEF") == null || "".equals(su.get(i).get("COLUMN_DEF").toString())
+									? "" : su.get(i).get("COLUMN_DEF").toString());
+					col.setPrimaryKey(
+							su.get(i).get("PRIMARYKEY") == null || "".equals(su.get(i).get("PRIMARYKEY").toString())
+									? null : su.get(i).get("PRIMARYKEY").toString());
+					col.setPiValue("");
+					col.setRemark("");
+					col.setPl("");
+					col.setSynchronousType("");
+					col.setDateCount("");
+					col.setDateSize("");
+					col.setUpdateTime(null);
+					col.setSynchronousLogic("");
+					col.setValid("");
 
+					col.setIsGigDateCol(isBigCol);
+					col.setSystem(yp.getProperty("System") + "(" + path + ")");
+					listmc.add(col);
+
+				}
 			}
+			return listmc;
+		} else {
+			log.error("数据库连接为空");
+			return null;
 		}
-		return listmc;
 	}
 
 	/**
@@ -191,9 +205,14 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		if (!parentDir.isDirectory()) {
 			file.mkdir();
 		}
+		List<HSSFDataValidation> hsl = new ArrayList<HSSFDataValidation>();
+		HSSFDataValidation hs = ExcelUtility.createHSSFDataValidation(1, 65535, 13, 13, BiaotiBean.pi);
+		hsl.add(hs);
+		HSSFDataValidation hs2 = ExcelUtility.createHSSFDataValidation(1, 65535, 20, 20, BiaotiBean.lj);
+		hsl.add(hs2);
 		try {
 			out = new FileOutputStream(outputprth);
-			ex.exportExcel(BiaotiBean.HEADER, meta, out, "yyyy-MM-dd HH:mm:ss");
+			ex.exportExcel(BiaotiBean.HEADER, meta, out, "yyyy-MM-dd HH:mm:ss", hsl);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -212,7 +231,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 	}
 
 	/**
-	 * 取得配置表CONF_AUTODEV需要导的原数据
+	 * 取得配置表AUTO_ETL_CONFIG需要导的原数据
 	 * 
 	 * @param path
 	 *            对应的业务关系配置路径(teradatajdbcpath)
@@ -227,7 +246,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		MateBean mb = new MateBean();
 		List<Map<String, Object>> lt = new ArrayList<Map<String, Object>>();
 		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
-		String sql = "select OWNER_NM as OWNER,TABLE_NM as TABLE_NAME,FLAG as FLAG,PLAFORM as PLAFORM from  CONF_AUTODEV where FLAG =1 and PLAFORM=?";
+		String sql = "select OWNER_NM as OWNER,TABLE_NM as TABLE_NAME,FLAG as FLAG,PLAFORM as PLAFORM from  AUTO_ETL_CONFIG where FLAG =1 and PLAFORM=?";
 		lt = db.getDateForMap(sql, plaform);
 		mb.setDbSid(db.getDb_ssid());
 		mb.setDbconfpath(path);
@@ -237,12 +256,23 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		return mb;
 
 	}
-	
+
 	public List getAutodev(String path, String plaform) {
 		// TODO Auto-generated method stub
 		List<Map<String, Object>> lt = new ArrayList<Map<String, Object>>();
 		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
-		String sql = "select * from  CONF_AUTODEV where FLAG =1 and PLAFORM=?";
+		String sql = "select * from  AUTO_ETL_CONFIG where  PLAFORM=? and (SOURCE_FILTER is not null or TARGET_FILTER is not null)";
+		lt = db.getDateForMap(sql, plaform);
+
+		return lt;
+
+	}
+
+	public List<Map<String, Object>> getConfigTableFilter(String path, String plaform) {
+		// TODO Auto-generated method stub
+		List<Map<String, Object>> lt = new ArrayList<Map<String, Object>>();
+		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
+		String sql = "select * from  AUTO_ETL_CONFIG where FLAG =1 and PLAFORM=?";
 		lt = db.getDateForMap(sql, plaform);
 
 		return lt;
@@ -293,11 +323,11 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		BaseDbDaoI db = FactoryBaseDbDaoServiceImp.getBaseDbDaoI(path);
 		String sql = "";
 		if ("running".equals(status)) {
-			sql = "update CONF_AUTODEV  set FLAG =0 where PLAFORM =? ";
+			sql = "update AUTO_ETL_CONFIG  set FLAG =0 where PLAFORM =? ";
 		} else if ("ok".equals(status)) {
-			sql = "update CONF_AUTODEV  set FLAG =2 where PLAFORM =? and FLAG =0";
+			sql = "update AUTO_ETL_CONFIG  set FLAG =2 where PLAFORM =? and FLAG =0";
 		} else {
-			sql = "update CONF_AUTODEV  set FLAG =-1 where PLAFORM =? and FLAG =0";
+			sql = "update AUTO_ETL_CONFIG  set FLAG =-1 where PLAFORM =? and FLAG =0";
 		}
 		String[] param = { businessName };
 
@@ -463,7 +493,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setDefaultValue(obj[11].toString());
 
 				// 主键标记 primaryKey
-				col.setPrimaryKey(obj[12].toString());
+				col.setPrimaryKey(Utl.isEmpty(obj[12]) ? "" : obj[12].toString());
 				// piValue
 				col.setPiValue(obj[13] == null || "".equals(obj[13].toString()) ? null : obj[13].toString());
 				// remark
@@ -484,7 +514,7 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 				col.setValid(obj[21] == null || "".equals(obj[21].toString()) ? null : obj[21].toString());
 				// isGigDateCol
 				col.setIsGigDateCol(obj[22] == null || "".equals(obj[22].toString()) ? null : obj[22].toString());
-				col.setSystem(Utl.isEmpty(obj[23])?"null":obj[23].toString());
+				col.setSystem(Utl.isEmpty(obj[23]) ? "null" : obj[23].toString());
 				listmc.add(col);
 				List<MateColumnsBean> collist = tableDdl.get(obj[1].toString() + "." + obj[2].toString());
 				MateColumnsBean col2 = null;
@@ -538,7 +568,8 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		Boolean bn = false;
 		MateBean tt = new MateBean();
 		Properties p = Utl.getProperties(path);
-		//Properties py = Utl.getProperties(p.getProperty("businesspropertiespath"));
+		// Properties py =
+		// Utl.getProperties(p.getProperty("businesspropertiespath"));
 		String businessName = p.getProperty("System");
 		// 1、得到业务配置表
 		ExprotMeteExcelService ex = new ExprotMeteExcelServiceImpl();
@@ -564,25 +595,369 @@ public class ExprotMeteExcelServiceImpl implements ExprotMeteExcelService {
 		return bn;
 
 	}
+
 	/**
 	 * 得到每一个平台配置文件路径
 	 * 
 	 * @param 配置文件集合
 	 * 
 	 */
-	public Map<String,PropertiesMap> getPropertiesMapList(String path){
-		Map<String,PropertiesMap> lp=new HashMap<String,PropertiesMap>(); 
-		 List<String> ls=FileUtil.getFile("properties\\businessconfig");
-		 for(String str: ls){
-			 PropertiesMap pm=new PropertiesMap();
-			 pm.setPath(str);
-			 pm.setSystem(Utl.getProperties(str).getProperty("System"));
-			 pm.setDDLSchema(Utl.getProperties(str).getProperty("DDLSchema")); 
-			 pm.setDATASchema(Utl.getProperties(str).getProperty("DATASchema"));
-			 lp.put(Utl.getProperties(str).getProperty("System"), pm);
-		 }
+	public Map<String, PropertiesMap> getPropertiesMapList(String path) {
+		Map<String, PropertiesMap> lp = new HashMap<String, PropertiesMap>();
+		List<String> ls = FileUtil.getFile("properties\\businessconfig");
+		for (String str : ls) {
+			PropertiesMap pm = new PropertiesMap();
+			pm.setPath(str);
+			pm.setSystem(Utl.getProperties(str).getProperty("System"));
+			pm.setDDLSchema(Utl.getProperties(str).getProperty("DDLSchema"));
+			pm.setDATASchema(Utl.getProperties(str).getProperty("DATASchema"));
+			lp.put(Utl.getProperties(str).getProperty("System"), pm);
+		}
 
 		return lp;
+
+	}
+
+	/**
+	 * 得到每一个平台配置文件路径
+	 * 
+	 * @param 配置文件
+	 * 
+	 */
+	public PropertiesMap getPropertiesMap(String path) {
+
+		Properties p = Utl.getProperties(path);
+		PropertiesMap pm = new PropertiesMap();
+		pm.setPath(path);
+		pm.setSystem(p.getProperty("System"));
+		pm.setDDLSchema(p.getProperty("DDLSchema"));
+		pm.setDATASchema(p.getProperty("DATASchema"));
+
+		return pm;
+
+	}
+
+	public void ReadExcelExprot(String path) {
+		Boolean bn = false;
+		Map<String, Object> readmap = ReadExcel(path);
+		@SuppressWarnings({ "unchecked", "unused" })
+		List<MateColumnsBean> listmc = (List<MateColumnsBean>) readmap.get("TRANLIST");
+		File file = new File(path);
+		String metapath = file.getName();
+		String str = metapath.substring(0, metapath.lastIndexOf("."));
+		bn = ExcelExprot(str, listmc);
+
+		if (bn) {
+			log.info("运行成功！");
+		} else {
+			log.info("运行失败！");
+		}
+	}
+
+	/**
+	 * 导入XML到informatica
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Boolean ExprotXmlToinfo(String path) {
+		Boolean bn = false;
+		// RepositoryConnectionManager pu =new RepositoryConnectionManagerEx();
+		PmrepExeUtl pu = new PmrepExeUtl("C:\\Informatica\\9.6.1\\clients\\PowerCenterClient\\client\\bin",
+				new File("F:\\work01\\InfaBatch01\\tmp"), "dev_store_edw", "etldsvr01", "6005", "NC_ZJK", "499099784");
+
+		File file = new File(path);
+		try {
+			RepoConnectionInfo ri = new RepoConnectionInfo();
+
+			pu.setRepoConnectionInfo(ri);
+
+			pu.doConnect();
+
+			// pu.doCreateConnection(arg0);
+
+			// createFolder repo = new createFolder();
+
+			// createFolder repo = new createFolder();
+			// RepositoryConnectionManager repMgr = new
+			// PmrepRepositoryConnectionManagerEx();
+			// repo.setRepositoryConnectionManager(repMgr);
+			// repMgr.importObjectIntoRepository(path,
+			// "F:\\work01\\InfaBatch01\\xml\\check.xml");
+			pu.doImprotObject(path, "F:\\work01\\InfaBatch01\\xml\\check.xml",
+					"F:\\work01\\InfaBatch01\\log\\" + file.getName().toString() + ".log");
+		} catch (RepoConnectionObjectOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ConnectionFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+
+	}
+
+	/**
+	 * 导入XML到informatica
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Boolean ExprotXmlToinfoS(Map<String, Object> map) {
+		// ExprotXmlToBat(path);
+		Boolean bn = false;
+		Process p = null;
+		int num = 0;
+		BufferedReader br = null;
+		int runcount = Integer.parseInt(map.get("runcount").toString());
+		StringBuffer text = new StringBuffer("获得的信息是: \n");
+		if (runcount > 0) {
+			try {
+
+				// 执行命令
+				p = Runtime.getRuntime().exec(map.get("path").toString());
+				// 取得命令结果的输出流
+				InputStream fis = p.getInputStream();
+				// 用一个读输出流类去读
+				InputStreamReader isr = new InputStreamReader(fis);
+				// 用缓冲器读行
+				br = new BufferedReader(isr);
+				String line = null;
+				// 直到读完为止
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+
+			int ch;
+
+			try {
+				while ((ch = br.read()) != -1) {
+					text.append((char) ch);
+				}
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				log.error(text);
+			}
+			log.info(text);
+			num = StringUtil.appearNumber(text.toString(), "objectImport completed successfully");
+			bn = true;
+		} else {
+			log.info("没有要导入的XML文件");
+		}
+		log.info("导入成功个数:" + num);
+		int lcon = runcount - num;
+		log.info("导入失败个数:" + lcon);
+		if (lcon > 0) {
+			StringBuffer errStr = new StringBuffer();
+			StringBuffer errDecStr = new StringBuffer();
+			bn = false;
+			List<String> lt = (List<String>) map.get("exeStr");
+			String tempstr = "";
+			Map<String, String> strmap = new HashMap();
+			for (String str : lt) {
+
+				int start = text.toString().indexOf(str.trim());
+				int end = text.toString().indexOf("Completed at", start);
+				// int len = "Completed at".length();
+				if (start > 0 && end > 0) {
+					tempstr = text.substring(start, end);
+				} else if (start > 0) {
+					tempstr = text.substring(start);
+				}
+				strmap.put(str, tempstr);
+				if (tempstr.indexOf("objectImport completed successfully") < 0) {
+					errStr = new StringBuffer("错误命令： \n");
+					errStr.append(str);
+					errDecStr.append(tempstr);
+
+				}
+			}
+			log.error(errStr);
+			String errname = "err_" + FileUtil.getfileName(map.get("path").toString()).replace(".bat", ".log");
+			String errpath = "logs//error//";
+			FileUtil.WriteFile(errDecStr.toString(), errpath, errname, "GBK");
+
+		}
+
+		return bn;
+	}
+
+	/**
+	 * 导入XML到informatica
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public List<String> ExprotXmlFile(File[] files) {
+		List<String> lt = new ArrayList<String>();
+		lt = FileUtil.getDirfile(files, "xml");
+		log.info("选择XML:" + lt);
+		return lt;
+
+	}
+
+	/**
+	 * 导入XML到生成BAT文件
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Map<String, Object> ExprotXmltoBat(File[] files) {
+
+		String zpart = System.getProperty("user.dir");
+		Map<String, String> mp1 = new HashMap<String, String>();
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<String> lt = new ArrayList<String>();
+		int runcount = 0;
+		String path = "";
+		String pathFilename = "";
+
+//		mp1.put("InitTargetFolder", Utl.IsFileExists(zpart + "\\config\\TargetFolderXml\\" + "InitTargetFolder.xml")
+//				? zpart + "\\config\\TargetFolderXml\\" + "InitTargetFolder.xml" : "");
+//		mp1.put("CheckTargetFolder", Utl.IsFileExists(zpart + "\\config\\TargetFolderXml\\" + "CheckTargetFolder.xml")
+//				? zpart + "\\config\\TargetFolderXml\\" + "CheckTargetFolder.xml" : "");
+//		mp1.put("IncrementTargetFolder",
+//				Utl.IsFileExists(zpart + "\\config\\TargetFolderXml\\" + "IncrementTargetFolder.xml")
+//						? zpart + "\\config\\TargetFolderXml\\" + "IncrementTargetFolder.xml" : "");
+//		
 		
+		mp1.put("InitTargetFolder", Utl.IsFileExists(".\\config\\TargetFolderXml\\" + "InitTargetFolder.xml")
+				? ".\\config\\TargetFolderXml\\" + "InitTargetFolder.xml" : "");
+		mp1.put("CheckTargetFolder", Utl.IsFileExists(".\\config\\TargetFolderXml\\" + "CheckTargetFolder.xml")
+				? ".\\config\\TargetFolderXml\\" + "CheckTargetFolder.xml" : "");
+		mp1.put("IncrementTargetFolder",
+				Utl.IsFileExists(".\\config\\TargetFolderXml\\" + "IncrementTargetFolder.xml")
+						?".\\config\\TargetFolderXml\\" + "IncrementTargetFolder.xml" : "");
+
+		List<String> mp = ExprotXmlFile(files);
+		StringBuffer str = new StringBuffer();
+		if (!Utl.isEmpty(mp)) {
+			Properties ps = Utl.getProperties(".\\config\\pcconfig.properties");
+			String CLIENTPATH = "\""+ps.getProperty("PC_CLIENT_INSTALL_PATH").replaceAll(" ", "\" \"") + "\\pmrep"+"\"";
+			String TARGET_REPO_NAME = ps.getProperty("TARGET_REPO_NAME");
+			String REPO_SERVER_HOST = ps.getProperty("REPO_SERVER_HOST");
+			String REPO_SERVER_PORT = ps.getProperty("REPO_SERVER_PORT");
+			String ADMIN_USERNAME = ps.getProperty("ADMIN_USERNAME");
+			String ADMIN_PASSWORD = ps.getProperty("ADMIN_PASSWORD");
+			if (Utl.IsFileExists(ps.getProperty("PC_CLIENT_INSTALL_PATH"))) {
+				str.append(CLIENTPATH + " connect" + " -r " + TARGET_REPO_NAME + " -h " + REPO_SERVER_HOST + " -o "
+						+ REPO_SERVER_PORT + " -n " + ADMIN_USERNAME + " -x " + ADMIN_PASSWORD + "  " + "\n" + "");
+				for (String s : mp) {
+					File file = new File(s);
+					String strParentDirectory = file.getParent();
+					String strDirectory = strParentDirectory.substring(strParentDirectory.lastIndexOf("\\") + 1,
+							strParentDirectory.length());
+					String modelpath = "";
+					if ("InitXml".equals(strDirectory)) {
+						modelpath = mp1.get("InitTargetFolder");
+					} else if ("CheckXml".equals(strDirectory)) {
+						modelpath = mp1.get("CheckTargetFolder");
+					} else {
+						modelpath = mp1.get("IncrementTargetFolder");
+					}
+					if (!Utl.isEmpty(modelpath)) {
+						String exeStr = CLIENTPATH + " objectImport" + " -i " + "\""+s.replace(zpart+"\\", "")+ "\""+ " -c "
+								+"\""+ modelpath +"\""+ "\n" + "";
+						str.append(exeStr);
+						runcount++;
+						lt.add(exeStr);
+
+					} else {
+						log.error(s + ":没有对应的控制文件");
+
+					}
+				}
+			} else {
+				log.error("config\\pcconfig.properties的PC_CLIENT_INSTALL_PATH配置路径无效");
+
+			}
+		}
+		if (!Utl.isEmpty(str)) {
+			path = zpart + "\\bat\\";
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			String formatStr = formatter.format(new Date());
+			String fileName = "rt_" + formatStr + ".bat";
+			log.info("导入XML脚本路径:" + path + fileName);
+			FileUtil.WriteFile(str.toString(), path, fileName, "GBK");
+			pathFilename = path + fileName;
+			map.put("path", pathFilename);
+			map.put("runcount", runcount);
+			map.put("exeStr", lt);
+			return map;
+
+		}
+		return null;
+
+	}
+
+	/**
+	 * 导入XML到生成Xml的TargetFolder控制文件
+	 * 
+	 * @param path
+	 *            ：路径
+	 * @return Boolean ：是否执行成功
+	 * 
+	 */
+	public Boolean ExprotXmlModel(String path) {
+		Boolean bn = false;
+		Properties p = Utl.getProperties(path);
+		Map<String, String> mp = new HashMap<String, String>();
+
+		if (Utl.isEmpty(p.getProperty("InitTargetFolder")) || Utl.isEmpty(p.getProperty("CheckTargetFolder"))
+				|| Utl.isEmpty(p.getProperty("IncrementTargetFolder")) || Utl.isEmpty(p.getProperty("Repository"))) {
+			if (Utl.isEmpty(p.getProperty("InitTargetFolder"))) {
+				log.info("InitTargetFolder的配置为null");
+			}
+			if (Utl.isEmpty(p.getProperty("CheckTargetFolder"))) {
+				log.info("CheckTargetFolder的配置为null");
+			}
+			if (Utl.isEmpty(p.getProperty("IncrementTargetFolder"))) {
+				log.info("IncrementTargetFolder的配置为null");
+			}
+			if (Utl.isEmpty(p.getProperty("Repository"))) {
+				log.info("Repository的配置为null");
+			}
+
+		} else {
+			mp.put("InitTargetFolder", p.getProperty("InitTargetFolder"));
+			mp.put("CheckTargetFolder", p.getProperty("CheckTargetFolder"));
+			mp.put("IncrementTargetFolder", p.getProperty("IncrementTargetFolder"));
+			String jobEntryHopsXmlTemplate = FileUtil.readToBuffer("config\\TargetFolderModel.xml", "GBK").toString();
+			// 资料库名称
+			String jobEntryHopsXml = "";
+			for (String key : mp.keySet()) {
+				System.out.println("key= " + key + " and value= " + mp.get(key));
+				String spath = ".\\config\\TargetFolderXml\\" + key + ".xml";
+				if (Utl.IsFileExists(spath)) {
+					bn = FileUtil.deleteFile(spath);
+				}
+				if (!Utl.isEmpty(p.get(key))) {
+					// System.out.println(mp.get(key));
+
+					jobEntryHopsXml = jobEntryHopsXmlTemplate
+							.replaceAll("\\$\\{Repository\\}", p.getProperty("Repository"))
+							.replaceAll("\\$\\{TARGETFOLDERNAME\\}", mp.get(key));
+
+					bn = FileUtil.WriteFile(jobEntryHopsXml, ".\\config\\TargetFolderXml\\", key + ".xml", "GBK");
+				} else {
+					log.info(path + "的:" + key + " ,的配置为空");
+				}
+			}
+		}
+		return bn;
+
 	}
 }

@@ -14,4 +14,10 @@ public class BiaotiBean {
 			"字段备注", "数据类型", "转换类型", "可为NULL", "缺省值", " 主键说明", "PI值", "备注", "同步频率", "全量/增量同步", "数据量", "同步大小MB",
 			"更新时间戳字段", "实现同步逻辑(拉链表:表后缀加_H)", "是否业务验证", "是否含有大字段" ,"平台名称"};
 
+	
+	public static final String[] pi = new String[]{"PI",""};
+	
+	
+	
+	public static final String[] lj = new String[]{"全删全插","append","upsert","拉链表",""};
 }

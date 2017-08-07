@@ -6,10 +6,23 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.informatica.powercenter.sdk.mapfwk.core.NativeDataTypes;
-
+/**
+ * 数据类型转换工具类
+ * 
+ * @author wujunqing
+ * @date 2017-06-26 
+ */
 public class DateTran {
 	public static class DataTypeTrans {
-
+		/**
+		 * 解析excel配置，返回数据转换类型
+		 * 
+		 * @param DataType
+		 *            字段数据类型
+		 * @param DbType
+		 *            数据库类型
+		 * @return 返回数据转换类型
+		 */
 		public static String Trans(String DataType, String DbType) {
 			String sb = null;
 			String datetype = DataType.indexOf("(") > 0
@@ -214,6 +227,17 @@ public class DateTran {
 			return sb;
 		}
 
+		/**
+		 * 解析excel配置，返回数据转换类型
+		 * 
+		 * @param DataType
+		 *            字段数据类型
+		 * @param DbType
+		 *            数据库类型
+		 * @param lt
+		 *            配置数据转换集合
+		 * @return 返回数据转换类型
+		 */
 		public static String TransByTd(String DataType, String DbType, List<Object[]> lt) {
 			String sb = null;
 			String datetype = DataType.indexOf("(") > 0
@@ -222,7 +246,36 @@ public class DateTran {
 			if (!Utl.isEmpty(lt)) {
 
 				for (Object[] row : lt) {
-					if ("TD".equals(row[0].toString()) && datetype.equals(row[1].toString())) {
+					if (DbType.toUpperCase().equals(row[0].toString().toUpperCase()) && datetype.toUpperCase().equals(row[1].toString().toUpperCase())) {
+						sb = row[2].toString();
+						break;
+					}
+				}
+			}
+			if (Utl.isEmpty(sb)) {
+				sb = "varchar";
+			}
+			return sb;
+		}
+		/**
+		 * 解析excel配置，返回数据转换类型
+		 * 
+		 * @param DataType
+		 *            字段数据类型
+		 * @param DbType
+		 *            数据库类型
+		 * @return 返回数据转换类型
+		 */
+		public static String TransByTd(String DataType, String DbType) {
+			String sb = null;
+			String datetype = DataType.indexOf("(") > 0
+					? DataType.toString().substring(0, DataType.toString().indexOf("(")) : DataType;
+			List<Object[]> lt = ExcelUtility.getReadExcelContent("xls\\config\\SOURCE2PWC.xlsx", 1);
+			
+			if (!Utl.isEmpty(lt)) {
+
+				for (Object[] row : lt) {
+					if (DbType.toUpperCase().equals(row[0].toString().toUpperCase()) && datetype.toUpperCase().equals(row[1].toString().toUpperCase())) {
 						sb = row[2].toString();
 						break;
 					}

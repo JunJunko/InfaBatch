@@ -1,9 +1,9 @@
 package org;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.tools.ExcelUtil;
 
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
@@ -26,12 +26,19 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tools.ExcelUtil;
+
+
 /**
- * @author Junko
- * <p> 
- * Description: 
- * 根据Excel配置表生成全删全插逻辑的XML文件
- *
+* =============================================
+* @Copyright 2017上海新炬网络技术有限公司
+* @version：1.0.1
+* @author：Junko
+* @date：2017年7月10日下午2:44:12
+* @Description：根据Excel元数据信息生成全删全插逻辑的XML
+* =============================================
  */
 public class Expression extends Base implements Parameter {
 
@@ -39,8 +46,10 @@ public class Expression extends Base implements Parameter {
 	protected Target TdTarget;
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
+	protected final String  TablePrefix  = org.tools.GetProperties.getKeyValue("prefix");
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
-	
+	protected static Log log = LogFactory.getLog(Expression.class);
+
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -55,15 +64,21 @@ public class Expression extends Base implements Parameter {
 	                expressionTrans.printUsage();
 	            }
 	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.err.println( "Exception is: " + e.getMessage() );
+	        	ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+	        	e.printStackTrace(new PrintStream(baos));  
+	        	String exception = baos.toString();  
+	        	log.error( exception);
 	        }
 	    		    
 
 	}
+
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Session
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSession()
+	 * @date: 2017年7月10日下午2:45:02 
+	 * @Description: 生成PWC的Session
 	 */
 	@Override
 	public void createSession() {
@@ -116,9 +131,14 @@ public class Expression extends Base implements Parameter {
 
 	}
 	
+
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Mapping
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createMappings()
+	 * @date: 2017年7月10日下午2:46:42 
+	 * @Description: 生成PWC的Mapping
+	 * @throws Exception
 	 */
 	@Override
 	protected void createMappings() throws Exception {
@@ -170,9 +190,12 @@ public class Expression extends Base implements Parameter {
 
 	}
 	
+
 	/**
-	 * @author    Junko
-	 * @since     根据属性文件配置source的owner信息
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月10日下午2:47:05 
+	 * @Description: 为PWC的session的源表owner属性赋值
 	 */
 	public void setSourceTargetProperties() {
 		// TODO Auto-generated method stub
@@ -182,9 +205,13 @@ public class Expression extends Base implements Parameter {
 
 	}
 	
+
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Source
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSources()
+	 * @date: 2017年7月10日下午2:47:22 
+	 * @Description: 生成PWC的Sources
 	 */
 	@Override
 	protected void createSources() {
@@ -194,20 +221,29 @@ public class Expression extends Base implements Parameter {
 		folder.addSource(employeeSrc);
 	}
 
+
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Target
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createTargets()
+	 * @date: 2017年7月10日下午2:47:34 
+	 * @Description: 生成PWC的Target
 	 */
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, TablePrefix + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
 	
+
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Workflow
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createWorkflow()
+	 * @date: 2017年7月10日下午2:47:51 
+	 * @Description: 生成PWC的Workflow
+	 * @throws Exception
 	 */
 	@Override
 	protected void createWorkflow() throws Exception {

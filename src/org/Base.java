@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.exprotmeteexcel.utl.ExcelUtility;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionPropsConstants;
 import com.informatica.powercenter.sdk.mapfwk.connection.SourceTargetType;
@@ -21,27 +22,29 @@ import com.informatica.powercenter.sdk.mapfwk.core.Field;
 import com.informatica.powercenter.sdk.mapfwk.core.FieldKeyType;
 import com.informatica.powercenter.sdk.mapfwk.core.FieldType;
 import com.informatica.powercenter.sdk.mapfwk.core.Folder;
-import com.informatica.powercenter.sdk.mapfwk.core.INameFilter;
 import com.informatica.powercenter.sdk.mapfwk.core.MapFwkOutputContext;
 import com.informatica.powercenter.sdk.mapfwk.core.Mapping;
 import com.informatica.powercenter.sdk.mapfwk.core.NativeDataTypes;
-import com.informatica.powercenter.sdk.mapfwk.core.SASHelper;
 import com.informatica.powercenter.sdk.mapfwk.core.Session;
 import com.informatica.powercenter.sdk.mapfwk.core.Source;
-import com.informatica.powercenter.sdk.mapfwk.core.StringConstants;
 import com.informatica.powercenter.sdk.mapfwk.core.Target;
 import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
-import com.informatica.powercenter.sdk.mapfwk.exception.MapFwkReaderException;
-import com.informatica.powercenter.sdk.mapfwk.exception.RepoOperationException;
 import com.informatica.powercenter.sdk.mapfwk.repository.RepoConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.repository.RepoPropsConstants;
 import com.informatica.powercenter.sdk.mapfwk.repository.Repository;
 
 import org.tools.ExcelUtil;
 
+import com.exprotmeteexcel.utl.DateTran.DataTypeTrans;
+
 /**
- *
- *
+ * =============================================
+ * 
+ * @Copyright 2017上海新炬网络技术有限公司 @version：1.0.1
+ * @author：Junko
+ * @date：2017年7月11日上午11:06:18
+ * @Description: 生成XML的父类，子类继承该父类后重写CreateMapping、Createsource、CreateTargets、CreateWorkflow、CreateSession
+ *               后可以生产XML文件 =============================================
  */
 public abstract class Base {
 	// ///////////////////////////////////////////////////////////////////////////////////
@@ -55,16 +58,26 @@ public abstract class Base {
 	protected String TableNme;
 	protected Mapping mapping;
 	protected int runMode = 0;
+	protected final String TablePrefix = org.tools.GetProperties.getKeyValue("prefix");
 	// public static String profilepath = "QQSURVEY.properties";
 	protected ArrayList<String> BigCloumn = null;
 	protected static List<List<String>> TableList = null;
 	protected ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
+	protected final static List<String> Keyword = org.tools.RePlaceOG.OG();
+	public List<String> SourcePrimaryKeyList = new ArrayList<String>();
+	public List<String> TargetPrimaryKeyList = new ArrayList<String>();
+	public List<String> SourcePrimaryKeyListNotIN = new ArrayList<String>();
+
 	// protected String TableNm =
 	// org.tools.GetProperties.getKeyValue("TableNm");
 
 	/**
-	 * Common execute method
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:09:53
+	 * @Description: Common execute method
+	 * @throws Exception
 	 */
 	public void execute() throws Exception {
 		init();
@@ -76,7 +89,10 @@ public abstract class Base {
 	}
 
 	/**
-	 * Initialize the method
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:10:14
+	 * @Description: Initialize the method
 	 */
 	protected void init() {
 		createRepository();
@@ -86,55 +102,75 @@ public abstract class Base {
 	}
 
 	/**
-	 * Create a repository
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:10:21
+	 * @Description: Create a repository
 	 */
 	protected void createRepository() {
-		rep = new Repository("dev_store_edw", "dev_store_edw", "This repository contains API test samples");
+		rep = new Repository("dev_store_edw", "dev_store_edw", "repository");
 		RepoConnectionInfo repo = new RepoConnectionInfo();
 		repo.setCodepage("MS936");
 		rep.setRepoConnectionInfo(repo);
 	}
 
 	/**
-	 * Creates a folder
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:11:33
+	 * @Description: Creates a folder
 	 */
 	protected void createFolder() {
-		folder = new Folder("WECHAT", "WECHAT", org.tools.GetProperties.getKeyValue("System"));
+		folder = new Folder("SourceFolder", "SourceFolder", org.tools.GetProperties.getKeyValue("System"));
 		rep.addFolder(folder);
 
 	}
 
 	/**
-	 * Create sources
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:11:48
+	 * @Description: Create sources
 	 */
 	protected abstract void createSources(); // override in base class to create
 												// appropriate sources
 
 	/**
-	 * Create targets
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:12:00
+	 * @Description: Create targets
 	 */
 	protected abstract void createTargets(); // override in base class to create
 												// appropriate targets
 
 	/**
-	 * Creates a mapping It needs to be overriddden for the sample
-	 * 
-	 * @return Mapping
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:12:11
+	 * @Description: Creates a mapping It needs to be overriddden for the sample
+	 * @throws Exception
 	 */
 	protected abstract void createMappings() throws Exception; // override in
 																// base class
 
 	/**
-	 * Create session
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:12:32
+	 * @Description: Create session
+	 * @throws Exception
 	 */
 	protected abstract void createSession() throws Exception;
 
 	/**
-	 * Create workflow
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:12:42
+	 * @Description: Create workflow
+	 * @throws Exception
 	 */
 	protected abstract void createWorkflow() throws Exception;
-
-
 
 	protected ConnectionInfo getRelationalConnInfo(SourceTargetType dbType, String dbName) {
 		ConnectionInfo connInfo = null;
@@ -143,7 +179,13 @@ public abstract class Base {
 		return connInfo;
 	}
 
-	
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:16:18
+	 * @Description: 生成XML文件
+	 * @throws Exception
+	 */
 	public void generateOutput() throws Exception {
 
 		MapFwkOutputContext outputContext = new MapFwkOutputContext(MapFwkOutputContext.OUTPUT_FORMAT_XML,
@@ -163,15 +205,20 @@ public abstract class Base {
 			doImport = true;
 		rep.save(outputContext, doImport);
 		System.out.println("Mapping generated in " + mapFileName);
-		
+
 	}
-	
+
 	/**
-	 * Method to create relational target
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:16:41
+	 * @Description: Method to create relational target
+	 * @param DBType
+	 * @param name
+	 * @return
 	 */
 	protected Target createRelationalTarget(SourceTargetType DBType, String name) {
-		Target target = new Target(name, name, name, name, new ConnectionInfo(
-				DBType));
+		Target target = new Target(name, name, name, name, new ConnectionInfo(DBType));
 		return target;
 	}
 
@@ -216,7 +263,13 @@ public abstract class Base {
 		return infoProps;
 	}
 
-	// get an FTP connection
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:17:04
+	 * @Description: get an FTP connection
+	 * @return
+	 */
 	protected ConnectionInfo getFTPConnectionInfo() {
 		ConnectionInfo infoProps = new ConnectionInfo(SourceTargetType.FTP);
 		infoProps.setConnectionName("ftp_con");
@@ -224,7 +277,13 @@ public abstract class Base {
 	}
 
 	/**
-	 * Method to get relational connection info object
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:17:17
+	 * @Description: Method to get relational connection info object
+	 * @param dbType
+	 * @param dbName
+	 * @return
 	 */
 	protected ConnectionInfo getRelationalConnectionInfo(SourceTargetType dbType, String dbName) {
 		ConnectionInfo connInfo = new ConnectionInfo(dbType);
@@ -232,6 +291,13 @@ public abstract class Base {
 		return connInfo;
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:17:40
+	 * @Description: 初始化属性文件 pcconfig.properties
+	 * @throws IOException
+	 */
 	protected void intializeLocalProps() throws IOException {
 
 		Properties properties = new Properties();
@@ -266,7 +332,17 @@ public abstract class Base {
 		}
 	}
 
-	protected Source CheckSouce(String TableNm, String dbName, String DbType) {
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:18:06
+	 * @Description: 定义CK逻辑的源
+	 * @param TableNm
+	 * @param dbName
+	 * @param DbType
+	 * @return
+	 */
+	protected Source CheckSouce(String TableNm, String dbName, String DbType, String ogTbNM) {
 		List<Field> fields = new ArrayList<Field>();
 
 		String len = null;
@@ -276,36 +352,71 @@ public abstract class Base {
 		String TableName = null;
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List) TableConf.get(i);
+
 			// TableList.add(a);
-			//过滤成源表名
-			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_CK", "").replace("_H", ""))) {
+			// 过滤成源表名
+			if (a.get(0).equals(ogTbNM)) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
 				// 鍒涘缓 Pattern 瀵硅薄
 				Pattern r = Pattern.compile(pattern);
 
 				// 鐜板湪鍒涘缓 matcher 瀵硅薄
-				Matcher m = r.matcher(a.get(2).toString());
+				String TagType = a.get(6).split("\\(")[0];
+				Matcher m = r.matcher(a.get(6).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
 					// System.out.print(sourceStrArray.length);
-					if (org.tools.DataTypeTrans.Trans(a.get(2), DbType) == "timestamp") {
-						len = "26";
-						precision = "6";
-					} else if (sourceStrArray.length == 2) {
+//					if (TagType.equals("timestamp")) {
+//						len = "26";
+//						precision = "6";
+//					} else 
+						if (a.get(6).indexOf(",") > 0) {
 						len = sourceStrArray[0];
-						precision = sourceStrArray[1];
+						precision = sourceStrArray[1] == null ? "0" : sourceStrArray[1];
 					} else {
-						len = sourceStrArray[0];
-						precision = "0";
+//						len = sourceStrArray[0];
+						len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					    precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
 					}
+						
+
+				}else{
+					len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
 				}
-			
-				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, FieldKeyType.NOT_A_KEY,
-						FieldType.SOURCE, false);
-				fields.add(field);
+				
+
+				ArrayList<String> BCloum = new ArrayList<String>(org.tools.RePlaceBigCloumn.BigCloumn());
+
+				if (!a.get(6).equals("varchar(1234)")) {
+					// String FieldNm =
+					// (!Keyword.contains(a.get(1).toUpperCase().toString()) ||
+					// !DbType.equals("TD")) ?
+					// a.get(1).toUpperCase().toString():
+					// a.get(1).toUpperCase().toString()+"_OG";
+					String FieldNm = DbType.equals("TD")
+							? a.get(7).toString() : a.get(1).toString();
+					String DataType = (!DbType.equals("TD")) ? DataTypeTrans.TransByTd(a.get(2), DbType)
+							: TagType;
+					Field field = new Field(FieldNm, FieldNm, "", DataType, len, precision, FieldKeyType.NOT_A_KEY,
+							FieldType.SOURCE, false);
+					fields.add(field);
+				}
 				TableName = TableNm;
 			}
 		}
@@ -321,12 +432,23 @@ public abstract class Base {
 		} else if (DbType.equals("Mysql")) {
 			info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
 		}
+		System.out.println(TableName);
 		tabSource = new Source(TableName, TableName, "table", TableName, info);
 		// System.out.println(a.get(0).toString());
 		tabSource.setFields(fields);
 		return tabSource;
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:18:34
+	 * @Description: 定义增量表的源
+	 * @param TableNm
+	 * @param dbName
+	 * @param DbType
+	 * @return
+	 */
 	protected Source CreateCrm(String TableNm, String dbName, String DbType) {
 		List<Field> fields = new ArrayList<Field>();
 		org.tools.GetProperties.writeProperties("ISBigCloumn", "");
@@ -338,32 +460,54 @@ public abstract class Base {
 		FieldKeyType ColType = null;
 		Boolean NullEable = null;
 		Field field = null;
-		
+
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List) TableConf.get(i);
+			
 			// TableList.add(a);
-			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_CK", ""))) {
+			if (a.get(0).equals(TableNm)) {
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
 				// 鍒涘缓 Pattern 瀵硅薄
 				Pattern r = Pattern.compile(pattern);
 
 				// 鐜板湪鍒涘缓 matcher 瀵硅薄
-				Matcher m = r.matcher(a.get(2).toString());
+				String TagType = a.get(6).split("\\(")[0];
+				Matcher m = r.matcher(a.get(6).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
 					// System.out.print(sourceStrArray.length);
-					if (org.tools.DataTypeTrans.Trans(a.get(2), DbType) == "timestamp") {
-						len = "26";
-						precision = "6";
-					} else if (sourceStrArray.length == 2) {
+//					if (TagType.equals("timestamp")) {
+//						len = "26";
+//						precision = "6";
+//					} else 
+						if (a.get(6).indexOf(",") > 0) {
 						len = sourceStrArray[0];
-						precision = sourceStrArray[1];
+						precision = sourceStrArray[1] == null ? "0" : sourceStrArray[1];
 					} else {
-						len = sourceStrArray[0];
-						precision = "0";
+//						len = sourceStrArray[0];
+						len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
 					}
+						
+
+				}else{
+					len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
 				}
 				// System.out.println(a.get(2).toString().substring(0,
 				// a.get(2).toString().indexOf("(")));
@@ -371,8 +515,7 @@ public abstract class Base {
 				// System.out.println(a.get(0).toString());
 				// System.out.println(a.get(3).toString().trim().equals("PI")+
 				// a.get(3).toString().trim());
-				if (a.get(3).toString().trim().equals("PI")
-						|| a.get(1).toString().trim().equals(org.tools.GetProperties.getKeyValue("IDColunmNM"))) {
+				if (a.get(3).toString().trim().equals("PI") || a.get(5).toString().trim().equals("pri")) {
 					ColType = FieldKeyType.PRIMARY_KEY;
 					NullEable = true;
 				} else {
@@ -380,25 +523,24 @@ public abstract class Base {
 					NullEable = false;
 				}
 				// NullEable = false;
-				// System.out.println(a.get(1).toString() + "," +
+				// System.out.println(a.get(1).toUpperCase().toString() + "," +
 				// org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
 				// + len + "," + precision);
-				ArrayList<String> BCloum = new ArrayList<String>(org.tools.RePlaceBigCloumn.BigCloumn());
-				if (!BCloum.contains(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")))) {
-                    
-					 field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-							org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
-							NullEable);
-					
-				} else {
-					org.tools.GetProperties.writeProperties("ISBigCloumn", "_LARGE");
-					TableNme = "_LARGE";
-					System.out.println(a.get(2).toUpperCase().substring(0, a.get(2).toString().indexOf("(")));
-				}
-				// Field OWNER=new
-				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
 
-				fields.add(field);
+				if (!a.get(6).equals("varchar(1234)")) {
+					String FieldNm = DbType.equals("TD")
+							? a.get(7).toString() : a.get(1).toString();
+					String DataType = (!DbType.equals("TD")) ? DataTypeTrans.TransByTd(a.get(2), DbType)
+							: TagType;
+
+					field = new Field(FieldNm, FieldNm, "", DataType, len, precision, ColType, FieldType.SOURCE,
+							NullEable);
+
+					// com.exprotmeteexcel.utl.DateTran.DataTypeTrans.TransByTd
+					fields.add(field);
+				}
+				//
+
 				TableName = TableNm;
 			}
 		}
@@ -420,7 +562,154 @@ public abstract class Base {
 		return tabSource;
 	}
 
-	protected Source CreateZipper(String TableNm, String dbName, String DbType) {
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月14日上午9:58:31
+	 * @Description: 定义Upser、Append表的源
+	 * @param TableNm
+	 * @param dbName
+	 * @param DbType
+	 * @param ogTbNm
+	 * @return
+	 */
+	protected Source CreateUpserAppendSource(String TableNm, String dbName, String DbType, String ogTbNm) {
+		List<Field> fields = new ArrayList<Field>();
+		String len = null;
+		String precision = null;
+		Source tabSource = null;
+		List<String> a = null;
+		String TableName = null;
+		FieldKeyType ColType = null;
+		Boolean NullEable = null;
+		Field field = null;
+		SourcePrimaryKeyList.clear();
+		TargetPrimaryKeyList.clear();
+		for (int i = 0; i < TableConf.size(); i++) {
+			a = (List) TableConf.get(i);
+			// TableList.add(a);
+			if (a.get(0).equals(ogTbNm)) {
+				// TableList.add(a);
+				String pattern = ".*?\\((.*?)\\).*?";
+				// 鍒涘缓 Pattern 瀵硅薄
+				Pattern r = Pattern.compile(pattern);
+
+				// 鐜板湪鍒涘缓 matcher 瀵硅薄
+				String TagType = a.get(6).split("\\(")[0];
+				Matcher m = r.matcher(a.get(6).toString());
+				if (m.find()) {
+					String[] sourceStrArray = m.group(1).toString().split(",");
+					// System.out.print(sourceStrArray.length);
+//					if (TagType.equals("timestamp")) {
+//						len = "26";
+//						precision = "6";
+//					} else 
+						if (a.get(6).indexOf(",") > 0) {
+						len = sourceStrArray[0];
+						precision = sourceStrArray[1] == null ? "0" : sourceStrArray[1];
+					} else {
+//						len = sourceStrArray[0];
+						len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
+					}
+						
+
+				}else{
+					len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
+				}
+				// System.out.println(a.get(2).toString().substring(0,
+				// a.get(2).toString().indexOf("(")));
+
+				// System.out.println(a.get(0).toString());
+				// System.out.println(a.get(3).toString().trim().equals("PI")+
+				// a.get(3).toString().trim());
+				if (a.get(3).toString().trim().equals("PI") || a.get(5).toString().trim().equals("pri")) {
+					ColType = FieldKeyType.PRIMARY_KEY;
+					NullEable = true;
+				} else {
+					ColType = FieldKeyType.NOT_A_KEY;
+					NullEable = false;
+				}
+
+				// NullEable = false;
+				// System.out.println(a.get(1).toUpperCase().toString() + "," +
+				// org.tools.DataTypeTrans.Trans(a.get(2), "MSSQL") + ""
+				// + len + "," + precision);
+				String tmp = "";
+				String tmp2 = "";
+
+				if (!a.get(6).equals("varchar(1234)")) {
+					String FieldNm = DbType.equals("TD")
+							? a.get(7).toString() : a.get(1).toString();
+					String DataType = (!DbType.equals("TD")) ? DataTypeTrans.TransByTd(a.get(2), DbType)
+							: TagType;
+					if (a.get(5).equals("pri")) {
+						tmp = FieldNm.length() > 3
+								&& FieldNm.substring(FieldNm.length() - 3, FieldNm.length()).equals("_OG") ? FieldNm
+										: "IN_" + FieldNm;
+						
+						tmp2 = FieldNm.length() > 3
+								&& FieldNm.substring(FieldNm.length() - 3, FieldNm.length()).equals("_OG") ? FieldNm
+										:FieldNm;
+						SourcePrimaryKeyList.add(tmp);
+						SourcePrimaryKeyListNotIN.add(tmp2);
+						TargetPrimaryKeyList.add(a.get(1).toString());
+					}
+					field = new Field(FieldNm, FieldNm, "", DataType, len, precision, ColType, FieldType.SOURCE,
+							NullEable);
+
+					// com.exprotmeteexcel.utl.DateTran.DataTypeTrans.TransByTd
+					fields.add(field);
+				}
+				//
+
+				TableName = TableNm;
+			}
+		}
+
+		ConnectionInfo info = null;
+		if (DbType.equals("Oracle")) {
+			info = getRelationalConnInfo(SourceTargetType.Oracle, dbName);
+
+		} else if (DbType.equals("TD")) {
+			info = getRelationalConnInfo(SourceTargetType.Teradata, dbName);
+		} else if (DbType.equals("MSSQL")) {
+			info = getRelationalConnInfo(SourceTargetType.Microsoft_SQL_Server, dbName);
+		} else if (DbType.equals("Mysql")) {
+			info = getRelationalConnInfo(SourceTargetType.ODBC, dbName);
+		}
+		tabSource = new Source(TableName, TableName, "table", TableName, info);
+		// System.out.println(a.get(0).toString());
+		tabSource.setFields(fields);
+		return tabSource;
+	}
+
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:19:14
+	 * @Description: 定义拉链表的源
+	 * @param TableNm
+	 * @param dbName
+	 * @param DbType
+	 * @return
+	 */
+	protected Source CreateZipper(String TableNm, String dbName, String DbType, String ogTbNM) {
 		List<Field> fields = new ArrayList<Field>();
 
 		String len = null;
@@ -430,39 +719,58 @@ public abstract class Base {
 		String TableName = null;
 		FieldKeyType ColType = null;
 		Boolean NullEable = null;
+		SourcePrimaryKeyList.clear();
+		TargetPrimaryKeyList.clear();
 		for (int i = 0; i < TableConf.size(); i++) {
 			a = (List<String>) TableConf.get(i);
 			// TableList.add(a);
-			if (a.get(0).equals(TableNm.replace("O_" + org.tools.GetProperties.getKeyValue("System") + "_", "")
-					.replace("_H", ""))) {
+			if (a.get(0).equals(ogTbNM)) {
+
 				// TableList.add(a);
 				String pattern = ".*?\\((.*?)\\).*?";
 				// 鍒涘缓 Pattern 瀵硅薄
 				Pattern r = Pattern.compile(pattern);
 
 				// 鐜板湪鍒涘缓 matcher 瀵硅薄
-				Matcher m = r.matcher(a.get(2).toString());
+				String TagType = a.get(6).split("\\(")[0];
+				Matcher m = r.matcher(a.get(6).toString());
 				if (m.find()) {
 					String[] sourceStrArray = m.group(1).toString().split(",");
 					// System.out.print(sourceStrArray.length);
-					if (org.tools.DataTypeTrans.Trans(a.get(2), DbType) == "timestamp") {
-						len = "26";
-						precision = "6";
-					} else if (sourceStrArray.length == 2) {
+//					if (TagType.equals("timestamp")) {
+//						len = "26";
+//						precision = "6";
+//					} else 
+						if (a.get(6).indexOf(",") > 0) {
 						len = sourceStrArray[0];
-						precision = sourceStrArray[1];
+						precision = sourceStrArray[1] == null ? "0" : sourceStrArray[1];
 					} else {
-						len = sourceStrArray[0];
-						precision = "0";
+//						len = sourceStrArray[0];
+						len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
 					}
-				}
-				// System.out.println(a.get(2).toString().substring(0,
-				// a.get(2).toString().indexOf("(")));
+						
 
-				// System.out.println(a.get(0).toString());
-				// System.out.println(a.get(3).toString().trim().equals("PI")+
-				// a.get(3).toString().trim());
-				if (a.get(3).toString().trim().equals("PI") || a.get(1).toString().trim().equals("ID")) {
+				}else{
+					len = "integer".equals(TagType) ? "10"
+							: "bigint".equals(TagType) ? "19"
+									: "timestamp".equals(TagType) ? "26"
+											: "smallint".equals(TagType) ? "5": m.group(1).toString().split(",")[0];
+					
+					precision = "integer".equals(TagType) ? "0"
+							: "bigint".equals(TagType) ? "0"
+									: "timestamp".equals(TagType) ? "6"
+											: "smallint".equals(TagType) ? "0": "0";
+				}
+
+				if (a.get(3).toString().trim().equals("PI") || a.get(5).toString().trim().equals("pri")) {
 					ColType = FieldKeyType.PRIMARY_KEY;
 					NullEable = true;
 				} else {
@@ -470,16 +778,27 @@ public abstract class Base {
 					NullEable = false;
 				}
 
-				Field field = new Field(a.get(1).toString(), a.get(1).toString(), "",
-						org.tools.DataTypeTrans.Trans(a.get(2), DbType), len, precision, ColType, FieldType.SOURCE,
-						NullEable);
+				String tmp = "";
+				if (!a.get(6).equals("varchar(1234)")) {
+					String FieldNm = DbType.equals("TD")
+							? a.get(7).toString() : a.get(1).toString();
+					String DataType = (!DbType.equals("TD")) ? DataTypeTrans.TransByTd(a.get(2), DbType)
+							: TagType;
+					if (a.get(5).equals("pri")) {
+						tmp = FieldNm.length() > 3
+								&& FieldNm.substring(FieldNm.length() - 3, FieldNm.length()).equals("_OG") ? FieldNm
+										: "IN_" + FieldNm;
+						SourcePrimaryKeyList.add(tmp);
+						TargetPrimaryKeyList.add(a.get(1).toString());
+					}
+					Field field = new Field(FieldNm, FieldNm, "", DataType, len, precision, ColType, FieldType.SOURCE,
+							NullEable);
 
-				// Field OWNER=new
-				// Field("OWNER","OWNER","",NativeDataTypes.Oracle.VARCHAR2,"30","0",FieldKeyType.NOT_A_KEY,FieldType.SOURCE,false);
+					// com.exprotmeteexcel.utl.DateTran.DataTypeTrans.TransByTd
+					fields.add(field);
+				}
 
-				fields.add(field);
 				TableName = TableNm;
-				// System.out.println(DbType);
 			}
 
 		}
@@ -518,6 +837,12 @@ public abstract class Base {
 		}
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:19:35
+	 * @Description: main方法参数检查，0则输出XML文件，1则直接导入到PowerCenter Repository
+	 */
 	public void printUsage() {
 		String errorMsg = "***************** USAGE *************************\n";
 		errorMsg += "\n";

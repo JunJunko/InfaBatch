@@ -10,7 +10,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
+/** 
+ * π§æﬂ¿‡. 
+ *  
+ * @author wujunqing
+ * @date 2017-06-26 
+ */  
 public class Utl {
 
 	public static Properties getProperties(String path) {

@@ -1,8 +1,9 @@
 /bin/
 /shares_data/
-/lib/
-/xls
-/generaXml
-/xml
-/properties
-/target/
+/xml/
+/generaXml/
+/DDL/
+/xls/out/
+/properties/
+!/properties/businessconfig/DEMO.properties
+/logs/

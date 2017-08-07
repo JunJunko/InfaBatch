@@ -1,9 +1,9 @@
 package org;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.tools.ExcelUtil;
 
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
@@ -26,6 +26,10 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tools.ExcelUtil;
+
 /**
  * @author Junko
  * <p> 
@@ -41,7 +45,9 @@ public class ZipInit extends Base implements Parameter {
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
-	
+	protected final String  TablePrefix  = org.tools.GetProperties.getKeyValue("prefix");
+	protected static Log log = LogFactory.getLog(ZipInit.class);
+
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -62,8 +68,10 @@ public class ZipInit extends Base implements Parameter {
 	                expressionTrans.printUsage();
 	            }
 	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.err.println( "Exception is: " + e.getMessage() );
+	        	ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+	        	e.printStackTrace(new PrintStream(baos));  
+	        	String exception = baos.toString();  
+	        	log.error( exception);		
 	        }
 	    	
 	    	System.out.println(GetTableList());
@@ -202,7 +210,7 @@ public class ZipInit extends Base implements Parameter {
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H");
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, TablePrefix + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase()+"_H");
 	}
 
 	@Override

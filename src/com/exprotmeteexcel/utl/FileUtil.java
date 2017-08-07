@@ -16,6 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * 文件工具类
+ * 
+ * @author wujunqing
+ * @date 2017-06-26
+ */
 public class FileUtil {
 
 	// /**
@@ -54,17 +60,17 @@ public class FileUtil {
 		FileOutputStream out = null;
 		try {
 			file = new File(fileCatage);
-			if (!file.isDirectory())
+			if (!file.isDirectory()) {
 				file.mkdir();
-			else {
-				file = new File(fileCatage + fileName);
-				if (!file.exists()) {
-					file.createNewFile();
-				}
-				out = new FileOutputStream(file);
-				out.write(value.getBytes(code));
-				out.close();
 			}
+			file = new File(fileCatage + fileName);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			out = new FileOutputStream(file);
+			out.write(value.getBytes(code));
+			out.close();
+
 			successful = true;
 		} catch (IOException e) {
 			successful = false;
@@ -285,7 +291,7 @@ public class FileUtil {
 			line = reader.readLine(); // 读取第一行
 			while (line != null) { // 如果 line 为空说明读完了
 				buffer.append(line); // 将读到的内容添加到 buffer 中
-				// buffer.append("\n"); // 添加换行符
+				buffer.append("\n"); // 添加换行符
 				line = reader.readLine(); // 读取下一行
 			}
 			reader.close();
@@ -346,6 +352,89 @@ public class FileUtil {
 	}
 
 	/**
+	 * 获取某个目录下所有文件路径
+	 * 
+	 * @param file
+	 * @return List<String>
+	 */
+	public static List<String> getDirfile(File file) {
+		List<String> filelist = new ArrayList<String>();
+		// 判断文件是否存在
+		if (file.exists()) {
+			// 如果是目录则递归计算其内容的总大小
+			if (file.isDirectory()) {
+				File[] children = file.listFiles();
+				for (File f : children) {
+					filelist.add(f.getAbsolutePath());
+				}
+				return filelist;
+			}
+		} else {
+
+			return filelist;
+		}
+		return filelist;
+	}
+
+	/**
+	 * 获取某个目录下所有文件路径
+	 * 
+	 * @param file
+	 * @return List<String>
+	 */
+	public static List<String> getDirfile(File[] files) {
+		List<String> filelist = new ArrayList<String>();
+		for (File fe : files) {
+			filelist.addAll(getDirfile(fe));
+		}
+		return filelist;
+	}
+
+	/**
+	 * 获取某个目录下所有文件路径
+	 * 
+	 * @param file
+	 * @return List<String>
+	 */
+	public static List<String> getDirfileBySuffix(File file, String Suffix) {
+		List<String> filelist = new ArrayList<String>();
+		// 判断文件是否存在
+		if (file.exists()) {
+			// 如果是目录则递归计算其内容的总大小
+			if (file.isDirectory()) {
+				File[] children = file.listFiles();
+				String fileName = "";
+				for (File f : children) {
+					fileName = f.getAbsolutePath();
+					String suf = fileName.substring(fileName.lastIndexOf(".") + 1);
+					if (Suffix.equals(suf)) {
+						filelist.add(f.getAbsolutePath());
+					}
+				}
+				return filelist;
+			}
+		} else {
+
+			return filelist;
+		}
+		return filelist;
+	}
+
+	/**
+	 * 获取某个目录下所有文件路径
+	 * 
+	 * @param file
+	 * @return List<String>
+	 */
+	public static List<String> getDirfile(File[] files, String Suffix) {
+		List<String> filelist = new ArrayList<String>();
+		for (File fe : files) {
+			filelist.addAll(gatAllFileBySuffix(fe, Suffix));
+		}
+		return filelist;
+	}
+
+	/**
 	 * 获取某个目录下所有的文件的全路径和文件名的集合；
 	 * 
 	 * @return
@@ -366,7 +455,30 @@ public class FileUtil {
 		ret.add(allFileName);
 		return ret;
 	}
-	
+
+	public static List<String> gatAllFileBySuffix(File file, String Suffix) {
+		List<String> lt = new ArrayList<String>();
+		if (file.isDirectory())// 判断file是否是目录
+
+		{
+			File[] lists = file.listFiles();
+			if (lists != null) {
+				for (int i = 0; i < lists.length; i++) {
+					if (lists[i].isFile()) {
+
+						String fileName = lists[i].getAbsolutePath();
+						String suf = fileName.substring(fileName.lastIndexOf(".") + 1);
+						if (Suffix.equals(suf)) {
+							lt.add(lists[i].getAbsolutePath());
+						}
+					} else
+						lt.addAll(gatAllFileBySuffix(lists[i], Suffix));// 是目录就递归进入目录内再进行判断
+
+				}
+			}
+		}
+		return lt;
+	}
 
 	/**
 	 * 获取某个目录下所有的文件集合；
@@ -379,16 +491,35 @@ public class FileUtil {
 		List<String> ret = new ArrayList<String>();
 
 		for (int i = 0; i < files.length; i++) {
-			if (files[i].isFile()) {		
+			if (files[i].isFile()) {
 				ret.add(files[i].toString());
 			}
 		}
-	
 
 		return ret;
 	}
-	
-	
+
+	/**
+	 * 获取某个目录下所有的XML文件集合；
+	 * 
+	 * @return List
+	 */
+	public static List<String> getFileXml(String mulu) {
+		File file = new File(mulu);
+		File[] files = file.listFiles();
+		List<String> ret = new ArrayList<String>();
+
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isFile()) {
+				if (files[i].isFile()) {
+					ret.add(files[i].toString());
+				}
+
+			}
+		}
+
+		return ret;
+	}
 
 	public static boolean wirteProperty(String path, String keyname, String keyvalue) {
 		Properties prop = new Properties();// 属性集合对象
@@ -422,7 +553,19 @@ public class FileUtil {
 			e.printStackTrace();
 			return false;
 		}
-		System.out.println("获取修改后的属性值："+keyname+"=" + prop.getProperty(keyname));
+		System.out.println("获取修改后的属性值：" + keyname + "=" + prop.getProperty(keyname));
 		return true;
+	}
+	/**
+	 * 获取路径文件名
+	 * 
+	 * @return List
+	 */
+	public static String getfileName(String path) {
+		File tempFile = new File(path.trim());
+		String fileName = tempFile.getName();
+
+		// System.out.println("方法一：fileName = " + fileName);
+		return fileName;
 	}
 }

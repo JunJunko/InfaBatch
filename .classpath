@@ -2,25 +2,28 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/jlmapi.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/jmf.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/jmf-jaxb.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/log4j-1.2.8.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/pmserversdk.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-examples-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-excelant-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-ooxml-3.10-FINAL-20140208.jar" sourcepath="C:/Users/Administrator/.m2/repository/org/apache/poi/poi-ooxml/3.10-FINAL/poi-ooxml-3.10-FINAL-sources.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-ooxml-schemas-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/poi-scratchpad-3.10-FINAL-20140208.jar"/>
-	<classpathentry kind="lib" path="F:/work02/InfaBatch/lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc_license_cu.jar"/>
+	<classpathentry kind="lib" path="lib/db2jcc4.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/jlmapi.jar"/>
+	<classpathentry kind="lib" path="lib/jmf-jaxb.jar"/>
+	<classpathentry kind="lib" path="lib/jmf.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.39.jar"/>
+	<classpathentry kind="lib" path="lib/ojdbc6-11.2.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/pmserversdk.jar"/>
+	<classpathentry kind="lib" path="lib/poi-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="lib/poi-examples-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="lib/poi-excelant-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="lib/poi-scratchpad-3.10-FINAL-20140208.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.7.25.jar"/>
-	<classpathentry kind="lib" path="lib/ojdbc6-11.2.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/sqljdbc4-4.0.jar" sourcepath="C:/Users/Administrator/.m2/repository/com/hynnet/sqljdbc4-chs/4.0.2206.100/sqljdbc4-chs-4.0.2206.100-sources.jar"/>
+	<classpathentry kind="lib" path="lib/sqljdbc4-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/tdgssconfig.jar"/>
 	<classpathentry kind="lib" path="lib/terajdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.39.jar" sourcepath="C:/Users/Administrator/.m2/repository/mysql/mysql-connector-java/5.1.39/mysql-connector-java-5.1.39-sources.jar"/>
+	<classpathentry kind="lib" path="lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/myhelper-java-3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

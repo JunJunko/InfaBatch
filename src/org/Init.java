@@ -1,9 +1,9 @@
 package org;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.tools.ExcelUtil;
 
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
@@ -26,12 +26,19 @@ import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.exception.InvalidTransformationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tools.ExcelUtil;
+
+
 /**
- * @author Junko
- * <p> 
- * Description: 
- * 根据Excel配置表生成始初话逻辑的XML文件
- *
+* =============================================
+* @Copyright 2017上海新炬网络技术有限公司
+* @version：1.0.1
+* @author：Junko
+* @date：2017年7月11日上午11:52:07
+* @Description: 根据Excel配置表生成始初话逻辑的XML文件
+* =============================================
  */
 public class Init extends Base implements Parameter {
 
@@ -41,6 +48,8 @@ public class Init extends Base implements Parameter {
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
 	protected String SourceFolder = org.tools.GetProperties.getKeyValue("SourceFolder");
 	
+	protected final String  TablePrefix  = org.tools.GetProperties.getKeyValue("prefix");
+	protected static Log log = LogFactory.getLog(Init.class);
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -48,12 +57,8 @@ public class Init extends Base implements Parameter {
 	            Init expressionTrans = new Init();
 	            if (args.length > 0) {
 	                if (expressionTrans.validateRunMode( args[0] )) {
-//	                	ArrayList<String> a = GetTableList();
-//	                	org.tools.DelXmlFolder.delAllFile("D:\\workspace\\Uoo\\xml\\");
-//	                	for(int i = 0; i < a.size(); i++){
-	                		
+//	                	
 	                		org.tools.GetProperties.writeProperties("TableNm", args[1]);
-//	                		System.out.println(org.tools.GetProperties.getKeyValue("org.tools.GetProperties.getKeyValue("TableNm")"));
 	                        expressionTrans.execute();
 //	                	}
 	                }
@@ -61,8 +66,10 @@ public class Init extends Base implements Parameter {
 	                expressionTrans.printUsage();
 	            }
 	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.err.println( "Exception is: " + e.getMessage() );
+	        	ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+	        	e.printStackTrace(new PrintStream(baos));  
+	        	String exception = baos.toString();  
+	        	log.error( exception);
 	        }
 	    	
 	    	System.out.println(GetTableList());
@@ -70,6 +77,13 @@ public class Init extends Base implements Parameter {
 
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSession()
+	 * @date: 2017年7月11日上午11:52:19 
+	 * @Description: 生成PWC的Session
+	 */
 	@Override
 	public void createSession() {
 		// TODO Auto-generated method stub
@@ -126,6 +140,14 @@ public class Init extends Base implements Parameter {
 
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createMappings()
+	 * @date: 2017年7月11日上午11:52:34 
+	 * @Description: 生成PWC的Mapping
+	 * @throws Exception
+	 */
 	@Override
 	protected void createMappings() throws Exception {
 		// TODO Auto-generated method stub
@@ -177,6 +199,12 @@ public class Init extends Base implements Parameter {
 
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:52:45 
+	 * @Description: 配置Session的属性信息
+	 */
 	public void setSourceTargetProperties() {
 		// TODO Auto-generated method stub
 
@@ -185,6 +213,13 @@ public class Init extends Base implements Parameter {
 
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSources()
+	 * @date: 2017年7月11日上午11:54:13 
+	 * @Description: 生成PWC的Sources
+	 */
 	@Override
 	protected void createSources() {
 		// TODO Auto-generated method stub
@@ -193,13 +228,28 @@ public class Init extends Base implements Parameter {
 		folder.addSource(employeeSrc);
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createTargets()
+	 * @date: 2017年7月11日上午11:54:37 
+	 * @Description: 生成PWC的Target
+	 */
 	@Override
 	protected void createTargets() {
 		// TODO Auto-generated method stub
 
-		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
+		TdTarget = this.createRelationalTarget(SourceTargetType.Teradata, TablePrefix + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase());
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createWorkflow()
+	 * @date: 2017年7月11日上午11:54:47 
+	 * @Description: 生成PWC的Workflow
+	 * @throws Exception
+	 */
 	@Override
 	protected void createWorkflow() throws Exception {
 		// TODO Auto-generated method stub
@@ -210,6 +260,13 @@ public class Init extends Base implements Parameter {
 		folder.addWorkFlow(workflow);
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:54:56 
+	 * @Description: 取出Excel配置文件里面的表名和入仓逻辑
+	 * @return
+	 */
 	public static ArrayList<String> GetTableList() {
 		// TODO Auto-generated method stub
 		ArrayList<String> TL = new ArrayList<String> ();

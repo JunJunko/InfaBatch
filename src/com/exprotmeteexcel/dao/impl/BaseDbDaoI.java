@@ -2,7 +2,6 @@ package com.exprotmeteexcel.dao.impl;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.dao.BaseDbDao;
@@ -40,7 +39,7 @@ public abstract class BaseDbDaoI implements BaseDbDao {
 	protected int BatchSize = 5000;
 	protected String DRIVER;
 
-	private static final Logger log = LoggerFactory.getLogger(BaseDbDaoI.class);
+	private static final Log log = LogFactory.getLog(BaseDbDaoI.class);
 
 	/**
 	 * ªÒ jdbc¡¨Ω”

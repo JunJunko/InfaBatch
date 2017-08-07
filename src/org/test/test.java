@@ -1,6 +1,13 @@
 package org.test;
 
+import java.io.File;
 import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.tools.ExcelUtil;
+
+import com.exprotmeteexcel.utl.DateTran.DataTypeTrans;
 
 public class test {
 	
@@ -17,15 +24,16 @@ public class test {
 	}
 
 	public static void main(String[] args) {
-		char [] b = {'a', 's', '1'};
- 		StringTest a = new StringTest(b);
- 		String c = new String(b);
-		System.out.println(a);
-		System.out.println(c);
-		stringTes1t();
-		
-		String j = "a";
-	    System.out.println(j.compareTo("bbbbuuuuuuuuuuuuuuuuuuuub"));
+//		ArrayList<ArrayList<String>> TableConf = ExcelUtil
+//				.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
+//	    System.out.println(TableConf);
+        File a = new File("xml\\InitXml");		
+        System.out.println(a.listFiles());		
+        File fa[] = a.listFiles();
+        for (int i = 0; i < fa.length; i++) {
+        	File l = fa[i];
+        	System.out.println(l.getName());
+        }
 	}
             
 }

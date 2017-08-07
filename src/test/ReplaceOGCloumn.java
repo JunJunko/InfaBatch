@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class ReplaceOGCloumn {
 
 	public static String readToString(String fileName) {
@@ -46,7 +47,7 @@ public class ReplaceOGCloumn {
 
 			String ConReg = ".*CONNECTOR.*"; // 判断字符串中是否含有CONNECTOR
 			String Conregex = "TOFIELD =\"(.*?)\"";
-			// String TableNM = "TOINSTANCE =\"(.*?)\"";
+//			String TableNM = "TOINSTANCE =\"(.*?)\"";
 			String TableNM = ".*FROMINSTANCE =\"SQ_(.*?)\".*";
 			String TransType = ".*FROMINSTANCE =\"SQ_.*";
 			String SYS = "WECHAT";
@@ -54,7 +55,7 @@ public class ReplaceOGCloumn {
 			while ((line = bufReader.readLine()) != null) {
 
 				if (line.matches(ConReg) && line.matches(TransType)) {
-					System.out.println(line);
+					 System.out.println(line);
 					Pattern pattern = Pattern.compile(Conregex);
 					Pattern pattern2 = Pattern.compile(TableNM);
 
@@ -64,7 +65,7 @@ public class ReplaceOGCloumn {
 					if (m1.find() && m2.find()) {
 						String ReplaceStr = m1.group(1);
 						String TBNM = m2.group(1);
-						// System.out.println(TBNM);
+//						System.out.println(TBNM);
 						// System.out.println(ReplaceStr);
 						// System.out.println("第" + i + "行：" + sourceStrArray);
 						// System.out.println(line.replaceAll("TOFIELD=\"(.*?)_out2\"",
@@ -84,12 +85,11 @@ public class ReplaceOGCloumn {
 									.replaceAll(" TOFIELD =\".*?\"", " TOFIELD =\"" + ReplaceStr + "_OG" + "\"")
 									.replace("md5_T", "")
 									.replaceAll("TOINSTANCE =\".*?\"",
-											"TOINSTANCE =\"O_" + SYS + "_" + TBNM.replace("SRT", "").toUpperCase()
-													+ "\"")
+											"TOINSTANCE =\"O_"+SYS+"_" + TBNM.replace("SRT", "").toUpperCase()+"\"")
 									.replace("TOINSTANCETYPE =\"Expression\"", "TOINSTANCETYPE =\"Target Definition\"");
 							Data.append(a);
 							// System.out.println(line);
-							// System.out.println(a);
+//							System.out.println(a);
 							Data.append("\n");
 						} else {
 							Data.append(line + "\n");
@@ -133,7 +133,7 @@ public class ReplaceOGCloumn {
 		// TODO Auto-generated method stub
 
 		writeLog(ReplaceColumnNm("F:\\g工作资料\\shsnc\\无限极\\check_xml\\ALL_QQSURVEY_INITIALIZATION.XML"));
-		// System.out.println(ReplaceColumnNm("F:\\g工作资料\\shsnc\\无限极\\check_xml\\ALL_QQSURVEY_INITIALIZATION.XML"));
+//		 System.out.println(ReplaceColumnNm("F:\\g工作资料\\shsnc\\无限极\\check_xml\\ALL_QQSURVEY_INITIALIZATION.XML"));
 	}
 
 }

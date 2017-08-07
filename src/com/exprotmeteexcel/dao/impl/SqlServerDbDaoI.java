@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.exprotmeteexcel.bean.MateBean;
 import com.exprotmeteexcel.utl.global.SQLGlobal;
@@ -23,7 +23,7 @@ import com.exprotmeteexcel.utl.global.SQLGlobal;
  */
 public class SqlServerDbDaoI extends BaseDbDaoI {
 
-	private static final Logger log = LoggerFactory.getLogger(OracleDbDaoI.class);
+	private static final Log log = LogFactory.getLog(OracleDbDaoI.class);
 
 	/**
 	 * 构造方法

@@ -1,5 +1,8 @@
 package org;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 /*
  * Joiner.java Created on Nov 4, 2005.
  *
@@ -11,8 +14,7 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-import org.tools.ExcelUtil;
-
+import com.informatica.metadata.common.datarecord.Field;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionInfo;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionProperties;
 import com.informatica.powercenter.sdk.mapfwk.connection.ConnectionPropsConstants;
@@ -32,51 +34,76 @@ import com.informatica.powercenter.sdk.mapfwk.core.TransformField;
 import com.informatica.powercenter.sdk.mapfwk.core.TransformHelper;
 import com.informatica.powercenter.sdk.mapfwk.core.TransformationProperties;
 import com.informatica.powercenter.sdk.mapfwk.core.Workflow;
+import com.informatica.powercenter.sdk.mapfwk.exception.InvalidInputException;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContext;
 import com.informatica.powercenter.sdk.mapfwk.portpropagation.PortPropagationContextFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tools.ExcelUtil;
+
 /**
- * @author Junko
- * <p> 
- * Description: 
- * 根据Excel配置表生成校验逻辑的XML文件
- *
+ * =============================================
+ * 
+ * @Copyright 2017上海新炬网络技术有限公司 @version：1.0.1
+ * @author：Junko
+ * @date：2017年7月11日上午11:39:10
+ * @Description: 根据Excel配置表生成校验逻辑的XML文件
+ *               =============================================
  */
 public class Check extends Base implements Parameter {
 	protected Target outputTarget;
 
 	protected Source ordersSource;
-
+	protected final String TablePrefix = org.tools.GetProperties.getKeyValue("prefix");
 	protected Source orderDetailsSource;
-
+	protected final static List<String> Keyword = org.tools.RePlaceOG.OG();
 	protected static ArrayList<ArrayList<String>> TableConf = ExcelUtil
 			.readExecl(org.tools.GetProperties.getKeyValue("ExcelPath"));
+	protected static Log log = LogFactory.getLog(Check.class);
 
 	// protected String System = Platfrom;
 
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Source
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSources()
+	 * @date: 2017年7月11日上午11:39:57
+	 * @Description: 根据Excel配置信息生成一个PWC的Source
 	 */
 	protected void createSources() {
-		ordersSource = this.CheckSouce("O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"),
-				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType);
+		ordersSource = this.CheckSouce(TablePrefix + org.tools.GetProperties.getKeyValue("TableNm"),
+				org.tools.GetProperties.getKeyValue("TDFolder"), TagDBType,
+				org.tools.GetProperties.getKeyValue("TableNm"));
 		folder.addSource(ordersSource);
 
 		orderDetailsSource = this.CheckSouce(org.tools.GetProperties.getKeyValue("TableNm"),
-				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType);
+				org.tools.GetProperties.getKeyValue("SourceFolder"), DBType,
+				org.tools.GetProperties.getKeyValue("TableNm"));
 		folder.addSource(orderDetailsSource);
+
 	}
 
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Target
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createTargets()
+	 * @date: 2017年7月11日上午11:40:06
+	 * @Description: 根据Excel配置信息生成一个PWC的Target
 	 */
 	protected void createTargets() {
 		outputTarget = this.createRelationalTarget(SourceTargetType.Teradata,
-				"O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK");
+				TablePrefix + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK");
 	}
 
+	/**
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createMappings()
+	 * @date: 2017年7月11日上午11:49:10
+	 * @Description: 根据Excel配置信息生成一个PWC的Mappings
+	 * @throws Exception
+	 */
 	protected void createMappings() throws Exception {
 		mapping = new Mapping(
 				"M_CHECK_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK",
@@ -84,6 +111,13 @@ public class Check extends Base implements Parameter {
 
 		setMapFileName(mapping);
 		TransformHelper helper = new TransformHelper(mapping);
+		for (int i = 0; i < ordersSource.getFields().size(); i++) {
+			String tmp = ordersSource.getFields().get(i).getName();
+			if (tmp.length() > 3)
+				if (tmp.substring(tmp.length() - 3, tmp.length()).equals("_OG"))
+					//
+					ordersSource.getField(tmp).setName("IN_" + tmp);
+		}
 
 		// Pipeline - 1
 		// 导入目标的sourceQualifier
@@ -93,34 +127,57 @@ public class Check extends Base implements Parameter {
 		// // 导入源的sourceQualifier
 
 		RowSet SouSQ = (RowSet) helper.sourceQualifier(ordersSource).getRowSets().get(0);
+
 		//
 
 		// 增加MD5
 		ArrayList<String> AllPort = new ArrayList<String>();
 
-		for (int i = 0; i < TableConf.size(); i++) {
-			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
-				if (TableConf.get(i).get(2).substring(0, TableConf.get(i).get(2).toString().indexOf("(")).toUpperCase()
-						.equals("CHAR")) {
-					AllPort.add("rtrim(" + TableConf.get(i).get(1) + ")");
+		for (int i = 0; i < SouSQ.getFields().size(); i++) {
+			if (SouSQ.getFields().get(i).getDataType().equals("char")) {
+
+					AllPort.add("rtrim(" + SouSQ.getFields().get(i).getName() + ")");
+				
 				} else {
-					AllPort.add(TableConf.get(i).get(1));
-				}
+					AllPort.add(SouSQ.getFields().get(i).getName());
+				
 			}
 
 		}
-		List<TransformField> transFieldsMD5 = new ArrayList<TransformField>();
-		String expMD5 = "string(50, 0) MD5ALL = md5("
+		List<TransformField> transFieldsMD5_S = new ArrayList<TransformField>();
+		String expMD5_S = "string(50, 0) MD5ALL = md5("
 				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
-		TransformField outFieldMD5 = new TransformField(expMD5);
-		transFieldsMD5.add(outFieldMD5);
+		TransformField outFieldMD5_S = new TransformField(expMD5_S);
+		
+		transFieldsMD5_S.add(outFieldMD5_S);
 
 		RowSet expRowSetMD5_S = (RowSet) helper
-				.expression(SouSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
+				.expression(SouSQ, transFieldsMD5_S, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_S")
 				.getRowSets().get(0);
+		
+		AllPort.clear();
+		for (int i = 0; i < SouSQ.getFields().size(); i++) {
+//			if (TableConf.get(i).get(0).equals(org.tools.GetProperties.getKeyValue("TableNm"))) {
+				if (TagSQ.getFields().get(i).getDataType().equals("char")) {
+					AllPort.add("rtrim(" + TagSQ.getFields().get(i).getName() + ")");
+					
+				} else {
+					AllPort.add(TagSQ.getFields().get(i).getName());
+					
+//				}
+			}
+		}
+		
+		List<TransformField> transFieldsMD5_T = new ArrayList<TransformField>();
+		String expMD5_T = "string(50, 0) MD5ALL = md5("
+				+ AllPort.toString().replace("[", "").replace("]", "").replace(",", "||") + ")";
+		TransformField outFieldMD5_T = new TransformField(expMD5_T);
+		
+		transFieldsMD5_T.add(outFieldMD5_T);
+		
 
 		RowSet expRowSetMD5_T = (RowSet) helper
-				.expression(TagSQ, transFieldsMD5, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
+				.expression(TagSQ, transFieldsMD5_T, "EXP_" + org.tools.GetProperties.getKeyValue("TableNm") + "md5_T")
 				.getRowSets().get(0);
 
 		// 将md5之后进来的数据进行排序
@@ -131,7 +188,7 @@ public class Check extends Base implements Parameter {
 
 		RowSet SouSort = helper
 				.sorter(expRowSetMD5_S, new String[] { IDColunmNM }, new boolean[] { false },
-						"SRT_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"))
+						"SRT_" + TablePrefix + org.tools.GetProperties.getKeyValue("TableNm") + "1")
 				.getRowSets().get(0);
 
 		InputSet SouInputSet = new InputSet(SouSort);
@@ -202,13 +259,14 @@ public class Check extends Base implements Parameter {
 					sb = "String(50,0)";
 					break;
 				}
-				
-			
-				if (a.get(1) != null && !a.get(1).equals("ROW_ID")) {
+String tmp = "";
+				if (!a.get(5).equals("pri")) {
+					tmp = Keyword.contains(a.get(1))? "IN_" + a.get(1)+"_OG": "IN_" + a.get(1);
 					if (Column == "") {
-						Column = /* a.get(1) + "," + */ "IN_" + a.get(1);
+//						System.out.println(arg0);
+						Column = /* a.get(1) + "," + */ tmp;
 					} else {
-						Column = Column/* + "," + a.get(1) */ + "," + "IN_" + a.get(1);
+						Column = Column/* + "," + a.get(1) */ + "," + tmp;
 					}
 				}
 
@@ -224,12 +282,7 @@ public class Check extends Base implements Parameter {
 		String[] strArray = null;
 		strArray = Column.split(",");
 
-		PortPropagationContext exclOrderID2 = PortPropagationContextFactory.getContextForExcludeColsFromAll(strArray); // exclude
-																														// OrderCost
-																														// while
-																														// writing
-																														// to
-																														// target
+		PortPropagationContext exclOrderID2 = PortPropagationContextFactory.getContextForExcludeColsFromAll(strArray);
 
 		InputSet joinInputSet2 = new InputSet(expRowSet, exclOrderID2);
 
@@ -243,6 +296,17 @@ public class Check extends Base implements Parameter {
 
 		// write to target
 		mapping.writeTarget(new InputSet(filterRS, exclOrderID2), outputTarget);
+		//
+		// ordersSource.getField("IN_ACOSH_OG").setName("ACOSH_OG");
+		for (int i = 0; i < ordersSource.getFields().size(); i++) {
+			String tmp = ordersSource.getFields().get(i).getName();
+			if (tmp.length() > 3)
+				if (tmp.substring(0, 3).equals("IN_"))
+					ordersSource.getField(tmp).setName(tmp.substring(3, tmp.length()));
+		}
+		// SouSQ = (RowSet)
+		// helper.sourceQualifier(ordersSource).getRowSets().get(0);
+
 		// 增加参数
 		MappingVariable mappingVar = new MappingVariable(MappingVariableDataTypes.STRING, "0",
 				"mapping variable example", true, "$$PRVS1D_CUR_DATE", "20", "0", true);
@@ -253,18 +317,22 @@ public class Check extends Base implements Parameter {
 	}
 
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Workflow
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createWorkflow()
+	 * @date: 2017年7月11日上午11:49:36
+	 * @Description: 根据Excel配置信息生成一个PWC的Workflow
+	 * @throws Exception
 	 */
 	protected void createWorkflow() throws Exception {
 
 		workflow = new Workflow(
 				"WF_CHECK_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase(),
 				"WF_" + org.tools.GetProperties.getKeyValue("TableNm").toUpperCase() + "_CK",
-				"This workflow for joiner");
+				"");
 		workflow.addSession(session);
-		workflow.assignIntegrationService(org.tools.GetProperties.getKeyValue("Integration"),
-				org.tools.GetProperties.getKeyValue("Domain"));
+		workflow.assignIntegrationService(org.tools.GetProperties.getPubKeyValue("Integration"),
+				org.tools.GetProperties.getPubKeyValue("Domain"));
 
 		folder.addWorkFlow(workflow);
 
@@ -283,27 +351,34 @@ public class Check extends Base implements Parameter {
 				joinerTrans.printUsage();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Exception is: " + e.getMessage());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+			e.printStackTrace(new PrintStream(baos));  
+			String exception = baos.toString();  
+			log.error( exception);	
 		}
 
 	}
 
 	/**
-	 * @author    Junko
-	 * @since     根据属性文件的信息配置源的owner
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @date: 2017年7月11日上午11:50:10
+	 * @Description: 根据属性文件的信息配置源的owner
 	 */
 	private void setSourceTargetProperties() {
 
-		
 		this.orderDetailsSource.setSessionTransformInstanceProperty("Owner Name",
 				org.tools.GetProperties.getKeyValue("Owner"));
 
 	}
 
 	/**
-	 * @author    Junko
-	 * @since     根据Excel配置信息生成一个PWC的Session
+	 * @version: 1.0.1
+	 * @author: Junko
+	 * @see org.Base#createSession()
+	 * @date: 2017年7月11日上午11:50:19
+	 * @Description: 根据Excel配置信息生成一个PWC的Session
+	 * @throws Exception
 	 */
 	protected void createSession() throws Exception {
 		// TODO Auto-generated method stub
@@ -331,14 +406,22 @@ public class Check extends Base implements Parameter {
 		// Overriding source connection in Seesion level
 		ConnectionInfo SrcConOra = new ConnectionInfo(SourceTargetType.Oracle);
 		SrcConOra.setConnectionVariable(org.tools.GetProperties.getKeyValue("Connection"));
-		DSQTransformation dsq = (DSQTransformation) mapping
-				.getTransformation("SQ_" + org.tools.GetProperties.getKeyValue("TableNm"));
-		session.addConnectionInfoObject(dsq, SrcConOra);
+		String SourceTransformation = TablePrefix.length() == 0
+				? "SQ_" + org.tools.GetProperties.getKeyValue("TableNm") + 1
+				: "SQ_" + org.tools.GetProperties.getKeyValue("TableNm");
+		DSQTransformation dsq = (DSQTransformation) mapping.getTransformation(SourceTransformation);
+
+		try {
+			session.addConnectionInfoObject(dsq, SrcConOra);
+		} catch (InvalidInputException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		ConnectionInfo SrcConTD = new ConnectionInfo(SourceTargetType.Teradata_PT_Connection);
 		SrcConTD.setConnectionVariable(TDConnExport);
 		DSQTransformation Tdsq = (DSQTransformation) mapping
-				.getTransformation("SQ_" + "O_" + Platfrom + "_" + org.tools.GetProperties.getKeyValue("TableNm"));
+				.getTransformation("SQ_" + TablePrefix + org.tools.GetProperties.getKeyValue("TableNm"));
 
 		session.addConnectionInfoObject(Tdsq, SrcConTD);
 		// session.addConnectionInfoObject(jobSourceObj, newSrcCon);
